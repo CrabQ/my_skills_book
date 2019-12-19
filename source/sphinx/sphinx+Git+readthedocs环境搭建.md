@@ -67,7 +67,7 @@ sphinx
 ```
 ## Git
 初始化git仓库,添加文件`.gitignore`并推送到github
-> [托管到github.md](https://my-skills-book.readthedocs.io/en/latest/Git/%E6%89%98%E7%AE%A1%E5%88%B0github.html)
+> [托管到github](https://my-skills-book.readthedocs.io/en/latest/Git/%E6%89%98%E7%AE%A1%E5%88%B0github.html)
 ```python
 # .gitignore
 
