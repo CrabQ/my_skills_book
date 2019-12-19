@@ -1,6 +1,6 @@
-### git学习笔记
+# git学习笔记
 > [廖雪峰的Git教程](https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000)
-#### 基础
+## 基础
 
 ```python
 # 初始化git仓库
@@ -78,7 +78,7 @@ git stash pop
 git stash apply stash@{0}
 
 ```
-#### 分支
+## 分支
 > 合并dev分支，--no-ff参数，表示禁用Fast forward，简单地说就是 -no-ff 模式进行了一次新的 git commit 操作。合并分支时，加上--no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并。而fast forward合并就看不出来曾经做过合并，它是直接把 master 的指针直接指向了 dev 分支的最新提交。
 ```python
 # 查看当前分支 
@@ -113,13 +113,13 @@ git push --set-upstream origin dev
 
 # 基于远程分支创建本地分支,本地和远程分支的名称最好一致
 git checkout -b dev origin/dev
-  
+
 # 建立本地分支和远程分支的关联
 # git branch --set-upstream-to=origin/远程分支的名字 本地分支的名字
 git branch --set-upstream-to=origin/dev dev
 ```
 
-#### 标签
+## 标签
 > 创建的标签都只存储在本地，不会自动推送到远程
 ```python
 # 新建标签v1.0,默认为HEAD,也可以指定一个commit id
@@ -150,7 +150,7 @@ git tag -d v1.5
 git push origin :refs/tags/v1.5
 ```
 
-#### 忽略文件
+## 忽略文件
 > 忽略某些文件时，在Git工作区的根目录下创建一个特殊的`.gitignore`文件，`.gitignore`文件本身要放到版本库里，并且可以对.gitignore做版本管理！
 
 ```python
