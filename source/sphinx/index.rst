@@ -5,4 +5,4 @@ sphinx
    :maxdepth: 2
    :glob:
 
-   sphinx
+   sphinx+Git+readthedocs环境搭建

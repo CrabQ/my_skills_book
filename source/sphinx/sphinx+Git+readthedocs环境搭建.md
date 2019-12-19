@@ -1,4 +1,4 @@
-# sphinx+Git+readthedocs
+# sphinx+Git+readthedocs环境搭建
 ## sphinx
 安装sphinx
 ```python
@@ -72,4 +72,12 @@ sphinx
 
 _build/*
 build/*
+```
+
+## readthedocs
+注册帐号,关联github,直接import项目
+```python
+# 如果readthedocs build的过程报错: contents.rst not found
+# source/conf.py,配置文件添加如下内容
+master_doc = 'index'
 ```
