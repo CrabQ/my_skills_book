@@ -1,0 +1,236 @@
+/*css by ninja33   2018.04.27    */
+body{
+  font-family:"Segoe UI", Arial, "Microsoft Yahei", sans-serif;
+}
+.wordf {
+  color: #172626;
+  display: inline;
+  padding-left: 8px;
+  padding-right: 8px;
+  box-shadow: #808080;
+ }
+
+.word_header_word{
+  display:none;
+}
+
+.word_header_star{
+  color: #FFBB00;
+}
+.word_header{
+  margin-top: 10px;
+  padding: 3px 8px;
+  border-top: 1px solid #ddd;
+  background-color: #f5f5f5;
+}
+
+.part_list{
+  line-height: 1.4em;
+  padding: 8px 12px;
+  border-top: 1px dotted #ddd;
+  border-bottom: 1px dotted #ddd;
+}
+
+.part_list ul li{
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 19px;
+  color: #000;
+  display: block;
+}
+
+.break_bar{
+  line-height: 24px;
+  margin: 10px 0 0 0;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  box-shadow: #808080
+}
+
+.part_list_d{
+  margin: 0;
+  padding: 1px 18px;
+  border-radius: 0px 8px 1px 0px;
+  float: left;
+  font-weight: bold;
+}
+.part_number{
+  color:#FFFFFF;
+  font-size: 14px;
+}
+
+.explanation_item .en_tip{
+  padding-left: 4px;
+  border: 1px solid #AEAEAE;
+  padding-right: 0;
+  padding-bottom: 4px;
+  border-radius: 6px;
+  margin: 2px 3px 4px 3px;
+  box-shadow: #808080
+}
+
+.explanation_item .en_tip .text_blue {
+  color: #4682B4;
+  font-size: 14px;
+  padding-left: 4px;
+  box-shadow: #808080
+}
+
+.explanation_item > ul > li.en_tip > ul > li > p.sentence_en > span {
+  color: #000000;
+  font-weight: bold
+}
+
+.explanation_item ul .en_tip .vli li{
+  padding-left: 15px;
+  margin-left: 0;
+  border-left-width: 0;
+}
+
+.en_tip p{
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 19px;
+  margin: 0;
+  padding: 0;
+}
+.explanation_item{
+  margin-bottom: 10px;
+  border-top: 1px solid black;
+  background-color: #f5f5f5;
+}
+.explanation_box{
+    padding: 8px;
+}
+.item_number{
+  display: none;
+}
+
+.item_number a {
+  color: #0d47a1;
+  text-decoration: none;
+}
+
+.explanation_label{
+  font-size: 0.8em;
+}
+
+.explanation_box .text_blue{
+  line-height: 1.4em;
+  color: #22558a;
+  padding-left: 4px;
+}
+
+li .sentence_en .text_blue {
+  font-weight: bold;
+}
+
+.explanation_item ul:empty{
+  padding:0;
+  margin:0;
+}
+
+.explanation_item ul{
+  font-size: 0.8em;
+  margin: 0 0 8px;
+  padding: 3px 0;
+  list-style: square inside;
+  border-top: 1px solid #ddd;
+}
+
+.explanation_item ul li{
+  padding: 5px 10px;
+}
+
+.sentence_en{
+  padding: 2px 0;
+}
+
+.explanation_item ul li p{
+  display:inline;
+}
+
+.explanation_item ul li p+p {
+  color: #22558a;
+  margin-left:5px;
+}
+
+.vExplain_s{
+ padding-left: 6px;
+ padding-right: 4px;
+ font-size: 14px
+}
+
+.explanation_box  dt{
+    margin-left: 40px;
+}
+.vEn_tip{
+    padding-left: 4px;
+    padding-top: 6px;
+    border: 1px dotted #010509;
+    border-radius: 4px;
+    padding-bottom: 6px;
+    margin: 6px;
+    box-shadow: #808080;
+    font-size: 16px
+    }
+.vEn_tip p
+ {
+     margin-top: 4;
+     border-bottom-width: 0;
+     margin-bottom: 0
+ }
+.vExplain_r{
+  margin-bottom: 10px;
+  padding: 8px 0;
+  border-top: 1px solid black;
+  background-color: #f5f5f5;
+}
+
+.vExplain_r .text_blue{
+    padding-left: 6px;
+}
+
+.vExplain_r ul{
+  font-size: 0.8em;
+  margin: 0 0 8px;
+  padding: 3px 0;
+  list-style: square inside;
+}
+
+.vExplain_r ul li{
+  padding: 5px 10px;
+}
+
+.vExplain_r ul li+li{
+  display:none;
+}
+
+.vExplain_r ul li p{
+  display:inline;
+}
+
+.vExplain_r .sentence_en{
+    padding-top: 2px 0;
+}
+.vExplain_r .sentence_en .text_blue{
+}
+
+.word_gram{
+    display: inline;
+    font-size: 0.8em
+}
+.word_gram div {
+     display: inline
+ }
+ 
+ .seealso {
+  display:none;
+  padding-left: 4px;
+  box-shadow: #808080
+ }
+ 
+.p1122 {
+  display: inline;
+  padding-left: 4px;
+ }
