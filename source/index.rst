@@ -12,6 +12,7 @@ Welcome to my_skills_book's documentation!
 
    sphinx/index
    Git/index
+   databases/index
    English/index
    anki/index
 
