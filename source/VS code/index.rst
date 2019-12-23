@@ -5,5 +5,5 @@ VS code
    :maxdepth: 2
    :glob:
 
-   VS code插件安装
+   VS code配置
 
