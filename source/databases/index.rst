@@ -5,5 +5,6 @@
    :maxdepth: 2
    :glob:
 
-   mysql/index
+   Mysql/index
    Mongodb/index
+   Redis/index
