@@ -11,6 +11,7 @@ Welcome to my_skills_book's documentation!
    :glob:
 
    sphinx/index
+   Python/index
    Git/index
    databases/index
    Linux/index
