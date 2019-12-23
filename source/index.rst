@@ -13,9 +13,11 @@ Welcome to my_skills_book's documentation!
    sphinx/index
    Git/index
    databases/index
+   re/index
    English/index
    VS code/index
    anki/index
+   others/index
 
 
 Indices and tables
