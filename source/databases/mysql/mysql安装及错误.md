@@ -1,6 +1,6 @@
-# mysql_安装及错误
+# mysql安装及错误
 
-## win 10 安装mysql
+## win 10安装mysql
 
 安装（bin目录)
 
