@@ -13,6 +13,7 @@ Welcome to my_skills_book's documentation!
    sphinx/index
    Git/index
    databases/index
+   Linux/index
    re/index
    Markdown/index
    VS code/index
