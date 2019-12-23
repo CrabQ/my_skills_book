@@ -17,6 +17,7 @@ Welcome to my_skills_book's documentation!
    re/index
    Markdown/index
    VS code/index
+   Windows/index
    English/index
    anki/index
    others/index
