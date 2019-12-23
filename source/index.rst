@@ -14,6 +14,7 @@ Welcome to my_skills_book's documentation!
    Git/index
    databases/index
    English/index
+   VS code/index
    anki/index
 
 
