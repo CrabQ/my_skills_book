@@ -370,4 +370,3 @@ Object Oriented Programming(OOP)
     Python中一切皆对象,函数也可以当做参数传递
     装饰器是接受函数作为参数,添加功能后返回一个新函数的函数(类)
     Python中通过@使用装饰器
-
