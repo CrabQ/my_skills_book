@@ -25,20 +25,20 @@ f.close()
 
 ```python
 
-从对象内存地址方向来说
-
-可变数据类型：在内存地址不变的情况下，值可改变（列表和字典还有集合是可变类型，但是字典中的 key 值必须是不可变类型）
-不可变数据类型：内存改变，值也跟着改变。（数字，字符串，布尔类型，都是不可变类型）可以通过 id() 方法进行内存地址的检测
+不可变对象 bool/int/float/tuple/str/frozenset
+可变对象 list/set/dict
+默认参数只计算一次
+id() 方法进行内存地址的检测
 ```
 
 ## python获取当前日期
 
 ```python
 import time
-time.strftime('%Y-%m-%d')
+time.localtime()
 
 import datetime
-print(datetime.datetime.now())
+datetime.datetime.now()
 ```
 
 ## 统计字符串每个单词出现的次数
@@ -46,7 +46,7 @@ print(datetime.datetime.now())
 ```python
 a = 'sldjgslsljhgowegpwjrho[pjdglsj'
 for i in set(a):
-print(i + ':' + str(a.count(i)))
+    print(f'{i}:{str(a.count(i))}')
 ```
 
 ## 用 python 删除文件和用 linux 命令删除文件方法
@@ -62,20 +62,20 @@ rm -rf file
 ## 写一段自定义异常代码
 
 ```python
-class TryError(Exception):
-def __init__(self, info):
-    super(TryError, self).__init__()
-    self.info = info
+class MyExcepiton(Exception):
 
-def __str__(self):
-    return self.info
+    def __init__(self, info):
+        super(MyExcepiton, self).__init__()
+        self.info = info
 
+    def __str__(self):
+        return self.info
 
 if __name__ == '__main__':
-try:
-    raise TryError('error')
-except  TryError as e:
-    print(e)
+    try:
+        raise MyExcepiton('test my exception')
+    except MyExcepiton as e:
+        print(e)
 ```
 
 ## 举例说明异常模块中 try except else finally 的相关意义
