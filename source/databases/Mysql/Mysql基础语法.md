@@ -328,4 +328,31 @@ select u.id,u.username,u.email,u.sex, p.proname
 from cms_user as u
 right join provinces as p on
 p.id=u.proid;
+
+
+-- 创建部门表department(主表)
+CREATE TABLE IF NOT EXISTS department(
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+depName VARCHAR(20) NOT NULL UNIQUE
+)ENGINE=INNODB;
+
+INSERT department(depName) VALUES('教学部'),
+('市场部'),
+('运营部'),
+('督导部');
+
+-- 创建员工表employee(子表)
+-- id ,username ,depId
+CREATE TABLE IF NOT EXISTS employee(
+id SMALLINT UNSIGNED AUTO_INCREMENT KEY,
+username VARCHAR(20) NOT NULL UNIQUE,
+depId TINYINT UNSIGNED,
+FOREIGN KEY(depId) REFERENCES department(id) ON DELETE SET NULL ON UPDATE SET NULL
+)ENGINE=INNODB;
+
+INSERT employee(username,depId) VALUES('king',1),
+('queen',2),
+('张三',3),
+('李四',4),
+('王五',1);
 ```
