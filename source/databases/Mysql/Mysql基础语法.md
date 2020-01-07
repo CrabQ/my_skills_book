@@ -355,4 +355,146 @@ INSERT employee(username,depId) VALUES('king',1),
 ('张三',3),
 ('李四',4),
 ('王五',1);
+
+-- 联合查询
+select username from employee union select username from cms_user;
+-- union all不会过滤重复数据
+select id, username from employee union all select username,sex from cms_user;
+
+-- 子查询
+select id,username from employee where depid in (select id from department);
+
+-- exists
+select id,username from employee where exists(select id from department where id=4);
+select id,username from employee where not exists(select id from department where id=4);
+
+--　创建学员表student
+-- id username score
+CREATE TABLE IF NOT EXISTS student(
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+username VARCHAR(20)  NOT NULL UNIQUE,
+score TINYINT UNSIGNED
+);
+
+INSERT student(username,score) VALUES('king',95),
+('king1',35),
+('king2',45),
+('king3',55),
+('king4',65),
+('king5',75),
+('king6',80),
+('king7',90),
+('king8',25);
+-- 创建奖学金scholarship
+-- id ,level
+
+CREATE TABLE IF NOT EXISTS scholarship(
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+level TINYINT UNSIGNED
+);
+INSERT scholarship(level) VALUES(90),(80),(70);
+
+-- 查询获得1等奖学金的学员
+select username,score from student where score >=(select level from scholarship where id=1);
+
+-- 查询所有获得奖学金的学员
+select username,score from student where score >=any(select level from scholarship);
+
+select username,score from student where score >=some(select level from scholarship);
+
+-- 查询所有学员中获得一等奖学金的学员
+select username,score from student where score >=all(select level from scholarship);
+
+-- 查询学员表中没有获得奖学金的学员
+select username,score from student where score <all(select level from scholarship);
+
+
+-- 正则
+CREATE TABLE test1 (
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+num TINYINT UNSIGNED
+);
+INSERT test1(id,num)
+
+SELECT id,score FROM student;
+
+
+CREATE TABLE test2 (
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+num TINYINT UNSIGNED
+)SELECT id,score FROM student;
+
+CREATE TABLE test3 (
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+score TINYINT UNSIGNED
+)SELECT id,score FROM student;
+
+-- 查询用户名以t开始的用户
+select * from cms_user where username regexp '^t';
+
+-- 查询用户名以g结束的用户
+select * from cms_user where username regexp 'g$';
+
+-- concat
+update cms_user set email=concat('email_', email);
+
+-- TRIM
+SELECT CONCAT('_',TRIM(' ABC '),'_'),CONCAT('_',LTRIM(' ABC '),'_'),CONCAT('_',RTRIM(' ABC '),'_');
+
+-- case
+select id, username, score,
+case when score>=90 then '很好'
+when score>70 then '不错'
+when score>55 then '合格'
+else '不合格'
+end
+from student;
+```
+
+## 索引
+
+```sql
+-- 创建普通索引
+CREATE TABLE test4(
+id TINYINT UNSIGNED,
+username VARCHAR(20),
+INDEX in_id(id),
+KEY in_username(username)
+);
+
+drop index in_id on test4;
+create index in_id on test4(id);
+alter table test4 add index in_id(id);
+
+-- 唯一索引
+create unique index in_id on test4(id);
+drop index in_id on test4;
+
+-- 全文索引,innodb也可
+create fulltext index full_username on test4(username);
+drop index full_username on test4;
+
+-- 单列索引
+-- 多列索引
+CREATE TABLE test8(
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+test1 VARCHAR(20) NOT NULL,
+test2 VARCHAR(20) NOT NULL,
+test3 VARCHAR(20) NOT NULL,
+test4 VARCHAR(20) NOT NULL,
+INDEX mul_t1_t2_t3(test1,test2,test3)
+);
+
+drop index mul_t1_t2_t3 on test8;
+create index mul_t1_t2_t3 on test8(test1,test2,test3);
+
+-- 空间索引,仅myisam
+CREATE TABLE test10(
+id TINYINT UNSIGNED AUTO_INCREMENT KEY,
+test GEOMETRY NOT NULL,
+SPATIAL INDEX spa_test(test)
+)ENGINE=MyISAM;
+
+drop index spa_test on test10;
+create spatial index spa_test on test10(test);
 ```
