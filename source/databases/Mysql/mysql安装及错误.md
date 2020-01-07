@@ -114,3 +114,18 @@ secure-file-priv=''
 
 `mysql时区问题`
 > [mysql时区](https://dev.mysql.com/doc/refman/8.0/en/mysql-tzinfo-to-sql.html)
+
+`ONLY_FULL_GROUP_BY`报错
+
+把`ONLY_FULL_GROUP_BY`从 `sql_mode`中去掉
+
+```sql
+-- 进入数据库查询
+select @@sql_mode
+```
+
+```python
+# 填入查询的结果(去掉ONLY_FULL_GROUP_BY),重启mysql
+vim /etc/my.cnf
+sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+```
