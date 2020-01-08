@@ -441,14 +441,6 @@ update cms_user set email=concat('email_', email);
 -- TRIM
 SELECT CONCAT('_',TRIM(' ABC '),'_'),CONCAT('_',LTRIM(' ABC '),'_'),CONCAT('_',RTRIM(' ABC '),'_');
 
--- case
-select id, username, score,
-case when score>=90 then '很好'
-when score>70 then '不错'
-when score>55 then '合格'
-else '不合格'
-end
-from student;
 ```
 
 ## 索引
@@ -497,4 +489,162 @@ SPATIAL INDEX spa_test(test)
 
 drop index spa_test on test10;
 create spatial index spa_test on test10(test);
+```
+
+## 字符编码
+
+```sql
+-- 查看mysql编码
+show variables like '%char%';
+
+-- 只对当前连接有效
+set names 'utf8';
+
+alter table cms_user character set 'utf8mb4';
+
+-- 查看会话变量
+show session variables;
+
+-- 更改会话变量,仅针对当前会话
+set autocommit='off';
+set @@session.autocommit='on';
+
+-- 查看全局变量
+show global variables;
+select @@global.autocommit;
+
+-- 更改全局变量
+set global autocommit='on';
+```
+
+## 存储过程
+
+```sql
+-- 临时变量
+use cms;
+delimiter $$;
+create procedure test1()
+begin
+declare a int default 10;
+select a;
+end
+$$;
+delimiter ;
+call test1();
+-- 10
+
+-- in:输入参数
+use cms;
+delimiter $$;
+create procedure test_int(in in_int int)
+begin
+select in_int;
+set in_int=10;
+select in_int;
+end
+$$;
+delimiter ;
+set @in_int=1;
+call test_int(@in_int);
+-- 1
+-- 10
+
+select @in_int;
+-- 1
+
+-- out:输出参数
+use cms;
+delimiter $$;
+create procedure test_out(out in_out int)
+begin
+select in_out;
+set in_out=10;
+select in_out;
+end
+$$;
+delimiter ;
+set @in_out=1;
+call test_out(@in_out);
+-- null
+-- 10
+
+select @in_out;
+-- 10
+
+-- inout:输入输出参数
+use cms;
+delimiter $$;
+create procedure test_in_out(inout in_out int)
+begin
+select in_out;
+set in_out=10;
+select in_out;
+end
+$$;
+delimiter ;
+set @in_out=1;
+call test_in_out(@in_out);
+-- 1
+-- 10
+
+select @in_out;
+-- 10
+
+-- 删除存储过程
+drop procedure test_in_out;
+```
+
+## 流程控制
+
+```sql
+-- if else
+use cms
+delimiter $$;
+create procedure test_if(in age int)
+begin
+if age>60 then
+select '老年人';
+elseif age>18 then
+select '成年人';
+else
+select '未成年';
+end if;
+end
+$$;
+delimiter ;
+set @age=70;
+call test_if(@age);
+
+-- case
+select id, username, score,
+case when score>=90 then '很好'
+when score>70 then '不错'
+when score>55 then '合格'
+else '不合格'
+end
+from student;
+
+-- ifnull
+select ifnull(null, 2);
+-- 2
+select ifnull(1,2);
+-- 1
+
+-- while
+use cms;
+delimiter $$;
+create procedure test_while()
+begin
+declare i int default 1;
+declare s int default 0;
+while i<=100 do
+set s=s+i;
+set i=i+1;
+end while;
+select s;
+end
+$$;
+delimiter ;
+call test_while();
+-- 5050
 ```
