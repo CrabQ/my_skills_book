@@ -590,6 +590,12 @@ call test_in_out(@in_out);
 select @in_out;
 -- 10
 
+-- 查看数据库下的存储过程
+show procedure status where db='cms';
+
+-- 查看存储过程的内容
+show create procedure test10;
+
 -- 删除存储过程
 drop procedure test_in_out;
 ```
@@ -647,4 +653,148 @@ $$;
 delimiter ;
 call test_while();
 -- 5050
+
+
+-- 定义条件和处理
+delimiter $$;
+create procedure test10()
+begin
+declare continue handler for sqlstate '42S02' set@x=1;
+-- 定义条件之后不会报错,继续执行
+select * from cms_user1;
+select * from cms_user;
+end
+$$;
+delimiter ;
+call test10();
+```
+
+## 函数
+
+```sql
+-- 查看是否开启创建函数功能
+show variables like '%fun%';
+
+-- 开启创建函数功能
+set global log_bin_trust_function_creators=1;
+
+-- 创建函数
+delimiter $$;
+create function test_add(a int, b int)
+returns int
+begin
+return a+b;
+end
+$$;
+delimiter ;
+select test_add(3,4);
+
+-- 查看函数创建内容
+show create function test_add;
+
+-- 查看数据库下的函数
+show function status;
+
+-- 删除函数
+drop function if exists test_add;
+```
+
+## 视图
+
+```sql
+create or replace view v_test
+as
+select * from cms_user where id>3;
+select * from v_test;
+
+-- 视图是表的查询结果,表的数据改变,视图的结果也会改变
+update cms_user set age=100 where id=4;
+select * from v_test;
+
+-- 视图的增删改也会影响表
+update v_test set age=83 where id=5;
+select * from cms_user;
+
+-- 查看数据库视图列表
+select table_schema,table_name from information_schema.views;
+
+-- 查看视图信息
+show table status from cms like 'v%';
+
+-- 查看删除视图权限
+select drop_priv from mysql.user where user='root';
+
+-- 删除视图
+drop view if exists v_test;
+```
+
+## 触发器
+
+```sql
+-- cms_user表数据更新时,省份表的省份名称更改为user表的相应用户名
+delimiter $$;
+create trigger tr_test after update
+on cms_user for each row
+begin
+    update provinces set proName=old.username where id=old.id;
+end
+$$;
+delimiter ;
+
+update cms_user set age=10 where id=2;
+
+-- 查看所有触发器
+show triggers;
+
+-- 查看触发器
+select * from information_schema.triggers where trigger_name='tr_test';
+
+-- 删除触发器
+drop trigger tr_test;
+```
+
+## 事务
+
+```sql
+-- 查看数据库是否支持事务
+show engines;
+
+-- 查看Mysql当前默认的存储引擎
+show variables like '%engines%';
+
+-- 修改数据库引擎
+alter table cms_user engine=myisam;
+```
+
+## My ISAM表锁
+
+```sql
+-- 共享读锁,当前session可读不可写,不可读其他未锁的表,其他session可读,写的时候会等待释放锁，可以读其他表
+lock table cms_user read;
+select * from cms_user;
+update cms_user set age=10 where id=1;
+-- ERROR 1099 (HY000): Table 'cms_user' was locked with a READ lock and can't be updated
+select * from cms_admin;
+-- ERROR 1100 (HY000): Table 'cms_admin' was not locked with LOCK TABLES
+unlock tables;
+
+-- 查看表锁状态
+show status like '%lock%';
+
+-- 独占写锁,当前session可读可写,不可读其他未锁的表,其他session等待释放锁之后才可读写，可以读其他表
+lock table cms_user write;
+select * from cms_user;
+update cms_user set age=20 where id=1;
+select * from cms_admin;
+-- ERROR 1100 (HY000): Table 'cms_admin' was not locked with LOCK TABLES
+unlock tables;
+
+-- 并发插入
+
+-- 查看并发插入,0不允许并发插入,1无空洞(删除)可插入,2都允许插入
+-- 当前读锁的session获取不到另一个session的插入,释放锁之后才可以获取到
+show variables like '%concurrent_insert%';
+
+-- 设置并发插入
+set global concurrent_insert=2;
 ```
