@@ -71,6 +71,11 @@ alter table user drop primary key;
 -- 添加主键
 alter table user add primary key(id);
 
+-- 外键,先添加联合主键,然后添加外键
+ALTER TABLE gd_uniprot ADD CONSTRAINT pk_re PRIMARY KEY(disease_id, gene_id);
+ALTER TABLE gd_uniprot ADD CONSTRAINT fk_dis FOREIGN KEY(disease_id) REFERENCES disease_uniprot(id);
+ALTER TABLE gd_uniprot ADD CONSTRAINT fk_ge FOREIGN KEY(gene_id) REFERENCES gene_primary_uniprot(id);
+
 -- 删除唯一索引
 alter table user drop key username;
 
@@ -79,7 +84,11 @@ alter table user add unique key(username);
 
 -- 修改表的储存引擎为myisam
 alter table user engine=myisam;
+```
 
+## 插入
+
+```sql
 -- 插入数据
 create table if not exists user(
     id smallint unsigned primary key auto_increment,
@@ -441,6 +450,11 @@ update cms_user set email=concat('email_', email);
 -- TRIM
 SELECT CONCAT('_',TRIM(' ABC '),'_'),CONCAT('_',LTRIM(' ABC '),'_'),CONCAT('_',RTRIM(' ABC '),'_');
 
+-- 插入数据，唯一键已存在则更新
+insert into _cs_disease_map(dis_id, gene_symbol) VALUES('2857', "A1BG")  on DUPLICATE key update source = CONCAT(source, ',abc');
+
+-- 去重
+select DISTINCT gene_symbol FROM _cs_disease_map;
 ```
 
 ## 索引
@@ -489,6 +503,9 @@ SPATIAL INDEX spa_test(test)
 
 drop index spa_test on test10;
 create spatial index spa_test on test10(test);
+
+-- 查看索引
+show index from cms_user;
 ```
 
 ## 字符编码
@@ -797,4 +814,64 @@ show variables like '%concurrent_insert%';
 
 -- 设置并发插入
 set global concurrent_insert=2;
+```
+
+## 慢查询
+
+```sql
+-- 慢查询
+show variables like '%long_query_time%';
+
+-- 查看数据库运行时间
+show status like 'uptime';
+-- 查看当前select数
+show status like 'com_select';
+-- 查看当前连接数
+show status like 'connections';
+show status like 'slow_quries';
+
+-- 查看表的状态
+show table status like 'cms_user';
+```
+
+## 分区
+
+```sql
+show variables like '%part%';
+```
+
+## 数据库备份与恢复
+
+```sql
+-- 备份,复时无需指定数据库
+mysqldump -u bmnars -p  --databases gene_disease_all > gene_disease_all.sql
+
+-- 恢复
+mysql -u bmnars -p < ./gene_disease_all.sql
+
+-- 恢复时需要指定数据库
+mysqldump –u bmnars –p   gene_disease_all > gene_disease_all.sql
+
+-- 恢复
+mysqladmin –u 用户名 –p create 数据库名     //创建数据库
+mysql -u root -p gene_disease_all < ./gene_disease_all.sql
+```
+
+## 用户
+
+```sql
+-- 创建用户,可远程访问
+create user bmnars@'%' identified by 'vi93nwYV'
+-- 只能本地访问
+create user 7JTZsiuI@'localhost' identified by 'sdgsdgr';
+
+-- 删除用户
+drop user bmnars@'localhost';
+
+-- 用户授权
+GRANT ALL PRIVILEGES ON gene_disease.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
+-- 8.0版本的授权
+GRANT ALL PRIVILEGES ON my_blog.* TO 7JTZsiuI@'localhost' with grant option;
+-- 所有权限
+GRANT ALL PRIVILEGES ON *.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
 ```
