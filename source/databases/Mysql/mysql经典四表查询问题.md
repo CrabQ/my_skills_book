@@ -3,8 +3,6 @@
 ## 初始化数据库
 
 ```sql
-
-
 create database student default character set 'utf8mb4';
 use student;
 
@@ -200,36 +198,53 @@ having count(*) != (select count(*) from course);
 查询至少有一门课与学号为"01"的同学所学相同的同学的信息
 
 ```sql
-SELECT distinct s.* from student s, sc where sc.sid= s.sid and sc.cid in (select cid from sc WHERE sc.sid='01') and sc.sid !='01';
+select s.*
+from student as s
+inner join sc
+on sc.sid=s.sid
+where sc.cid in(
+select cid from sc where sid=1
+) and sc.sid != 1
+group by s.sid;
 ```
 
 查询和"01"号的同学学习的课程完全相同的其他同学的信息
 
 ```sql
-# TODO: 还未验证过对错,没想明白
-select s.* from student s where s.sid in(
-select distinct sc.sid from sc where sid<>1 and sc.cid in(
-select distinct cid from sc where sid=1
-)group by sc.sid having count(1)=(select count( from sc where s.sid=1)
+select s.*, group_concat(sc.cid)
+from student as s
+inner join sc
+on sc.sid=s.sid
+where sc.sid != 1
+group by sc.sid
+having group_concat(sc.cid)=(
+    select group_concat(sc.cid) from sc where sc.sid=1 group by sc.sid
 );
 ```
 
 查询没学过"张三"老师讲授的任一门课程的学生姓名
 
 ```sql
-select sname from student s WHERE s.sid not in(
-SELECT sc.sid from sc, course c, teacher t WHERE t.tname='张三' and c.tid=t.tid and sc.cid = c.cid
+select sname
+from student where sid not in(
+select sc.sid
+from course as c
+inner join teacher as t
+inner join sc
+on t.tid=c.tid and sc.cid=c.cid
+where t.tname='张三'
 );
 ```
 
 查询出只有两门课程的全部学生的学号和姓名
 
 ```sql
-select s.sid, s.sname
-from student s, sc
-WHERE s.sid=sc.sid
-GROUP BY s.sid
-HAVING count(sc.cid)=2;
+select s.sid,s.sname
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by sc.sid
+having count(*)=2;
 ```
 
 查询1990年出生的学生名单
@@ -241,88 +256,114 @@ select * from student WHERE sage like '%1990%';
 查询每门课程的平均成绩,结果按平均成绩降序排列,平均成绩相同时,按课程编号升序排列
 
 ```sql
-select sc.cid,avg(score) from sc group by sc.cid order by avg(score) DESC , sc.cid;
+select cid, avg(score)
+from sc
+group by(cid)
+order by avg(score) desc, cid asc;
 ```
 
-查询任何一门课程成绩在70分以上的姓名、课程名称和分数
+查询任何一门课程成绩在70分以上的学生姓名、课程名称和分数
 
 ```sql
-select s.sname, c.cname, sc.score from student s, course c, sc
-WHERE s.sid=sc.sid and c.cid=sc.cid and sc.score>70;
+select s.sname, c.cname, sc.score
+from student as s
+inner join sc
+inner join course as c
+on c.cid=sc.cid and sc.sid=s.sid
+where sc.score >70;
 ```
 
 查询平均成绩大于等于85的所有学生的学号、姓名和平均成绩
 
 ```sql
-select s.sid, s.sname, avg(sc.score) from student s, sc
-where s.sid=sc.sid
-GROUP BY s.sid
-HAVING avg(sc.score)>=85
+select s.sid, s.sname, avg(score)
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by(s.sid)
+having avg(score)>=85;
 ```
 
-查询不及格的课程
+查询不及格的学生和相应课程
 
 ```sql
-select s.sid, s.sname, c.cname, sc.score from student s, sc , course c
-where s.sid=sc.sid and sc.cid=c.cid and sc.score<60;
+select s.sname, c.cname, sc.score
+from student as s
+inner join sc
+inner join course as c
+on c.cid=sc.cid and sc.sid=s.sid
+where sc.score <60;
 ```
 
 查询课程编号为01且课程成绩在80分以上的学生的学号和姓名
 
 ```sql
-select s.sid, s.sname from student s, sc
-where s.sid=sc.sid and sc.score> and sc.cid=1;
+select s.sid,s.sname, c.cname, sc.score
+from student as s
+inner join sc
+inner join course as c
+on c.cid=sc.cid and sc.sid=s.sid
+where sc.score>80 and sc.cid=1;
 ```
 
- 求每门课程的学生人数
+求每门课程的学生人数
 
 ```sql
-SELECT sc.cid, count(sc.sid) from sc group by sc.cid;
+select c.cname, count(*)
+from course as c
+inner join sc
+on sc.cid=c.cid
+group by(sc.cid);
 ```
 
- 统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数,查询结果按人数降序排列,若人数相同,按课程号升序排列
+统计每门课程的学生选修人数（超过5人的课程才统计）。要求输出课程号和选修人数,查询结果按人数降序排列,若人数相同,按课程号升序排列
 
 ```sql
-select cid,count(sid) from sc group by cid having count(sid)>5 order by count(sid),cid ASC;
+select c.cid,c.cname, count(*)
+from course as c
+inner join sc
+on sc.cid=c.cid
+group by(sc.cid)
+having count(*)>5
+order by count(*) desc, c.cid asc;
 ```
 
-查询不同课程成绩相同的学生的学生编号、课程编号、学生成绩
+检索至少选修两门课程的学生学号
 
 ```sql
-select s1.sid,s2.sid,sc1.cid,sc1.score,sc2.score
-from student s1,student s2,sc sc1,sc sc2
-where s1.sid!=s2.sid and s1.sid=sc1.sid and s2.sid=sc2.sid and sc1.cid!=sc2.cid and sc1.score=sc2.score;
-```
-
- 检索至少选修两门课程的学生学号
-
-```sql
-select sid from sc group by sid having count(cid)>=2;
+select s.sid,s.sname
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by sc.sid
+having count(*)>=2;
 ```
 
 查询选修了全部课程的学生信息
 
 ```sql
-select s.* from student s, sc
-WHERE s.sid=sc.sid
-GROUP BY s.sid
-HAVING count(sc.cid) = (select count(*) from course);
+select s.*
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by sc.sid
+having count(*)=(select count(*) from course);
 ```
 
 查询各学生的年龄
 
 ```sql
-select s.sname,(TO_DAYS('2017-09-07')-TO_DAYS(s.sage))/ as age from student s;
+select s.sname, (to_days(curdate())-to_days(s.sage))/365 as age from student s;
 ```
 
 查询本月过生日的学生
 
 ```sql
-SELECT * from student where sage like '%-08-%'
+select * from student where month(sage)=month(curdate());
 ```
 
 查询下月过生日的学生
 
 ```sql
-select s.sname from student s where s.sage like '_____08%';
+select * from student where month(sage)=(month(curdate())+1);
 ```
