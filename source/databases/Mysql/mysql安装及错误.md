@@ -72,6 +72,10 @@ grant all privileges on 想授权的数据库.* to 'user1'@'%';
 grant all privileges on bmnars.* to bmnars@localhost;
 ```
 
+## Centos7安装Mysql
+
+>[Centos7安装Mysql](https://my-skills-book.readthedocs.io/en/latest/Linux/Centos/Centos7安装Mysql.html)
+
 ## 报错
 
 关于`caching-sha2-password`问题
