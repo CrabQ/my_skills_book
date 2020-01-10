@@ -875,3 +875,44 @@ GRANT ALL PRIVILEGES ON my_blog.* TO 7JTZsiuI@'localhost' with grant option;
 -- 所有权限
 GRANT ALL PRIVILEGES ON *.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
 ```
+
+## 日期时间函数
+
+```sql
+-- 返回当前日期和时间
+select now();
+
+-- 返回当前日期
+select curdate();
+
+-- 返回当前时间
+select curtime();
+
+-- 日期转换为天数
+select to_days('1995-08-01');
+
+-- 查询年龄
+select (to_days(curdate())-to_days('1995-08-01'))/365;
+
+-- 查询月份
+select month(curdate());
+
+-- 查询月份名字
+select monthname(curdate());
+
+-- 返回星期几,0表示星期一
+select weekday(curdate());
+
+-- 返回星期几的名称
+select dayname(curdate());
+
+-- 返回一周内的第几天,1是星期天
+select dayofweek(curdate());
+
+-- 星期一
+select dayofweek('2020-01-06');
+-- 2
+
+-- 一年内的第几个星期
+select week(curdate());
+```
