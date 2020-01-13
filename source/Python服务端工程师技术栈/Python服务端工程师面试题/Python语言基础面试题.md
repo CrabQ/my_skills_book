@@ -8,6 +8,12 @@
 os,time,random,threading,sys,queue,shutil
 ```
 
+如何知道一个 Python 对象的类型
+
+```python
+type()
+```
+
 python内建数据类型有哪些
 
 ```python
@@ -361,6 +367,13 @@ print(a)
 # (1, 2, 3, [2, 5, 6, 7], 8)
 ```
 
+filter 方法求出列表所有奇数并构造新列表,a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+```python
+a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+print(list(filter(lambda x: x%2 ==1, (i for i in a))))
+```
+
 ## 字典
 
 字典操作中 del 和 pop 有什么区别
@@ -613,6 +626,19 @@ print(a(3))
 print(b(3))
 ```
 
+函数装饰器有什么作用请列举说明
+
+```python
+在不修改代码的前提下进行功能扩展,满足面对对象的开闭原则
+引入日志
+函数执行时间统计
+执行函数前预备处理
+执行函数后清理功能
+权限校验等场景
+缓存
+事务处理
+```
+
 ## 函数
 
 一行代码输出 1-100 之间的所有偶数
@@ -636,33 +662,10 @@ print(count)
 print(len(count))
 ```
 
-## 函数装饰器有什么作用请列举说明
+魔法函数 __call__怎么使用
 
 ```python
-在不修改代码的前提下进行功能扩展,满足面对对象的开闭原则
-引入日志
-函数执行时间统计
-执行函数前预备处理
-执行函数后清理功能
-权限校验等场景
-缓存
-事务处理
-```
-
-## Python 垃圾回收机制
-
-```python
-python采用的是引用计数机制为主,标记-清除和分代收集两种机制为辅的策略
-Python 对小整数的定义是 [-5, 257) 这些整数对象是提前建立好的,不会被垃圾回收.在一个 Python 的程序中,所有位于这个范围内的整数使用的都是同一个对象.
-同理,单个字母也是这样的
-
-但是当定义2个相同的字符串时,引用计数为0,触发垃圾回收
-```
-
-## 魔法函数 __call__怎么使用
-
-```python
-# __call__允许一个类的实例像函数一样被调用、
+# __call__允许一个类的实例像函数一样被调用
 class Entity():
     def __init__(self, size, x, y):
         self.x = x
@@ -684,35 +687,27 @@ if __name__ == '__main__':
     demo.run()
 ```
 
-## 如何判断一个对象是函数还是方法
+如何判断一个对象是函数还是方法
 
 ```python
-在类外声明为函数
+在类外声明为方法
 类中声明为函数,通过类调用也为函数,使用实例化对象调用为方法
 ```
 
-## @classmethod 和@staticmethod 用法和区别
+@classmethod 和@staticmethod 用法和区别
 
 ```python
 @classmethod 类方法:访问和修改类属性,进行类的相关操作,通过类或实例对象调用,传递cls
 @staticmethod 静态方法:不访问类属性和实例属性,通过类或实例对象调用,相当于普通函数
 ```
 
-## Python 中的接口如何实现
-
-```python
-通过类、函数定义接口
-```
-
-## Python 中的反射了解么
-
-## metaclass 作用以及应用场景
+metaclass 作用以及应用场景
 
 ```python
 元类
 ```
 
-## hasattr() getattr() setattr()的用法
+hasattr() getattr() setattr()的用法
 
 ```python
 class Test():
@@ -731,7 +726,7 @@ if __name__ == '__main__':
     print(hasattr(demo, 'sexy'))
 ```
 
-## 请列举你知道的 Python 的魔法方法及用途
+请列举你知道的 Python 的魔法方法及用途
 
 ```python
 __new__ 创建类并返回类的实例
@@ -744,16 +739,10 @@ __delattr__ 删除对象属性时调用
 __next__ 返回迭代器的下一个元素
 ```
 
-## 如何知道一个 Python 对象的类型
+Python 的传参是传值还是传址
 
 ```python
-type()
-```
-
-## Python 的传参是传值还是传址
-
-```python
-# 对可变对象传址,不可变对象传值
+# 对可变对象传址,不可变对象传值(其实都是传地址)
 def test(param):
     if isinstance(param, int):
         param += 1
@@ -763,7 +752,7 @@ def test(param):
 
 if __name__ == '__main__':
     a = 1
-    test(1)
+    test(a)
     print(a)
     b = [2,3]
     test(b)
@@ -774,23 +763,36 @@ if __name__ == '__main__':
 # [2, 3, 1]
 ```
 
+## Python 垃圾回收机制
+
+```python
+python采用的是引用计数机制为主,标记-清除和分代收集两种机制为辅的策略
+Python 对小整数的定义是 [-5, 257) 这些整数对象是提前建立好的,不会被垃圾回收.在一个 Python 的程序中,所有位于这个范围内的整数使用的都是同一个对象.
+同理,单个字母也是这样的
+
+但是当定义2个相同的字符串时,引用计数为0,触发垃圾回收
+```
+
+## 面对对象编程
+
+Python 中的接口如何实现
+
+```python
+通过类、函数定义接口
+```
+
+Python 中的反射了解么
+
 ## 简述 any()和 all()方法
 
 ```python
-any() 判断一个tuple或者list是否全为空,全空False,不全为空返回True,空列表和空元祖返回False
+any() 空列表和空元祖返回False
 有一不为空,则True
-all() 判断一个tuple或者list是否全为非空,有一空则False,全不空为True,空列表和空元祖返回True
+all() 空列表和空元祖返回True
 有一空则False
 ```
 
-## filter 方法求出列表所有奇数并构造新列表,a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-```python
-a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-print(list(filter(lambda x: x%2 ==1, (i for i in a))))
-```
-
-## 什么是猴子补丁
+什么是猴子补丁
 
 ```python
 程序功能的追加或者变更
