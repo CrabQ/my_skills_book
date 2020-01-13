@@ -1,27 +1,21 @@
 # Python语言基础面试题
 
-## 列出5个常用python标准库
+## 基础定义
+
+列出5个常用python标准库
 
 ```python
 os,time,random,threading,sys,queue,shutil
 ```
 
-## python内建数据类型有哪些
+python内建数据类型有哪些
 
 ```python
 Python3 中有六个标准的数据类型:字符串（String）、数字（Digit）、列表（List）、元组（Tuple）、集合（Sets）、字典（Dictionary）
 string, number(int, folat, complex, bool), bytes, set, list, dict, tuple
 ```
 
-## 简述with方法打开文件帮我们做了什么
-
-```python
-执行
-finally:
-f.close()
-```
-
-## 列出 Python 中可变数据类型和不可变数据类型,为什么
+列出 Python 中可变数据类型和不可变数据类型,为什么
 
 ```python
 
@@ -31,96 +25,20 @@ f.close()
 id() 方法进行内存地址的检测
 ```
 
-## python获取当前日期
-
-```python
-import time
-time.localtime()
-
-import datetime
-datetime.datetime.now()
-```
-
-## 统计字符串每个单词出现的次数
-
-```python
-a = 'sldjgslsljhgowegpwjrho[pjdglsj'
-for i in set(a):
-    print(f'{i}:{str(a.count(i))}')
-```
-
-## 用 python 删除文件和用 linux 命令删除文件方法
-
-```python
-import os
-
-os.remove(file)
-# linux
-rm -rf file
-```
-
-## 写一段自定义异常代码
-
-```python
-class MyExcepiton(Exception):
-
-    def __init__(self, info):
-        super(MyExcepiton, self).__init__()
-        self.info = info
-
-    def __str__(self):
-        return self.info
-
-if __name__ == '__main__':
-    try:
-        raise MyExcepiton('test my exception')
-    except MyExcepiton as e:
-        print(e)
-```
-
-## 举例说明异常模块中 try except else finally 的相关意义
-
-```python
-def test(a, b):
-    try:
-        c = a/b
-    except ZeroDivisionError:
-        print('除数不能为0')
-    else:
-        print(c)
-    finally:
-        print('done')
-
-if __name__ == '__main__':
-    test(10,3)
-    test(2,0)
-
-# 3.3333333333333335
-# done
-# 除数不能为0
-# done
-```
-
-## 遇到 bug 如何处理
-
-```python
-可以使用python自带的异常处理或自定义异常抛出,查找问题可以看看官方文档,或者百度,谷歌
-```
-
-## 谈谈对 Python 和其他语言的区别
+谈谈对 Python 和其他语言的区别
 
 ```python
 python是一门强类型的动态语言,不会发生隐式转换.解释型语言,在运行时才确定类型.跟java这类编译型的语言不一样.
 ```
 
-## 简述解释型和编译型编程语言
+简述解释型和编译型编程语言
 
 ```python
 解释型语言: 不用声明变量类型,运行时确定,边解释边运行
 编译形语言: 需要声明变量类型,先编译后运行,运行速度快
 ```
 
-## Python 的解释器种类以及相关特点
+Python 的解释器种类以及相关特点
 
 ```python
 CPython c语言开发的,使用最广的解释器
@@ -282,6 +200,14 @@ print(strappend(10))
 ```
 
 ## 字符串
+
+统计字符串每个单词出现的次数
+
+```python
+a = 'sldjgslsljhgowegpwjrho[pjdglsj'
+for i in set(a):
+    print(f'{i}:{str(a.count(i))}')
+```
 
 Python 交换两个变量的值
 
@@ -531,6 +457,24 @@ with open('./C.txt', 'w', encoding='utf-8') as f:
     f.write(''.join(c))
 ```
 
+简述with方法打开文件帮我们做了什么
+
+```python
+执行
+finally:
+f.close()
+```
+
+用 python 删除文件和用 linux 命令删除文件方法
+
+```python
+import os
+
+os.remove(file)
+# linux
+rm -rf file
+```
+
 ## json
 
 json序列化时,可以处理的数据类型有哪些?如何定制支持 datetime 类型
@@ -578,6 +522,16 @@ print(type(dict_a))
 
 ## 日期时间
 
+python获取当前日期
+
+```python
+import time
+time.localtime()
+
+import datetime
+datetime.datetime.now()
+```
+
 如果当前的日期为 20190530,要求写一个函数输出 N 天后的日期,(比如 N 为 2,则输出 20190601)
 
 ```python
@@ -591,6 +545,56 @@ def get_date(now, num):
 print(get_date('20190912', 3))
 print(get_date('20190912', 23))
 print(get_date('20190912', 123))
+```
+
+## 异常
+
+写一段自定义异常代码
+
+```python
+class MyExcepiton(Exception):
+
+    def __init__(self, info):
+        super(MyExcepiton, self).__init__()
+        self.info = info
+
+    def __str__(self):
+        return self.info
+
+if __name__ == '__main__':
+    try:
+        raise MyExcepiton('test my exception')
+    except MyExcepiton as e:
+        print(e)
+```
+
+举例说明异常模块中 try except else finally 的相关意义
+
+```python
+def test(a, b):
+    try:
+        c = a/b
+    except ZeroDivisionError:
+        print('除数不能为0')
+    else:
+        print(c)
+    finally:
+        print('done')
+
+if __name__ == '__main__':
+    test(10,3)
+    test(2,0)
+
+# 3.3333333333333335
+# done
+# 除数不能为0
+# done
+```
+
+遇到 bug 如何处理
+
+```python
+可以使用python自带的异常处理或自定义异常抛出,查找问题可以看看官方文档,或者百度,谷歌
 ```
 
 ## 闭包与装饰器
