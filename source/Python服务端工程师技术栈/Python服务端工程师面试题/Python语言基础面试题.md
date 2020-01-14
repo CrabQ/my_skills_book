@@ -14,6 +14,20 @@ os,time,random,threading,sys,queue,shutil
 type()
 ```
 
+简述你对 input()函数的理解
+
+```python
+获取标准输入,字符串类型
+```
+
+python 中的 is 和==
+
+```python
+is 判断内存id是否相等
+== 值是否相等
+值比较时用==, 判断是否同一对象用is
+```
+
 python内建数据类型有哪些
 
 ```python
@@ -25,6 +39,128 @@ Python 交换两个变量的值
 
 ```python
 a,b = b,a
+```
+
+三元运算写法和应用场景
+
+```python
+a = 1
+b = 2
+c = 'add' if a>b else 'less'
+print(c)
+```
+
+解释一下 python 中 pass 语句的作用
+
+```python
+空语句,保持结构完整
+```
+
+了解 enumerate 么
+
+```python
+a = ['a','b','c','d']
+for i in enumerate(a, start=8):
+    print(i)
+# (8, 'a')
+# (9, 'b')
+# (10, 'c')
+# (11, 'd')
+```
+
+Python 中递归的最大次数,那如何突破呢
+
+```python
+最大次数为1000次
+```
+
+isinstance 作用以及应用场景
+
+```python
+判断对象是否是一个已知的类型
+判断对象的数据类型
+判断类的继承关系
+```
+
+lambda 表达式格式以及应用场景
+
+```python
+# lambda表达式: lambda 参数1, 参数2, : 参数表达式
+应用场景
+简单功能的函数实现
+不需要关注函数命名
+复用性不高或者只用一次的函数
+# 输出1到100内的奇数
+print(list(filter(lambda x: x%2 == 1, range(1, 101))))
+```
+
+新式类和旧式类的区别
+
+```python
+python3取消了经典类,默认都是新式类,并且不必显式的继承object.
+区别: 继承搜索顺序的变化
+新式类:广度优先
+经典类:深度优先
+```
+
+dir()是干什么用的
+
+```python
+# dir()不带参数时,返回当前范围内的变量、方法和定义的类型列表；
+# 带参数时,返回参数的属性、方法列表
+# 如果参数包含方法__dir__(),该方法将被调用
+class A():
+    def b(self):
+        pass
+
+if __name__ == '__main__':
+    print(dir())
+    print(dir(A))
+# ['A', '__annotations__', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__']
+# ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'b']
+
+```
+
+一个包里有三个模块,demo1.py, demo2.py, demo3.py,但使用 from tools import *导入模块时,如何保证只有 demo1、demo3 被导入了
+
+```python
+# 在包中设置__init__.py
+import demo1
+import demo3
+```
+
+copy 和 deepcopy 的区别是什么
+
+```python
+copy仅拷贝对象本身,不拷贝对象中引用的其他对象
+deepcopy除拷贝对象本身,还拷贝对象中引用的其他对象（子对象）
+copy不会为子对象额外创建新的内存空间,当子对象被修改之后,这个子对象的引用都会发生改变
+deepcopy是一个新对象的创建,只是用了和被拷贝对象相同的值,子对象改变不会影响被拷贝对象
+```
+
+代码中经常遇到的*args, **kwargs 含义及用法
+
+```python
+args(arguments): 位置参数
+kwars(keyword arguments): 关键字参数
+```
+
+Python 中会有函数或成员变量包含单下划线前缀和结尾,和双下划线前缀结尾,区别是什么
+
+```python
+单下划线开头的命名方式被常用于模块中,在一个模块中以单下划线开头的变量和方法会被默认划入模块内部范围.当使用 from my_module import * 导入时,单下划线开头的变量和方法是不会被导入的.但使用 import my_module 导入的话,仍然可以用 my_module._var 这样的形式访问属性或方法
+单下划线结尾的命名方式也存在,但是不常用,其实也不推荐用.这种命名方式的作用就是为了和 python 的一些内置关键词区分开来,假设我们想给一个变量命名为 class,但是这会跟 python 的关键词 class 冲突,所以我们只好退一步使用单下划线结尾命名,也就是 class_
+双下划线开头和结尾的是一些 python 的“魔术”对象,如类成员的 __init__、__del__、__add__、__getitem__ 等,以及全局的__file__、__name__ 等
+```
+
+Python 中的作用域
+
+```python
+locals -> enclosing function -> globals -> builtins
+locals,当前所在命名空间（如函数、模块）,函数的参数也属于命名空间内的变量
+enclosing,外部嵌套函数的命名空间（闭包中常见）
+globals,全局变量,函数定义所在模块的命名空间
+builtins,内建模块的命名空间
 ```
 
 列出 Python 中可变数据类型和不可变数据类型,为什么
@@ -456,6 +592,18 @@ range(10)[:5]
 
 ## 文件读取
 
+w、a+、wb 文件写入模式的区别
+
+```python
+r : 读取文件,若文件不存在则会报错
+w: 写入文件,若文件不存在则会先创建再写入,会覆盖原文件
+a : 写入文件,若文件不存在则会先创建再写入,但不会覆盖原文件,而是追加在文件末尾
+rb,wb:分别于r,w类似,用于读写二进制文件
+r+ : 可读、可写,文件不存在也会报错,写操作时会覆盖
+w+ : 可读,可写,文件不存在先创建,会覆盖
+a+ :可读、可写,文件不存在先创建,不会覆盖,追加在末尾
+```
+
 在读文件操作的时候会使用 read、readline 或者 readlines,简述它们各自的作用
 
 ```python
@@ -617,6 +765,93 @@ if __name__ == '__main__':
 可以使用python自带的异常处理或自定义异常抛出,查找问题可以看看官方文档,或者百度,谷歌
 ```
 
+什么是断言应用场景
+
+```python
+# 断言语句是将调试断言插入程序的便捷方式
+# 在condition为True时不触发,为False时触发AssertionError错误
+assert condition
+assert 1 == 1
+assert 1 == 0
+# AssertionError
+
+应用场景:
+防御性的编程
+运行时对程序逻辑的检测
+合约性检查
+程序中的常量
+检查文档
+```
+
+列举 5 个 Python 中的异常类型以及其含义
+
+```python
+BaseException  # 所有异常的基类
+ +-- SystemExit  # 解释器请求退出
+ +-- KeyboardInterrupt  # 用户中断执行(通常是输入^C)
+ +-- GeneratorExit  # 生成器(generator)发生异常来通知退出
+ +-- Exception  # 常规异常的基类
+      +-- StopIteration  # 迭代器没有更多的值
+      +-- StopAsyncIteration  # 必须通过异步迭代器对象的__anext__()方法引发以停止迭代
+      +-- ArithmeticError  # 各种算术错误引发的内置异常的基类
+      |    +-- FloatingPointError  # 浮点计算错误
+      |    +-- OverflowError  # 数值运算结果太大无法表示
+      |    +-- ZeroDivisionError  # 除(或取模)零 (所有数据类型)
+      +-- AssertionError  # 当assert语句失败时引发
+      +-- AttributeError  # 属性引用或赋值失败
+      +-- BufferError  # 无法执行与缓冲区相关的操作时引发
+      +-- EOFError  # 当input()函数在没有读取任何数据的情况下达到文件结束条件(EOF)时引发
+      +-- ImportError  # 导入模块/对象失败
+      |    +-- ModuleNotFoundError  # 无法找到模块或在在sys.modules中找到None
+      +-- LookupError  # 映射或序列上使用的键或索引无效时引发的异常的基类
+      |    +-- IndexError  # 序列中没有此索引(index)
+      |    +-- KeyError  # 映射中没有这个键
+      +-- MemoryError  # 内存溢出错误(对于Python 解释器不是致命的)
+      +-- NameError  # 未声明/初始化对象 (没有属性)
+      |    +-- UnboundLocalError  # 访问未初始化的本地变量
+      +-- OSError  # 操作系统错误,EnvironmentError,IOError,WindowsError,socket.error,select.error和mmap.error已合并到OSError中,构造函数可能返回子类
+      |    +-- BlockingIOError  # 操作将阻塞对象(e.g. socket)设置为非阻塞操作
+      |    +-- ChildProcessError  # 在子进程上的操作失败
+      |    +-- ConnectionError  # 与连接相关的异常的基类
+      |    |    +-- BrokenPipeError  # 另一端关闭时尝试写入管道或试图在已关闭写入的套接字上写入
+      |    |    +-- ConnectionAbortedError  # 连接尝试被对等方中止
+      |    |    +-- ConnectionRefusedError  # 连接尝试被对等方拒绝
+      |    |    +-- ConnectionResetError    # 连接由对等方重置
+      |    +-- FileExistsError  # 创建已存在的文件或目录
+      |    +-- FileNotFoundError  # 请求不存在的文件或目录
+      |    +-- InterruptedError  # 系统调用被输入信号中断
+      |    +-- IsADirectoryError  # 在目录上请求文件操作(例如 os.remove())
+      |    +-- NotADirectoryError  # 在不是目录的事物上请求目录操作(例如 os.listdir())
+      |    +-- PermissionError  # 尝试在没有足够访问权限的情况下运行操作
+      |    +-- ProcessLookupError  # 给定进程不存在
+      |    +-- TimeoutError  # 系统函数在系统级别超时
+      +-- ReferenceError  # weakref.proxy()函数创建的弱引用试图访问已经垃圾回收了的对象
+      +-- RuntimeError  # 在检测到不属于任何其他类别的错误时触发
+      |    +-- NotImplementedError  # 在用户定义的基类中,抽象方法要求派生类重写该方法或者正在开发的类指示仍然需要添加实际实现
+      |    +-- RecursionError  # 解释器检测到超出最大递归深度
+      +-- SyntaxError  # Python 语法错误
+      |    +-- IndentationError  # 缩进错误
+      |         +-- TabError  # Tab和空格混用
+      +-- SystemError  # 解释器发现内部错误
+      +-- TypeError  # 操作或函数应用于不适当类型的对象
+      +-- ValueError  # 操作或函数接收到具有正确类型但值不合适的参数
+      |    +-- UnicodeError  # 发生与Unicode相关的编码或解码错误
+      |         +-- UnicodeDecodeError  # Unicode解码错误
+      |         +-- UnicodeEncodeError  # Unicode编码错误
+      |         +-- UnicodeTranslateError  # Unicode转码错误
+      +-- Warning  # 警告的基类
+           +-- DeprecationWarning  # 有关已弃用功能的警告的基类
+           +-- PendingDeprecationWarning  # 有关不推荐使用功能的警告的基类
+           +-- RuntimeWarning  # 有关可疑的运行时行为的警告的基类
+           +-- SyntaxWarning  # 关于可疑语法警告的基类
+           +-- UserWarning  # 用户代码生成警告的基类
+           +-- FutureWarning  # 有关已弃用功能的警告的基类
+           +-- ImportWarning  # 关于模块导入时可能出错的警告的基类
+           +-- UnicodeWarning  # 与Unicode相关的警告的基类
+           +-- BytesWarning  # 与bytes和bytearray相关的警告的基类
+           +-- ResourceWarning  # 与资源使用相关的警告的基类.被默认警告过滤器忽略
+```
+
 ## 闭包与装饰器
 
 写一个函数,接收整数参数 n,返回一个函数,函数的功能是把函数的参数和 n 相乘并把结果返回
@@ -648,6 +883,12 @@ print(b(3))
 
 ## 函数
 
+如何在函数中设置一个全局变量
+
+```python
+global a
+```
+
 一行代码输出 1-100 之间的所有偶数
 
 ```python
@@ -667,6 +908,12 @@ for i in result:
             count.append(j)
 print(count)
 print(len(count))
+```
+
+pathlib 的用法举例
+
+```python
+pathlib 模块提供了一组面向对象的类,这些类可代表各种操作系统上的路径,程序可通过这些类操作路径
 ```
 
 魔法函数 __call__怎么使用
@@ -796,34 +1043,43 @@ Python 中的反射了解么
 程序功能的追加或者变更
 ```
 
-## 在 Python 中是如何管理内存的
+在 Python 中是如何管理内存的
 
 ```python
 内存池,pymalloc,
 小于256bits,pymalloc在内存池申请空间,大于256bits,直接执行new/malloc的行为来申请内存空间
 ```
 
-## 当退出 Python 时是否释放所有内存分配
+当退出 Python 时是否释放所有内存分配
 
 ```python
 循环引用其它对象或引用自全局命名空间的对象的模块,在 Python 退出时并非完全释放
 ```
 
-## 使用正则表达式匹配出 `<html><h1><div>a="张明 98 分"</div></html>` 中的地址 a="张明 98 分",用 re.sub,将 98 替换为 100
+什么是面向对象的 mro
+
+```python
+MRO就是类的方法解析顺序表, 其实也就是继承父类方法时的顺序表
+MRO 是在Python多继承和钻石继承问题上的核心内容,它规定了如何,什么时候,怎么样去 调用父类的方法
+```
+
+## 正则
+
+使用正则表达式匹配出 `<html><h1><div>a="张明 98 分"</div></html>` 中的地址 a="张明 98 分"
 
 ```python
 import  re
 
-print(re.search(r'>a="(.*?)"{1}', '<html><h1><div>a="张明 98 分"</div></html>').group(1))
+re.search('.*>(.*")<.*', '<html><h1><div>a="张明 98 分"</div></html>').group(1)
 ```
 
-## 正则表达式匹配中`(.*)和(.*?)`匹配区别
+正则表达式匹配中`(.*)和(.*?)`匹配区别
 
 ```python
 贪婪和非贪婪
 ```
 
-## 写一段匹配邮箱的正则表达式
+写一段匹配邮箱的正则表达式
 
 ```python
 import  re
@@ -832,261 +1088,6 @@ a = '192sojdg_lr@163.com'
 b = '_234slg@gma.cn'
 result = re.search(r'[a-zA-Z0-9_]+@\w+\.\w+', b)
 print(result)
-```
-
-## 解释一下 python 中 pass 语句的作用
-
-```python
-空语句,保持结构完整
-```
-
-## 简述你对 input()函数的理解
-
-```python
-获取标准输入,字符串类型
-```
-
-## python 中的 is 和==
-
-```python
-is 判断内存id是否相等
-== 值是否相等
-值比较时用==, 判断是否同一对象用is
-```
-
-## Python 中的作用域
-
-```python
-locals -> enclosing function -> globals -> builtins
-locals,当前所在命名空间（如函数、模块）,函数的参数也属于命名空间内的变量
-enclosing,外部嵌套函数的命名空间（闭包中常见）
-globals,全局变量,函数定义所在模块的命名空间
-builtins,内建模块的命名空间
-```
-
-## 三元运算写法和应用场景
-
-```python
-a = 1
-b = 2
-c = 'add' if a>b else 'less'
-print(c)
-```
-
-## 了解 enumerate 么
-
-```python
-a = ['a','b','c','d']
-for i in enumerate(a, start=8):
-    print(i)
-# (8, 'a')
-# (9, 'b')
-# (10, 'c')
-# (11, 'd')
-```
-
-## 如何在函数中设置一个全局变量
-
-```python
-global a
-```
-
-## pathlib 的用法举例
-
-```python
-pathlib 模块提供了一组面向对象的类,这些类可代表各种操作系统上的路径,程序可通过这些类操作路径
-```
-
-## Python 中递归的最大次数,那如何突破呢
-
-```python
-最大次数为1000次
-```
-
-## 什么是面向对象的 mro
-
-```python
-MRO就是类的方法解析顺序表, 其实也就是继承父类方法时的顺序表
-MRO 是在Python多继承和钻石继承问题上的核心内容,它规定了如何,什么时候,怎么样去 调用父类的方法
-```
-
-## isinstance 作用以及应用场景
-
-```python
-判断对象是否是一个已知的类型
-判断对象的数据类型
-判断类的继承关系
-参考76
-```
-
-## 什么是断言应用场景
-
-```python
-# 断言语句是将调试断言插入程序的便捷方式
-# 在condition为True时不触发,为False时触发AssertionError错误
-assert condition
-assert 1 == 1
-assert 1 == 0
-# AssertionError
-
-应用场景:
-防御性的编程
-运行时对程序逻辑的检测
-合约性检查
-程序中的常量
-检查文档
-```
-
-## lambda 表达式格式以及应用场景
-
-```python
-# lambda表达式: lambda 参数1, 参数2, : 参数表达式
-应用场景
-简单功能的函数实现
-不需要关注函数命名
-复用性不高或者只用一次的函数
-# 输出1到100内的奇数
-print(list(filter(lambda x: x%2 == 1, range(1, 101))))
-```
-
-## 新式类和旧式类的区别
-
-```python
-python3取消了经典类,默认都是新式类,并且不必显式的继承object.
-区别: 继承搜索顺序的变化
-新式类:广度优先
-经典类:深度优先
-```
-
-## dir()是干什么用的
-
-```python
-# dir()不带参数时,返回当前范围内的变量、方法和定义的类型列表；
-# 带参数时,返回参数的属性、方法列表
-# 如果参数包含方法__dir__(),该方法将被调用
-class A():
-    def b(self):
-        pass
-
-if __name__ == '__main__':
-    print(dir())
-    print(dir(A))
-# ['A', '__annotations__', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__']
-# ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'b']
-
-```
-
-## .一个包里有三个模块,demo1.py, demo2.py, demo3.py,但使用 from tools import *导入模块时,如何保证只有 demo1、demo3 被导入了
-
-```python
-# 在包中设置__init__.py
-import demo1
-import demo3
-```
-
-## 列举 5 个 Python 中的异常类型以及其含义
-
-```python
-BaseException  # 所有异常的基类
- +-- SystemExit  # 解释器请求退出
- +-- KeyboardInterrupt  # 用户中断执行(通常是输入^C)
- +-- GeneratorExit  # 生成器(generator)发生异常来通知退出
- +-- Exception  # 常规异常的基类
-      +-- StopIteration  # 迭代器没有更多的值
-      +-- StopAsyncIteration  # 必须通过异步迭代器对象的__anext__()方法引发以停止迭代
-      +-- ArithmeticError  # 各种算术错误引发的内置异常的基类
-      |    +-- FloatingPointError  # 浮点计算错误
-      |    +-- OverflowError  # 数值运算结果太大无法表示
-      |    +-- ZeroDivisionError  # 除(或取模)零 (所有数据类型)
-      +-- AssertionError  # 当assert语句失败时引发
-      +-- AttributeError  # 属性引用或赋值失败
-      +-- BufferError  # 无法执行与缓冲区相关的操作时引发
-      +-- EOFError  # 当input()函数在没有读取任何数据的情况下达到文件结束条件(EOF)时引发
-      +-- ImportError  # 导入模块/对象失败
-      |    +-- ModuleNotFoundError  # 无法找到模块或在在sys.modules中找到None
-      +-- LookupError  # 映射或序列上使用的键或索引无效时引发的异常的基类
-      |    +-- IndexError  # 序列中没有此索引(index)
-      |    +-- KeyError  # 映射中没有这个键
-      +-- MemoryError  # 内存溢出错误(对于Python 解释器不是致命的)
-      +-- NameError  # 未声明/初始化对象 (没有属性)
-      |    +-- UnboundLocalError  # 访问未初始化的本地变量
-      +-- OSError  # 操作系统错误,EnvironmentError,IOError,WindowsError,socket.error,select.error和mmap.error已合并到OSError中,构造函数可能返回子类
-      |    +-- BlockingIOError  # 操作将阻塞对象(e.g. socket)设置为非阻塞操作
-      |    +-- ChildProcessError  # 在子进程上的操作失败
-      |    +-- ConnectionError  # 与连接相关的异常的基类
-      |    |    +-- BrokenPipeError  # 另一端关闭时尝试写入管道或试图在已关闭写入的套接字上写入
-      |    |    +-- ConnectionAbortedError  # 连接尝试被对等方中止
-      |    |    +-- ConnectionRefusedError  # 连接尝试被对等方拒绝
-      |    |    +-- ConnectionResetError    # 连接由对等方重置
-      |    +-- FileExistsError  # 创建已存在的文件或目录
-      |    +-- FileNotFoundError  # 请求不存在的文件或目录
-      |    +-- InterruptedError  # 系统调用被输入信号中断
-      |    +-- IsADirectoryError  # 在目录上请求文件操作(例如 os.remove())
-      |    +-- NotADirectoryError  # 在不是目录的事物上请求目录操作(例如 os.listdir())
-      |    +-- PermissionError  # 尝试在没有足够访问权限的情况下运行操作
-      |    +-- ProcessLookupError  # 给定进程不存在
-      |    +-- TimeoutError  # 系统函数在系统级别超时
-      +-- ReferenceError  # weakref.proxy()函数创建的弱引用试图访问已经垃圾回收了的对象
-      +-- RuntimeError  # 在检测到不属于任何其他类别的错误时触发
-      |    +-- NotImplementedError  # 在用户定义的基类中,抽象方法要求派生类重写该方法或者正在开发的类指示仍然需要添加实际实现
-      |    +-- RecursionError  # 解释器检测到超出最大递归深度
-      +-- SyntaxError  # Python 语法错误
-      |    +-- IndentationError  # 缩进错误
-      |         +-- TabError  # Tab和空格混用
-      +-- SystemError  # 解释器发现内部错误
-      +-- TypeError  # 操作或函数应用于不适当类型的对象
-      +-- ValueError  # 操作或函数接收到具有正确类型但值不合适的参数
-      |    +-- UnicodeError  # 发生与Unicode相关的编码或解码错误
-      |         +-- UnicodeDecodeError  # Unicode解码错误
-      |         +-- UnicodeEncodeError  # Unicode编码错误
-      |         +-- UnicodeTranslateError  # Unicode转码错误
-      +-- Warning  # 警告的基类
-           +-- DeprecationWarning  # 有关已弃用功能的警告的基类
-           +-- PendingDeprecationWarning  # 有关不推荐使用功能的警告的基类
-           +-- RuntimeWarning  # 有关可疑的运行时行为的警告的基类
-           +-- SyntaxWarning  # 关于可疑语法警告的基类
-           +-- UserWarning  # 用户代码生成警告的基类
-           +-- FutureWarning  # 有关已弃用功能的警告的基类
-           +-- ImportWarning  # 关于模块导入时可能出错的警告的基类
-           +-- UnicodeWarning  # 与Unicode相关的警告的基类
-           +-- BytesWarning  # 与bytes和bytearray相关的警告的基类
-           +-- ResourceWarning  # 与资源使用相关的警告的基类.被默认警告过滤器忽略
-```
-
-## copy 和 deepcopy 的区别是什么
-
-```python
-copy仅拷贝对象本身,不拷贝对象中引用的其他对象
-deepcopy除拷贝对象本身,还拷贝对象中引用的其他对象（子对象）
-copy不会为子对象额外创建新的内存空间,当子对象被修改之后,这个子对象的引用都会发生改变
-deepcopy是一个新对象的创建,只是用了和被拷贝对象相同的值,子对象改变不会影响被拷贝对象
-```
-
-## 代码中经常遇到的*args, **kwargs 含义及用法
-
-```python
-args(arguments): 位置参数
-kwars(keyword arguments): 关键字参数
-```
-
-## Python 中会有函数或成员变量包含单下划线前缀和结尾,和双下划线前缀结尾,区别是什么
-
-```python
-单下划线开头的命名方式被常用于模块中,在一个模块中以单下划线开头的变量和方法会被默认划入模块内部范围.当使用 from my_module import * 导入时,单下划线开头的变量和方法是不会被导入的.但使用 import my_module 导入的话,仍然可以用 my_module._var 这样的形式访问属性或方法
-单下划线结尾的命名方式也存在,但是不常用,其实也不推荐用.这种命名方式的作用就是为了和 python 的一些内置关键词区分开来,假设我们想给一个变量命名为 class,但是这会跟 python 的关键词 class 冲突,所以我们只好退一步使用单下划线结尾命名,也就是 class_
-双下划线brF双下划线开头和结尾的是一些 python 的“魔术”对象,如类成员的 __init__、__del__、__add__、__getitem__ 等,以及全局的__file__、__name__ 等. python 官方推荐永远不要将这样的命名方式应用于自己的变量或函数,而是按照文档说明来使用.brF双下划线开头的命名方式有实际的作用,采用这种命名的变量或方法无法直接通过 “对象名.变量名（方法名）” 这样的方式访问
-```
-
-## w、a+、wb 文件写入模式的区别
-
-```python
-r : 读取文件,若文件不存在则会报错
-w: 写入文件,若文件不存在则会先创建再写入,会覆盖原文件
-a : 写入文件,若文件不存在则会先创建再写入,但不会覆盖原文件,而是追加在文件末尾
-rb,wb:分别于r,w类似,用于读写二进制文件
-r+ : 可读、可写,文件不存在也会报错,写操作时会覆盖
-w+ : 可读,可写,文件不存在先创建,会覆盖
-a+ :可读、可写,文件不存在先创建,不会覆盖,追加在末尾
 ```
 
 ## 举例 sort 和 sorted 的区别
