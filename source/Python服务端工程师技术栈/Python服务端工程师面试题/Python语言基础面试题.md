@@ -1,6 +1,6 @@
 # Python语言基础面试题
 
-## 基础定义
+## 基础
 
 列出5个常用python标准库
 
@@ -19,6 +19,12 @@ python内建数据类型有哪些
 ```python
 Python3 中有六个标准的数据类型:字符串（String）、数字（Digit）、列表（List）、元组（Tuple）、集合（Sets）、字典（Dictionary）
 string, number(int, folat, complex, bool), bytes, set, list, dict, tuple
+```
+
+Python 交换两个变量的值
+
+```python
+a,b = b,a
 ```
 
 列出 Python 中可变数据类型和不可变数据类型,为什么
@@ -215,12 +221,6 @@ for i in set(a):
     print(f'{i}:{str(a.count(i))}')
 ```
 
-Python 交换两个变量的值
-
-```python
-a,b = b,a
-```
-
 将"hello world"转换为首字母大写"Hello World"
 
 ```python
@@ -260,7 +260,7 @@ print(' adabdw '.strip())
 '123456'[-2:]
 ```
 
-一个编码为 GBK 的字符串 S,要将其转成 UTF-8 编码的字符串,应如何操作
+一个编码为 GBK 的字符串 S,将其转成 UTF-8 编码的字符串
 
 ```python
 "S".encode("gbk").decode("utf-8",'ignore')
@@ -279,7 +279,7 @@ re.split('[:\s]','info:xiaoZhang 33 shandong')
 "你好 中国 ".strip()
 ```
 
-怎样将字符串转换为小写 (2)
+怎样将字符串转换为小写
 
 ```python
 'SJLsdgJDG'.lower()
@@ -295,9 +295,9 @@ a.encode()
 b.encode()
 ```
 
-## 列表
+## 列表与元祖
 
-已知 AList = [1,2,3,1,2],对 AList 列表元素去重,写出具体过程
+已知 AList = [1,2,3,1,2],对 AList 列表元素去重
 
 ```python
 AList = [1,2,3,1,2]
@@ -339,7 +339,7 @@ a = [1,5,7,9]
 random.shuffle(a)
 ```
 
-按照字典的内的年龄排序
+按照字典内的年龄排序
 
 ```python
 d = [
@@ -372,6 +372,23 @@ filter 方法求出列表所有奇数并构造新列表,a = [1, 2, 3, 4, 5, 6, 7
 ```python
 a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 print(list(filter(lambda x: x%2 ==1, (i for i in a))))
+```
+
+下面的代码输出结果是什么
+
+```python
+a = (1,2,3,[4,5,6,7],8)
+a[2] = 2
+# TypeError: 'tuple' object does not support item assignment
+```
+
+简述 any()和 all()方法
+
+```python
+any() 空列表和空元祖返回False
+有一不为空,则True
+all() 空列表和空元祖返回True
+有一空则False
 ```
 
 ## 字典
@@ -407,16 +424,6 @@ dict(zip(('a','b'), (1,2))))
 
 ```python
 {v:k for k,v in {'A': 1, 'B': 2}.items()}
-```
-
-## 元组
-
-下面的代码输出结果是什么
-
-```python
-a = (1,2,3,[4,5,6,7],8)
-a[2] = 2
-# TypeError: 'tuple' object does not support item assignment
 ```
 
 ## 生成器
@@ -493,7 +500,7 @@ rm -rf file
 json序列化时,可以处理的数据类型有哪些?如何定制支持 datetime 类型
 
 ```python
-# 列表、字典、字符、数值、bool、None
+# 列表、字典、字符串、数值、bool、None
 # 定制支持 datetime 类型
 from datetime import datetime
 import json
@@ -782,15 +789,6 @@ Python 中的接口如何实现
 ```
 
 Python 中的反射了解么
-
-## 简述 any()和 all()方法
-
-```python
-any() 空列表和空元祖返回False
-有一不为空,则True
-all() 空列表和空元祖返回True
-有一空则False
-```
 
 什么是猴子补丁
 
