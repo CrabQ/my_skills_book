@@ -6,4 +6,5 @@ Redis
    :glob:
 
    Redis安装
+   Redis基础
    Redis实例

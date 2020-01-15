@@ -77,15 +77,15 @@ type hello
 # string
 ```
 
-## 字符串
+### 字符串
 
-### 字符串应用场景
+#### 字符串应用场景
 
 - 缓存
 - 分布式锁
 - 计数器
 
-### 字符串基本语法
+#### 字符串基本语法
 
 设置
 
@@ -215,7 +215,7 @@ get hi
 # "hello,h0"
 ```
 
-### 字符串实际应用
+#### 字符串实际应用
 
 记录网站每个用户个人主页的访问量
 
@@ -226,9 +226,9 @@ incr userid:pageview
 
 缓存视频的基本信息(数据源在MySQL中)
 
-## hash
+### hash
 
-### hash基本语法
+#### hash基本语法
 
 设置
 
@@ -309,7 +309,7 @@ hincrby user:1:info pageview 1
 # (integer) 1
 ```
 
-### hash实际应用
+#### hash实际应用
 
 记录网站每个用户个人主页的访问量
 
@@ -317,9 +317,9 @@ hincrby user:1:info pageview 1
 hincrby user:1:info pageview count
 ```
 
-## list
+### list
 
-### list基本语法
+#### list基本语法
 
 右端插入,时间复杂度O(1~n)
 
@@ -432,7 +432,7 @@ blpop key timeout
 # lpop阻塞版本,timeout是阻塞超时时间,为0永远不阻塞,brpop相同
 ```
 
-### list实际应用
+#### list实际应用
 
 - 时间轴,新内容lpush
 
@@ -443,9 +443,9 @@ blpop key timeout
 # lpush + Brpop = Message Queue
 ```
 
-## set
+### set
 
-### set基本语法
+#### set基本语法
 
 添加
 
@@ -527,16 +527,16 @@ sunion user:1:follow user:2:follow
 # 6) "sports"
 ```
 
-### set实际应用
+#### set实际应用
 
 - 用户like,赞,踩
 - 抽奖系统
 - 标签
 - 共同关注
 
-## zset
+### zset
 
-### zset基本语法
+#### zset基本语法
 
 添加,时间复杂度O(logN)
 
@@ -622,7 +622,7 @@ zremrangebyscore user:1:ranking 1 10
 # (integer) 1
 ```
 
-### 实际应用
+#### 实际应用
 
 - 排行榜
 
