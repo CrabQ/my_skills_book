@@ -6,5 +6,5 @@ Redis
    :glob:
 
    Redis安装
-   Redis基础
-   Redis实例
+   Redis五种数据结构
+   Redis高级
