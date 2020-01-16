@@ -47,16 +47,16 @@ cd /usr/local/redis/bin
 ./redis-server
 
 # 使用配置文件启动(推荐)
-# 复制,并修改配置文件
-cp /tmp/redis-5.0.7/redis.conf /usr/local/redis/bin/
+# 复制重命名(端口区分不同redis),并修改配置文件
+cp /tmp/redis-5.0.7/redis.conf /usr/local/redis/config/
 # 启动
-./redis-server redis.conf
+./redis-server /config/redis-6379.conf
 
 # 测试是否成功启动
 ps -ef|grep redis
 ```
 
-配置修改
+## 配置修改
 
 ```shell
 # 守护进程方式启动
@@ -66,8 +66,47 @@ daemonize yes
 port 6379
 
 # redis系统日志
-logfile "/usr/local/redis/log/redis_log.log"
+logfile "6379.log"
 
 # redis工作目录
-dir /usr/local/redis/rdb
+dir /usr/local/redis/data
+```
+
+### RDB设置(可选)
+
+```shell
+# 关闭自动生成RDB文件
+# save 900 1
+# save 300 10
+# save 60 10000
+
+# RDB文件名称
+dbfilename dump-6379.rdb
+```
+
+### AOF设置(可选)
+
+```shell
+# redis工作目录
+dir /usr/local/redis/data
+
+# 必须开启此项才能开启AOF
+appendonly yes
+
+# AOF文件名称
+appendfilename "appendonly_6379.aof"
+
+# AOF策略
+appendfsync everysec
+
+# 一般yes,开销没那么大
+no-appendfsync-on-rewrite yes
+
+# AOF文件重写需要的尺寸
+auto-aof-rewirte-min-size 64mb
+
+# AOF文件增长率
+auto-aof-rewirte-percentage 100
+
+aof-load-truncated yes
 ```
