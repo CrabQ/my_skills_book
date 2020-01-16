@@ -916,3 +916,11 @@ select dayofweek('2020-01-06');
 -- 一年内的第几个星期
 select week(curdate());
 ```
+
+### 日期格式化
+
+```sql
+-- 2019-02-22 17:06:12
+date_format(receiving_time, '%Y-%m')
+-- 2019-02
+```
