@@ -92,3 +92,110 @@ RDB文件网络传输时间
 机器宕机后,大量全量复制
 主节点分散多机器
 ```
+
+## sentinel
+
+### 主从复制是否高可用
+
+主从复制问题
+
+```shell
+故障只能手动转移
+写能力和存储能力受限
+```
+
+### Redis sentinel架构
+
+### Redis sentinel故障转移
+
+```shell
+多个sentinel发现并确认master有问题
+选举出一个sentinel作为领导
+选出一个slave作为master
+通知其余slave成为新的master的slave
+通知客户端主从变化
+等待老的master复活成为新master的slave
+```
+
+### Redis sentinel配置
+
+1. 配置开启主从节点
+2. 配置开启sentinel监控主节点(sentinel是特殊的redis)
+
+```shell
+# sentinel主要配置
+port ${port}
+dir "/opt/soft/redis/data/"
+logfile "${port}.log"
+# 主节点,2表示客观下线的sentinel投票数量
+sentinel monitor mymaster 172.0.0.1 7000 2
+# 判断时限
+sentinel down-after-milliseconds mymaster 30000
+# 故障转移时新master同一时间传输快照给slave数量
+sentinel parallel-syncs mymaster 1
+sentinel failover-timeout mymaster 180000
+```
+
+### Redis sentinel三个定时任务
+
+1. 每10秒每个sentinel对master和slave执行info
+   1. 发现slave节点
+   2. 确认主从关系
+
+2. 每2秒每个sentinel通过master节点的channel交换信息(pub/sub)
+   1. 通过__sentinel__:hello频道交互
+   2. 交互对节点的'看法'和自身信息
+
+3. 每1秒每个sentinel对其他sentinel和redis执行ping
+
+### 主观下线和客观下线
+
+```shell
+sentinel monitor <mastername> <ip> <port> <quorum>
+sentinel down-after-milliseconds <mastername> <timeout>
+# 主观下线: 每个sentinel节点对redis节点失败的'偏见'
+# 客观下线: 所有sentinel节点对redis节点失败'达成共识'(超过quorum个统一)
+```
+
+### 领导者选举
+
+```shell
+原因:只有一个sentinel节点完成故障转移
+选举:通过sentinel is-master-down-by-addr命令都希望成为领导者
+每个做主观下线的sentinel节点向其他sentinel节点发送命令,要求将它设置为领导者
+收到命令的sentinel节点如果没有同意其他sentinel节点发送的命令,那么将同意该请求,否则拒绝
+如果该sentinel节点发现自己的票数已经超过sentinel集合半数而且超过quorum,那么它将成为领导者
+如果此过程有多个sentinel节点成为了领导者,那么将等待一段时间重新进行选举
+```
+
+### 故障转移(sentinel领导者节点完成)
+
+```shell
+从slave节点中选出一个合适的节点作为新的master节点
+对上面的slave节点执行slaveof no one命令让其成为master节点
+向剩余的slave节点发送命令,让它们成为新master节点的slave节点,复制规则和parallel-syncs参数有关
+更新对原来master节点配置为slave,并保持着对其'关注',当恢复后命令它去复制新的master节点
+```
+
+#### 选择'合适的'slave节点
+
+```shell
+选择slave-priority(slave节点优先级)最高的slave节点,如果存在则返回,不存在则继续
+选择复制偏移量最大的slave节点(复制的最完整),如果存在则返回,不存在则继续
+选择runid最小的slave节点
+```
+
+### 节点运维
+
+```shell
+从节点:临时下线还是永久下线,是否做一些清理工作,要考虑读写分离的情况
+sentinel节点:同上
+```
+
+#### 节点上线
+
+```shell
+主节点: sentinel failover 进行替换
+从节点: slaveof即可,sentinel节点可以感知
+sentinel节点: 参考其他sentinel节点启动即可
+```
