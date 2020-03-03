@@ -383,7 +383,7 @@ def strappend(num): # 无注释
     return str
 
 # 修改
-def strappend(append_count:int):->str
+def strappend(append_count:int)->str:
     """字符串修改
 
     遍历append_count. 将遍历的值转为str添加到字符串
@@ -502,7 +502,7 @@ list(set(AList))
 
 ```python
 a = list('12345abcde')
-B = b = list('12345678abcdefg')
+b = list('12345678abcdefg')
 set(a)&set(b)
 set(a)^set(b)
 ```
@@ -696,7 +696,7 @@ with open('./C.txt', 'w', encoding='utf-8') as f:
 ```python
 执行
 finally:
-f.close()
+    f.close()
 ```
 
 用 python 删除文件和用 linux 命令删除文件方法
