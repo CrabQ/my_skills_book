@@ -1,4 +1,4 @@
-# MySQL经典四表查询问题
+# MysQL经典四表查询问题
 
 ## 初始化数据库
 
@@ -45,41 +45,39 @@ foreign key(cid) references course(cid)
 ## 插入数据
 
 ```sql
-insert into student values(1,'赵雷','1990-01-01','男'),
-(2,'钱电','1990-12-21','男'),
-(3,'孙风','1990-05-20','男'),
-(4,'李云','1990-08-06','男'),
-(5,'周梅','1991-12-01','女'),
-(6,'吴兰','1992-03-01','女'),
-(7,'郑竹','1989-07-01','女'),
-(8,'王菊','1990-01-20','女');
+insert into student values('01' , '赵雷' , '1990-01-01' , '男');
+insert into student values('02' , '钱电' , '1990-12-21' , '男');
+insert into student values('03' , '孙风' , '1990-05-20' , '男');
+insert into student values('04' , '李云' , '1990-08-06' , '男');
+insert into student values('05' , '周梅' , '1991-12-01' , '女');
+insert into student values('06' , '吴兰' , '1992-03-01' , '女');
+insert into student values('07' , '郑竹' , '1989-07-01' , '女');
+insert into student values('08' , '王菊' , '1990-01-20' , '女');
+insert into teacher values('01' , '张三');
+insert into teacher values('02' , '李四');
+insert into teacher values('03' , '王五');
+insert into course values('01' , '语文' , '02');
+insert into course values('02' , '数学' , '01');
+insert into course values('03' , '英语' , '03');
+insert into sc values('01' , '01' , 80);
+insert into sc values('01' , '02' , 90);
+insert into sc values('01' , '03' , 99);
+insert into sc values('02' , '01' , 70);
+insert into sc values('02' , '02' , 60);
+insert into sc values('02' , '03' , 80);
+insert into sc values('03' , '01' , 80);
+insert into sc values('03' , '02' , 80);
+insert into sc values('03' , '03' , 80);
+insert into sc values('04' , '01' , 50);
+insert into sc values('04' , '02' , 30);
+insert into sc values('04' , '03' , 20);
+insert into sc values('05' , '01' , 76);
+insert into sc values('05' , '02' , 87);
+insert into sc values('06' , '01' , 31);
+insert into sc values('06' , '03' , 34);
+insert into sc values('07' , '02' , 89);
+insert into sc values('07' , '03' , 98);
 
-insert into teacher values(1,'张三'),
-(2,'李四'),
-(3,'王五');
-
-insert into course values(1,'语文',2),
-(2,'数学',1),
-(3,'英语',3);
-
-insert into sc values(1,1,90),
-(1,2,80),
-(1,3,90),
-(2,1,70),
-(2,2,60),
-(2,3,80),
-(3,1,80),
-(3,2,80),
-(3,3,80),
-(4,1,50),
-(4,2,30),
-(4,3,20),
-(5,1,76),
-(5,2,87),
-(6,1,31),
-(6,3,34),
-(7,2,89),
-(7,3,98);
 ```
 
 ## 问题
@@ -179,8 +177,8 @@ select s.*
 from student s
 inner join sc as sc
 on s.sid=sc.sid
-where sc.cid=1 and sc.sid not in(
-select sc.sid from sc where sc.cid=2
+where sc.cid=1 and sc.sid  in(
+select sid from sc where cid=2
 );
 ```
 
