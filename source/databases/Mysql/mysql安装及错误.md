@@ -1,4 +1,4 @@
-# mysql安装及错误
+# MySQL安装及错误
 
 ## win 10安装mysql
 
