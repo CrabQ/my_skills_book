@@ -15,7 +15,7 @@
 
 - 缓存系统
 - 计数器
-- 消队列系统
+- 消息队列系统
 - 排行榜
 
 ## Redis功能
@@ -151,7 +151,7 @@ bitcount key [start end]
 # 将多个bitmap的and(交集),or(并集),not(非),xor(异或)操作并将结果保存在destkey中
 bitop op destkey key [key...]
 
-计算位图指定范围(start到end,单位为字节,如果不指定则为全部)第一个偏移量对应的值等于targetBit的位置
+# 计算位图指定范围(start到end,单位为字节,如果不指定则为全部)第一个偏移量对应的值等于targetBit的位置
 bitpos key targetBit [start end]
 ```
 

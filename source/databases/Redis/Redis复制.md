@@ -40,8 +40,8 @@ slave-read-only yes
 ```shell
 bgsave时间
 RDB文件网络传输时间
-从节点清楚数据时间
-从节点夹在RDB的时间
+从节点清除数据时间
+从节点加载RDB的时间
 可能的AOF重写时间
 ```
 
