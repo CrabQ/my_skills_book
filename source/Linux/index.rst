@@ -5,5 +5,5 @@ Linux
    :maxdepth: 2
    :glob:
 
-   常用命令
+   Linux基础命令
    Centos/index

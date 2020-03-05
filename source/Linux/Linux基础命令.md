@@ -1,4 +1,40 @@
-# 常用命令
+# Linux基础命令
+
+## 命令帮助
+
+查看命令的简要说明
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# whatis ls
+ls (1)               - list directory contents
+```
+
+详细说明
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# info ls
+```
+
+使用man
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# man ls
+```
+
+查看程序的binary文件所在路径
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# which ls
+alias ls='ls --color=auto'
+        /usr/bin/ls
+```
+
+查看程序的搜索路径
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# whereis ls
+ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
+```
 
 ## 定时任务crontab
 
