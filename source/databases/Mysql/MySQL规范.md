@@ -1,5 +1,7 @@
 # MySQL规范
 
+>[一份非常完整的MySQL规范](https://www.cnblogs.com/duaimili/p/10277515.html)
+
 ## 数据库命令规范
 
 所有数据库对象名称必须使用小写字母并用下划线分割
