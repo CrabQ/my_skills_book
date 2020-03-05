@@ -105,6 +105,25 @@ group by sc.sid
 having avg(sc.score)>=60;
 ```
 
+查询在 SC 表存在成绩的学生信息
+
+```sql
+select distinct  s.*
+from student as s
+inner join sc
+on s.sid=sc.sid;
+```
+
+查询所有同学的学生编号、学生姓名、选课总数、所有课程的成绩总和
+
+```sql
+select  s.sid, s.sname, count(sc.cid), sum(sc.score)
+from student as s
+inner join sc
+on s.sid=sc.sid
+group by s.sid;
+```
+
 查询名字中含有"风"字的学生信息
 
 ```sql
