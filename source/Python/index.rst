@@ -5,7 +5,8 @@ Python
    :maxdepth: 2
    :glob:
 
-   Python知识点/index
+   Python进阶
+   Python实例/index
    爬虫/index
    Scrapy/index
    Django/index
