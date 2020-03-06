@@ -320,9 +320,3 @@ Redis module 是Redis 4.0 以后支持的新的特性，这里很多国外牛逼
 neural-redis 主要是神经网络的机器学，集成到redis 可以做一些机器训练感兴趣的可以尝试
 RedisSearch 主要支持一些富文本的的搜索
 RedisBloom 支持分布式环境下的Bloom 过滤器
-
-#### 
-
-#### 
-
-#### 

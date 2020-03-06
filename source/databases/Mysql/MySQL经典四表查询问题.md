@@ -124,6 +124,12 @@ on s.sid=sc.sid
 group by s.sid;
 ```
 
+查询「李」姓老师的数量
+
+```sql
+select count(*) from teacher where tname like '李%';
+```
+
 查询名字中含有"风"字的学生信息
 
 ```sql
@@ -354,6 +360,17 @@ inner join sc
 on sc.sid=s.sid
 group by sc.sid
 having count(*)>=2;
+```
+
+查询没有学全所有课程的同学的信息
+
+```sql
+select s.*, count(sc.cid)
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by s.sid
+having count(sc.cid)<(select count(*) from course);
 ```
 
 查询选修了全部课程的学生信息
