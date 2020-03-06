@@ -36,6 +36,101 @@ alias ls='ls --color=auto'
 ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
 ```
 
+## 文件及目录管理
+
+### 创建和删除
+
+```shell
+# 创建
+mkdir
+
+# 删除
+# rm
+# 删除非空目录
+rm -rf 目录
+# 删除日志
+rm *log
+# $find ./ -name “*log” -exec rm {} ;
+
+# 移动
+mv
+
+# 复制
+cp
+# 复制目录：
+cp -r 目录
+```
+
+## 目录切换
+
+```shell
+# 进入路径
+[root@izbp128jigdcjx00os4h3sz ~]# cd /home
+[root@izbp128jigdcjx00os4h3sz home]
+
+# 切换到上一个工作目录
+[root@izbp128jigdcjx00os4h3sz home]# cd -
+/root
+[root@izbp128jigdcjx00os4h3sz ~]#
+
+# 切换到home目录
+cd
+# cd ~
+
+# 显示当前路径
+[root@izbp128jigdcjx00os4h3sz ~]# pwd
+/root
+```
+
+### 列出目录项
+
+```shell
+# 按时间排序，以列表的方式显示目录项
+[root@izbp128jigdcjx00os4h3sz ~]# ls -lrt
+total 22480
+-rw-r--r--  1 root root 23010188 Dec 24  2018 Python-3.6.8.tgz
+drwxr-xr-x  2 root root     4096 Oct 23 17:00 envs
+drwxr-xr-x 18  501  501     4096 Oct 24 13:50 Python-3.6.8
+```
+
+### 查找目录及文件 find/locate
+
+```shell
+# 搜寻文件或目录
+[root@izbp128jigdcjx00os4h3sz ~]# find ./ -name "python"
+./.vscode-server/bin/c47d83b293181d9be64f27ff093689e8e7aed054/extensions/python
+./.vscode-server/bin/9579eda04fdb3a9bba2750f15193e5fafe16b959/extensions/python
+./.vscode-server/bin/26076a4de974ead31f97692a0d32f90d735645c0/extensions/python
+./.vscode-server/bin/8795a9889db74563ddd43eb0a897a2384129a619/extensions/python
+./.vscode-server/bin/f359dd69833dd8800b54d458f6d37ab7c78df520/extensions/python
+./Python-3.6.8/python
+```
+
+查看当前目录下文件个数
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# find ./ | wc -l
+16649
+```
+
+递归当前目录及子目录删除所有.ooo文件
+
+```shell
+find ./ -name "*.ooo" -exec rm {} \;
+```
+
+find是实时查找,如果需要更快的查询,可试试locate
+
+locate会为文件系统建立索引数据库,如果有文件更新,需要定期执行更新命令来更新索引库
+
+```shell
+# 寻找包含有string的路径
+locate string
+
+# 更新数据库
+updatedb
+```
+
 ## 定时任务crontab
 
 ```sh
