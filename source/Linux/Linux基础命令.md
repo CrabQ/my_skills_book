@@ -131,6 +131,107 @@ locate string
 updatedb
 ```
 
+### 查看文件内容
+
+```shell
+# 显示时同时显示行号:
+[root@izbp128jigdcjx00os4h3sz ~]# cat test.txt -n
+     1  a
+     2  b
+     3  c
+     4  d
+
+# 查看前3行
+[root@izbp128jigdcjx00os4h3sz ~]# head -3 test.txt
+a
+b
+c
+
+# 查看倒数3行
+[root@izbp128jigdcjx00os4h3sz ~]# tail -3 test.txt
+d
+e
+f
+```
+
+查看两个文件间的差别
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# diff test.txt test2.txt
+2c2
+< b
+---
+> db
+```
+
+动态显示文本最新信息
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# tail -f test.txt
+a
+b
+c
+d
+e
+f
+
+```
+
+### 查找文件内容
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# grep b test2.txt
+db
+```
+
+### 文件与目录权限修改
+
+```shell
+# 改变文件的拥有者
+chown
+# 改变文件读、写、执行等属性
+chmod
+# 增加脚本可执行权限
+chmod a+x test.py
+```
+
+### 管道和重定向
+
+```shell
+# 批处理命令连接执行
+|
+# 串联
+;
+# 前面成功则执行后面一条,否则不执行
+&&
+# 前面失败则后一条执行
+||
+
+[root@izbp128jigdcjx00os4h3sz ~]# ls /home && echo succ! || echo fail!
+envs test.txt
+succ!
+```
+
+重定向
+
+```shell
+# 将标准输出和标准错误重定向到同一文件
+[root@izbp128jigdcjx00os4h3sz ~]# ls /home > result.txt 2>&1
+# ls /usr &>result.txt
+```
+
+追加
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# echo hhhhh >> result.txt
+```
+
+清空文件
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# :> result.txt
+```
+
 ## 定时任务crontab
 
 ```sh
