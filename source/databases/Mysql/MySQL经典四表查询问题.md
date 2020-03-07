@@ -234,15 +234,15 @@ group by s.sid;
 查询和"01"号的同学学习的课程完全相同的其他同学的信息
 
 ```sql
-select s.*, group_concat(sc.cid)
+select s.*, group_concat(sc.cid order by sc.cid)
 from student as s
 inner join sc
 on sc.sid=s.sid
-where sc.sid != 1
+
 group by sc.sid
-having group_concat(sc.cid)=(
-    select group_concat(sc.cid) from sc where sc.sid=1 group by sc.sid
-);
+having group_concat(sc.cid order by sc.cid) =(
+    select group_concat(sc.cid order by sc.cid) from sc where sc.sid=1 group by sc.sid
+) and sc.sid!=1;
 ```
 
 查询没学过"张三"老师讲授的任一门课程的学生姓名
@@ -257,6 +257,27 @@ inner join sc
 on t.tid=c.tid and sc.cid=c.cid
 where t.tname='张三'
 );
+```
+
+查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
+
+```sql
+select s.sid,s.sname, avg(sc.score)
+from student as s
+inner join (select * from sc where score<60)sc
+on sc.sid=s.sid
+group by sc.sid
+having count(sc.sid)>=2;
+
+select s.sid,s.sname, avg(sc.score)
+from student as s
+inner join sc
+on sc.sid=s.sid
+group by sc.sid
+having sc.sid in (
+    select sid from sc where score < 60 group by sid
+);
+
 ```
 
 查询出只有两门课程的全部学生的学号和姓名
