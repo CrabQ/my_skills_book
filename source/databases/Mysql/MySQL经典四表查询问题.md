@@ -94,6 +94,73 @@ and sc1.sid=sc2.sid
 where sc2.score<sc1.score and sc1.cid=1 and sc2.cid=2;
 ```
 
+检索"01"课程分数小于 60,按分数降序排列的学生信息
+
+```sql
+select s.*
+from student as s
+inner join sc
+on s.sid=sc.sid
+where sc.cid=1 and sc.score < 60
+order by sc.score desc;
+```
+
+按平均成绩从高到低显示所有学生的所有课程的成绩以及平均成绩
+
+```sql
+select s.*, avg_score
+from sc as s
+left join (
+    select sc.sid ,avg(sc.score) as avg_score from sc group by sc.sid
+   ) r
+on s.sid = r.sid
+order by avg_score desc ;
+```
+
+查询各科成绩最高分,最低分和平均分,以如下形式显示
+
+课程 ID,课程 name,最高分,最低分,平均分,及格率,中等率,优良率,优秀率
+
+及格为>=60,中等为70-80,优良为80-90,优秀为>=90
+
+要求输出课程号和选修人数,查询结果按人数降序排列,若人数相同,按课程号升序
+
+```sql
+select sc.cid, c.cname, max(sc.score), min(sc.score), avg(sc.score),
+sum(及格)/count(sc.cid) as 及格率, sum(中等)/count(sc.cid) as 中等率, sum(优良)/count(sc.cid) as 优良率, sum(优秀)/count(sc.cid) as 优秀率
+from (
+SELECT
+    *,
+    CASE
+      WHEN score >= 60
+      THEN 1
+      ELSE 0
+    END AS 及格,
+    CASE
+      WHEN score >= 70
+      AND score < 80
+      THEN 1
+      ELSE 0
+    END AS 中等,
+    CASE
+      WHEN score >= 80
+      AND score < 90
+      THEN 1
+      ELSE 0
+    END AS 优良,
+    CASE
+      WHEN score >= 90
+      THEN 1
+      ELSE 0
+    END AS 优秀
+  FROM
+    sc) sc
+inner join course as c
+on c.cid=sc.cid
+group by sc.cid
+order by count(sc.cid) desc, cid asc;
+```
+
 查询平均成绩大于等于60分的同学的学生编号和学生姓名和平均成绩
 
 ```sql
@@ -259,7 +326,7 @@ where t.tname='张三'
 );
 ```
 
-查询两门及其以上不及格课程的同学的学号，姓名及其平均成绩
+查询两门及其以上不及格课程的同学的学号,姓名及其平均成绩
 
 ```sql
 select s.sid,s.sname, avg(sc.score)
