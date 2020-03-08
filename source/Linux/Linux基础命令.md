@@ -232,6 +232,89 @@ succ!
 [root@izbp128jigdcjx00os4h3sz ~]# :> result.txt
 ```
 
+## 文本处理
+
+### find 文件查找
+
+查找txt和pdf文件
+
+```shell
+# -o or
+find . \( -name "*.txt" -o -name "*.pdf" \) -print
+```
+
+查找所有非txt文本
+
+```shell
+find . ! -name "*.txt" -print
+```
+
+指定搜索深度,打印出当前目录的文件（深度为1）
+
+```shell
+# -type 文件类型 f代表文件 d代表文件夹 l代表链接
+find . -maxdepth 1 -type f
+```
+
+查询7天前被访问过的所有文件
+
+```shell
+# -atime 访问时间,单位是天.分钟单位则是-amin
+# -mtime 修改时间,内容被修改
+# -ctime 变化时间,元数据或权限变化
+find . -atime +7 -type f -print
+```
+
+寻找大于2k的文件
+
+```shell
+find . -type f -size +2k
+```
+
+查询具有可执行权限的所有文件
+
+```shell
+find . -type f -perm 644 -print
+```
+
+用户weber所拥有的文件
+
+```shell
+find . -type f -user weber -print
+```
+
+找到之后删除当前目录下所有的swp文件
+
+```shell
+find . -type f -name "*.swp" -delete
+```
+
+将找到的文件全都copy到另一个目录
+
+```shell
+# {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
+find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
+```
+
+### grep 文本搜索
+
+```shell
+# -c 统计文件中包含文本的次数
+# -i 搜索时忽略大小写
+grep -c -i 'my' result.txt
+```
+
+匹配多个模式
+
+```shell
+# -n 打印匹配的行号
+[root@izbp128jigdcjx00os4h3sz ~]# grep -e 'my' -e 'envs' -n result.txt
+1:envs
+2:my_blog
+3:my_blog.log
+4:my_blog_sql
+```
+
 ## 定时任务crontab
 
 ```sh
