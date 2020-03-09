@@ -315,6 +315,92 @@ grep -c -i 'my' result.txt
 4:my_blog_sql
 ```
 
+### xargs 命令行参数转换
+
+将多行输出转化为单行输出
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | xargs
+envs my_blog my_blog.log my_blog_sql hhhhh
+```
+
+将单行转化为多行输出
+
+```shell
+# -n指定每行显示的字段数
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | xargs -n 2
+envs my_blog
+my_blog.log my_blog_sql
+hhhhh
+```
+
+### sort排序
+
+```shell
+# -n 按数字进行排序
+# -d 按字典序进行排序
+# -r 逆序排序
+# -k N 指定按第N列排序
+[root@izbp128jigdcjx00os4h3sz ~]# sort result.txt  -r -d
+my_blog_sql
+my_blog.log
+my_blog
+hhhhh
+envs
+```
+
+### uniq 消除重复行
+
+消除重复行
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq
+envs
+my_blog
+my_blog.log
+my_blog_sql
+hhhhh
+```
+
+统计各行在文件中出现的次数
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq -c
+      1 envs
+      1 my_blog
+      1 my_blog.log
+      1 my_blog_sql
+      1 hhhhh
+```
+
+找出重复行
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq -d
+```
+
+### 用tr进行转换
+
+加解密转换，替换对应字符
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# echo 12345 | tr '0-9' '9876543210'
+87654
+```
+
+删除所有数字(对结果而言)
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt |tr -d '0-9'
+envs
+my_blog
+my_blog.log
+my_blog_sql
+hhhhh
+
+hhhhh
+```
+
 ## 定时任务crontab
 
 ```sh
