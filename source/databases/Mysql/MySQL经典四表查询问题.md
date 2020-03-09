@@ -161,6 +161,34 @@ group by sc.cid
 order by count(sc.cid) desc, cid asc;
 ```
 
+按各科成绩进行排序,并显示排名, Score 重复时保留名次空缺
+
+```sql
+select *, rank() over (partition by cid order by score desc) as 排名 from sc;
+```
+
+按各科成绩进行行排序,并显示排名,Score 重复时合并名次
+
+```sql
+select *, dense_rank() over (partition by cid order by score desc) as 排名 from sc;
+```
+
+查询学生的总成绩,并进行排名,总分重复时保留名次空缺
+
+```sql
+select sid, sum(score) as 总成绩,rank() over (order by sum(score) desc) as 排名
+from sc
+group by sid;
+```
+
+查询学生的总成绩，并进行排名，总分重复时不保留名次空缺
+
+```sql
+select sid, sum(score) as 总成绩,dense_rank() over (order by sum(score) desc) as 排名
+from sc
+group by sid;
+```
+
 查询平均成绩大于等于60分的同学的学生编号和学生姓名和平均成绩
 
 ```sql
