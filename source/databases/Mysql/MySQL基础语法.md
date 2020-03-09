@@ -517,6 +517,9 @@ show variables like '%char%';
 -- 只对当前连接有效
 set names 'utf8';
 
+-- 查看warning信息
+show warnings;
+
 alter table cms_user character set 'utf8mb4';
 
 -- 查看会话变量
