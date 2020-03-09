@@ -927,3 +927,13 @@ select week(curdate());
 date_format(receiving_time, '%Y-%m')
 -- 2019-02
 ```
+
+### 排名
+
+```sql
+-- 按各科成绩进行行排序,并显示排名,Score 重复时合并名次
+select *, dense_rank() over (partition by cid order by score desc) as 排名 from sc;
+-- row_number() 1 2 3 4
+-- dense_rank() 1 2 2 3
+-- rank() 1 2 2 4
+```
