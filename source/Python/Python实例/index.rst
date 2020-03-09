@@ -19,6 +19,7 @@ Python知识点
    pickle相关知识
    pil_区分图片是黑白彩色还是灰度
    Python读取excel
+   Python操作Excel之xlwings
    pymysql_example
    python文件打包
    request_基础
