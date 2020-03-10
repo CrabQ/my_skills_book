@@ -85,7 +85,7 @@ cd
 ### 列出目录项
 
 ```shell
-# 按时间排序，以列表的方式显示目录项
+# 按时间排序,以列表的方式显示目录项
 [root@izbp128jigdcjx00os4h3sz ~]# ls -lrt
 total 22480
 -rw-r--r--  1 root root 23010188 Dec 24  2018 Python-3.6.8.tgz
@@ -249,7 +249,7 @@ find . \( -name "*.txt" -o -name "*.pdf" \) -print
 find . ! -name "*.txt" -print
 ```
 
-指定搜索深度,打印出当前目录的文件（深度为1）
+指定搜索深度,打印出当前目录的文件(深度为1)
 
 ```shell
 # -type 文件类型 f代表文件 d代表文件夹 l代表链接
@@ -381,7 +381,7 @@ hhhhh
 
 ### 用tr进行转换
 
-加解密转换，替换对应字符
+加解密转换,替换对应字符
 
 ```shell
 [root@izbp128jigdcjx00os4h3sz ~]# echo 12345 | tr '0-9' '9876543210'
@@ -401,6 +401,178 @@ hhhhh
 hhhhh
 ```
 
+### paste 按列拼接文本
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# paste result.txt result_2.txt -d '|'
+envs|envs
+my_blog|my_blog
+my_blog.log|my_blog.log
+my_blog_sql|my_blog_sql
+hhhhh|hhhhh
+123|123
+hhhhh|hhhhh
+```
+
+### wc 统计行和字符的工具
+
+```shell
+# 统计行数
+[root@izbp128jigdcjx00os4h3sz ~]# wc -l result.txt
+7 result.txt
+
+# 统计单词数
+[root@izbp128jigdcjx00os4h3sz ~]# wc -w result.txt
+7 result.txt
+
+# 统计字符数
+[root@izbp128jigdcjx00os4h3sz ~]# wc -c result.txt
+53 result.txt
+```
+
+### sed 文本替换利器
+
+首处替换
+
+```shell
+# 替换每一行的第一处匹配的my
+[root@izbp128jigdcjx00os4h3sz ~]# sed 's/hhh/new/' result.txt
+envs
+my_blog
+my_blog.log
+my_blog_sql
+newhh
+123
+newhh
+```
+
+全局替换
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# sed 's/l/z/g' result.txt
+envs
+my_bzog
+my_bzog.zog
+my_bzog_sqz
+hhhhh
+123
+hhhhh
+```
+
+移除空白行
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# sed '/^$/d' result.txt
+```
+
+默认替换后,输出替换后的内容,如果需要直接替换原文件,使用-i
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# sed -i 's/hhh/new/g' result.txt
+```
+
+
+### awk 数据流处理工具
+
+awk脚本结构
+
+```shell
+awk ' BEGIN{ statements } statements2 END{ statements } '
+# 1.执行begin中语句块
+# 2.从文件或stdin中读入一行,然后执行statements2,重复这个过程,直到文件全部被读取完毕
+# 3.执行end语句块
+```
+
+使用不带参数的print时,会打印当前行
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
+start
+line1
+line2
+End
+```
+
+特殊变量`NR NF $0 $1 $2`
+
+```shell
+# NR:表示记录数量,在执行过程中对应当前行号
+# NF:表示字段数量,在执行过程总对应当前行的字段数
+# $0:这个变量包含执行过程中当前行的文本内容
+# $1:第一个字段的文本内容
+# $2:第二个字段的文本内容
+
+[root@izbp128jigdcjx00os4h3sz ~]# echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
+1:line1 f2 f3-line1-f2
+2: line2 -line2-
+3: line 3-line-3
+```
+
+统计文件的行数
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# awk 'END {print NR}' result.txt
+8
+```
+
+累加每一行的第一个字段
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
+> print "begin";} {sum += $1;} END {print "=="; print sum }'
+begin
+==
+10
+```
+
+传递外部变量
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# var=1000
+[root@izbp128jigdcjx00os4h3sz ~]# echo | awk '{print vara}' vara=$var
+1000
+```
+
+用样式对awk处理的行进行过滤
+
+```shell
+# 行号小于5
+[root@izbp128jigdcjx00os4h3sz ~]# awk 'NR < 5' result.txt
+
+# 包含new的行
+[root@izbp128jigdcjx00os4h3sz ~]# awk '/new/' result.txt
+newhh
+newhh
+
+# 不包含new的行
+[root@izbp128jigdcjx00os4h3sz ~]# awk '!/new/' result.txt
+
+envs
+my_blog
+my_blog.log
+my_blog_sql
+123
+```
+
+以下字符串，打印出其中的时间串
+
+```shell
+# 使用-F来设置定界符(默认为空格)
+[root@izbp128jigdcjx00os4h3sz ~]# echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
+2015_04_02 20:20:08
+```
+
+打印指定列
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# ls -lrt | awk '{print $6}'
+
+Dec
+Oct
+Oct
+Mar
+```
+
 ## 定时任务crontab
 
 ```sh
@@ -413,7 +585,7 @@ crontal -e
 #每天4点执行脚本
 0 16 * * * sh /home/bmnars/spider_porject/crontab/biotech_org_spider.sh
 
-# 使用Python虚拟环境，所以执行路径为虚拟环境的Python路径/home/bmnars/spider_porject/spider_venv/bin/python
+# 使用Python虚拟环境,所以执行路径为虚拟环境的Python路径/home/bmnars/spider_porject/spider_venv/bin/python
 # 字符%是一个可被crontab识别的换行符所以通过调用.sh文件执行Python脚本
 ```
 
@@ -423,14 +595,14 @@ crontal -e
 top
 　　PID：进程的ID
 　　USER：进程所有者
-　　PR：进程的优先级别，越小越优先被执行
+　　PR：进程的优先级别,越小越优先被执行
 　　NInice：值
 　　VIRT：进程占用的虚拟内存
 　　RES：进程占用的物理内存
 　　SHR：进程使用的共享内存
-　　S：进程的状态。S表示休眠，R表示正在运行，Z表示僵死状态，N表示该进程优先值为负数
+　　S：进程的状态。S表示休眠,R表示正在运行,Z表示僵死状态,N表示该进程优先值为负数
 　　%CPU：进程占用CPU的使用率
 　　%MEM：进程使用的物理内存和总内存的百分比
-　　TIME+：该进程启动后占用的总的CPU时间，即占用CPU使用时间的累加值。
+　　TIME+：该进程启动后占用的总的CPU时间,即占用CPU使用时间的累加值。
 　　COMMAND：进程启动命令名称
 ```
