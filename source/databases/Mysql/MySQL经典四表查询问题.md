@@ -181,7 +181,7 @@ from sc
 group by sid;
 ```
 
-查询学生的总成绩，并进行排名，总分重复时不保留名次空缺
+查询学生的总成绩,并进行排名,总分重复时不保留名次空缺
 
 ```sql
 select sid, sum(score) as 总成绩,dense_rank() over (order by sum(score) desc) as 排名
@@ -390,6 +390,94 @@ having count(*)=2;
 
 ```sql
 select * from student WHERE sage like '%1990%';
+```
+
+统计各科成绩各分数段人数:课程编号,课程名称,[100-85],[85-70],[70-60],[60-0] 及所占百分比
+
+```sql
+SELECT
+  sc.cid AS 课程编号,
+  cname AS 课程名称,
+  SUM(
+    CASE
+      WHEN score >= 0
+      AND score <= 60
+      THEN 1
+      ELSE 0
+    END
+  ) AS '[60-0]',
+  SUM(
+    CASE
+      WHEN score >= 0
+      AND score <= 60
+      THEN 1
+      ELSE 0
+    END
+  ) / COUNT(sid) AS '[60-0]百分比',
+  SUM(
+    CASE
+      WHEN score >= 60
+      AND score <= 70
+      THEN 1
+      ELSE 0
+    END
+  ) AS '[70-60]',
+  SUM(
+    CASE
+      WHEN score >= 60
+      AND score <= 70
+      THEN 1
+      ELSE 0
+    END
+  ) / COUNT(sid) AS '[70-60]百分比',
+  SUM(
+    CASE
+      WHEN score >= 70
+      AND score <= 85
+      THEN 1
+      ELSE 0
+    END
+  ) AS '[85-70]',
+  SUM(
+    CASE
+      WHEN score >= 70
+      AND score <= 85
+      THEN 1
+      ELSE 0
+    END
+  ) / COUNT(sid) AS '[85-70]百分比',
+  SUM(
+    CASE
+      WHEN score >= 85
+      AND score <= 100
+      THEN 1
+      ELSE 0
+    END
+  ) AS '[100-85]',
+  SUM(
+    CASE
+      WHEN score >= 85
+      AND score <= 100
+      THEN 1
+      ELSE 0
+    END
+  ) / COUNT(sid) AS '[100-85]百分比'
+FROM
+  sc
+  JOIN course
+    ON sc.cid = course.cid
+GROUP BY sc.cid,
+  cname ;
+```
+
+查询各科成绩前三名的记录
+
+```sql
+SELECT a.*,COUNT(b.score) +1 AS ranking
+FROM sc AS a LEFT JOIN sc AS b
+ON a.cid = b.cid AND a.score<b.score
+GROUP BY a.cid,a.sid
+ORDER BY a.cid,ranking;
 ```
 
 查询每门课程的平均成绩,结果按平均成绩降序排列,平均成绩相同时,按课程编号升序排列
