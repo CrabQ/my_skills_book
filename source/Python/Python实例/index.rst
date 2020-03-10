@@ -26,3 +26,4 @@ Python知识点
    Requests请求回应的网页乱码
    request_session.headers.update()
    virtualenv和virtualenvwrapper
+   Python发送邮件
