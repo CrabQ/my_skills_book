@@ -219,6 +219,12 @@ on s.sid=sc.sid
 group by s.sid;
 ```
 
+查询同名同性学生名单，并统计同名人数
+
+```sql
+select sname, count(sname) from student group by sname having count(*)>2;
+```
+
 查询「李」姓老师的数量
 
 ```sql
@@ -382,14 +388,19 @@ select s.sid,s.sname
 from student as s
 inner join sc
 on sc.sid=s.sid
-group by sc.sid
 having count(*)=2;
+```
+
+查询男生,女生人数
+
+```sql
+select ssex, count(*) from student group by ssex;
 ```
 
 查询1990年出生的学生名单
 
 ```sql
-select * from student WHERE sage like '%1990%';
+select * from student WHERE sage like '1990%';
 ```
 
 统计各科成绩各分数段人数:课程编号,课程名称,[100-85],[85-70],[70-60],[60-0] 及所占百分比

@@ -811,7 +811,7 @@ unlock tables;
 
 -- 并发插入
 
--- 查看并发插入,0不允许并发插入,1无空洞(删除)可插入,2都允许插入
+-- 查看并发插入,0不允许并发插入,1无空洞(无删除的行)可插入,2都允许插入
 -- 当前读锁的session获取不到另一个session的插入,释放锁之后才可以获取到
 show variables like '%concurrent_insert%';
 
