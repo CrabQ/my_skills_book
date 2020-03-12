@@ -244,18 +244,18 @@ select s.sname, sc.score
 from student as s
 inner join sc
 inner join course as c
-on s.sid=sc.sid and c.cid=sc.cid
-where sc.score<60 and c.cname='数学';
+on sc.sid=s.sid and c.cid=sc.cid
+where c.cname='数学' and sc.score<60;
 ```
 
-查询所有学生的课程及分数情况
+查询所有学生的课程及分数情况(存在学生没成绩，没选课的情况)
 
 ```sql
-select s.sname, c.cname, sc.score
+select s.sid, s.sname, c.cname, sc.score
 from student as s
 inner join sc
 inner join course as c
-on s.sid=sc.sid and c.cid=sc.cid;
+on sc.sid=s.sid and c.cid=sc.cid;
 ```
 
 查询没学过"张三"老师授课的同学的信息
@@ -494,10 +494,7 @@ ORDER BY a.cid,ranking;
 查询每门课程的平均成绩,结果按平均成绩降序排列,平均成绩相同时,按课程编号升序排列
 
 ```sql
-select cid, avg(score)
-from sc
-group by(cid)
-order by avg(score) desc, cid asc;
+select cid, avg(score) from sc group by cid order by avg(score) desc, cid;
 ```
 
 查询任何一门课程成绩在70分以上的学生姓名、课程名称和分数
@@ -514,12 +511,12 @@ where sc.score >70;
 查询平均成绩大于等于85的所有学生的学号、姓名和平均成绩
 
 ```sql
-select s.sid, s.sname, avg(score)
+select s.sid, s.sname, avg(sc.score)
 from student as s
 inner join sc
 on sc.sid=s.sid
-group by(s.sid)
-having avg(score)>=85;
+group by sc.sid
+having avg(sc.score)>=85;
 ```
 
 查询不及格的学生和相应课程
