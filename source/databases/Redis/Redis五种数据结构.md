@@ -97,6 +97,11 @@ Redis info查看命令
 info memory
 ```
 
+清空数据库
+
+```shell
+flushall
+```
 
 ## 字符串
 

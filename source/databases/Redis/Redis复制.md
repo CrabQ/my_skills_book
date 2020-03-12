@@ -13,7 +13,9 @@
 
 ### 主从复制的实现
 
-slaveof命令
+可以通过命令或者修改配置文件实现
+
+#### slaveof命令
 
 ```shell
 # 成为127.0.0.1 6379的从节点
@@ -23,7 +25,7 @@ slaveof 127.0.0.1 6379
 slaveof no one
 ```
 
-配置
+####　配置
 
 ```shell
 slaveof ip port
@@ -31,7 +33,75 @@ slaveof ip port
 slave-read-only yes
 ```
 
+### 单机实现
+
+```shell
+# 复制配置文件
+[root@izbp128jigdcjx00os4h3sz config]# cp redis-6379.conf
+
+# 修改端口等信息为6380
+[root@izbp128jigdcjx00os4h3sz config]# sed 's/6379/6380/g' -i redis-6380.conf redis-6380.conf
+
+# 启动6380服务器(6379已启动)
+[root@izbp128jigdcjx00os4h3sz config]# ../bin/redis-server redis-6380.conf
+
+# 进入6380客户端
+[root@izbp128jigdcjx00os4h3sz bin]# ./redis-cli -p 6380
+
+# 查看分片
+127.0.0.1:6380> info replication
+# Replication
+role:master
+connected_slaves:0
+
+# 添加一个key
+127.0.0.1:6380> sadd test a b c d e
+(integer) 5
+
+# 设置为6379的slave
+127.0.0.1:6380> slaveof 127.0.0.1 6379
+OK
+
+# 再次查看分片
+127.0.0.1:6380> info replication
+# Replication
+role:slave
+master_host:127.0.0.1
+master_port:6379
+master_link_status:up
+master_last_io_seconds_ago:4
+master_sync_in_progress:0
+slave_repl_offset:56
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+
+# 原6380上的keys已清除
+127.0.0.1:6380> smembers test
+(empty list or set)
+
+# 6379的数据已复制
+127.0.0.1:6380> dbsize
+(integer) 11
+
+# replica-read-only yes 配置为这个,6380无法写入数据
+127.0.0.1:6380> set a aa
+(error) READONLY You can't write against a read only replica.
+
+# 查看6379
+127.0.0.1:6379> info replication
+# Replication
+role:master
+connected_slaves:1
+slave0:ip=127.0.0.1,port=6380,state=online,offset=756,lag=1
+master_replid:25e95610a7c14b74ab86f253cf63d7a23451cb53
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:756
+```
+
 ### 全量复制
+
+runid: 每次启动分配的id,重启会改变,(即可能引发全量复制)
 
 主从复制的同时,这期间写入的数据会在缓冲区记录下来,同样发送给从节点,保证数据一致
 
@@ -42,10 +112,8 @@ bgsave时间
 RDB文件网络传输时间
 从节点清除数据时间
 从节点加载RDB的时间
-可能的AOF重写时间
+可能的AOF重写时间(如果开启)
 ```
-
-部分复制
 
 ### 主从复制常见问题
 
