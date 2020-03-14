@@ -238,11 +238,15 @@ if __name__ == '__main__':
 
 ### Python中的作用域
 
-本地作用域（Local）→当前作用域被嵌入的本地作用域（Enclosing locals）→全局/模块作用域（Global）→内置作用域（Built-in）
+本地作用域(Local)→当前作用域被嵌入的本地作用域(Enclosing locals)→全局/模块作用域(Global)→内置作用域(Built-in)
 
 ### GIL线程全局锁
 
-线程全局锁(Global Interpreter Lock),即Python为了保证线程安全而采取的独立线程运行的限制,说白了就是一个核只能在同一时间运行一个线程.
+线程全局锁(Global Interpreter Lock),即Python为了保证线程安全而采取的独立线程运行的限制,说白了就是一个核只能在同一时间运行一个线程.匿名函数
+
+```shell
+
+```
 
 对于io密集型任务,python的多线程起到作用,但对于cpu密集型任务,python的多线程几乎占不到任何优势,还有可能因为争夺资源而变慢.
 
@@ -255,3 +259,66 @@ if __name__ == '__main__':
 但是协程的切换只是单纯的操作CPU的上下文,所以一秒钟切换个上百万次系统都抗的住.
 
 简单点说协程是进程和线程的升级版,进程和线程都面临着内核态和用户态的切换问题而耗费许多切换时间,而协程就是用户自己控制切换的时机,不再需要陷入系统的内核态
+
+### lambda函数
+
+匿名函数
+
+```Python
+map( lambda x : x + 1, [1, 2, 3] )
+```
+
+### Python函数式编程
+
+```Python
+filter(lambda x: x > 5, [4,5,6])
+map( lambda x : x + 1, [1, 2, 3] )
+```
+
+### Python里的拷贝
+
+```shell
+# 浅拷贝: 仅拷贝顶层对象的引用
+# 深拷贝: 子对象也拷贝
+```
+
+### Python垃圾回收机制
+
+Python GC主要使用引用计数(reference counting)来跟踪和回收垃圾.在引用计数的基础上,通过“标记-清除”(mark and sweep)解决容器对象可能产生的循环引用问题,通过“分代回收”(generation collection)以空间换时间的方法提高垃圾回收效率
+
+### Python的List
+
+```shell
+# is是对比地址
+# ==是对比值
+```
+
+### read,readline和readlines
+
+```shell
+# read 读取整个文件
+# readline 读取下一行,使用生成器方法
+# readlines 读取整个文件到一个迭代器以供我们遍历
+```
+
+### Python2和3的区别
+
+Python3改进
+
+```shell
+print成为函数
+编码问题,Python3不再有Unicode对象,默认str就是Unicode
+除法变化,Python3除号返回浮点数
+类型注解(type hint).帮助IDE实现类型检查
+优化的super()方便直接调用父类函数
+高级解包操作. a, b, *rest = range(10)
+Keyword only arguments.限定关键字参数
+Chained exceptions. Python3重新抛出异常不会丢失栈信息
+一切返回迭代器range, zip, map, dict.values, ect.are all iterators
+yield from 链接子生成器
+asyncio内置库,async/await原生协程支持异步编程
+新的内置库enum, mock, asyncio, ipaddress, concurrent.futures等
+生成的pyc文件统一放到__pycache__
+一些内置库的修改. urllib, selector等
+性能优化等
+```
