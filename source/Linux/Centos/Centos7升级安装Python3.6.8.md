@@ -46,6 +46,7 @@
 7. 执行yum需要python2版本，修改yum的配置
 
    ```shell
+   # 修改/usr/bin/下所有的yum相关的工具,如下
    vi /usr/bin/yum
    #!/usr/bin/python改为#!/usr/bin/python2
    ```
