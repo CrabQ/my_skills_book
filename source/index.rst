@@ -13,6 +13,7 @@ Welcome to my_skills_book's documentation!
    sphinx/index
    Python/index
    Git/index
+   Docker/index
    databases/index
    Linux/index
    re/index
