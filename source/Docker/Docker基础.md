@@ -166,9 +166,6 @@ docker inspect 容器名称
 ```shell
 # 退出容器不关闭,在容器中打开新的终端, 并且可以启动新的进程
 docker exec -it c1 /bin/bash
-
-# 直接进入容器启动命令的终端, 不会启动新的进程
-docker attch c1
 ```
 
 启动,停止容器
@@ -244,21 +241,24 @@ docker run -it --name=c2 --volumes-from c3 centos:7 /bin/bash
 # 搜索镜像
 docker search mysql
 # 拉取
-docker pull mysql:5.6
+docker pull mysql
 
 # 在/root目录下创建MySQL目录用于储存MySQL数据信息
-mkdir ~/mysql
-cd ~/mysql
+mkdir ~/my_docker/mysql
 
 # 创建容器,设置端口映射,目录映射
+# 让容器的时钟与宿主机时钟同步
+# 开机启动
 docker run -id \
 -p 3306:3306 \
---name=c_mysql \
--v $pwd/conf:/etc/mysql/conf.d \
--v $pwd/logs:/logs \
--v $pwd/data:/var/lib/mysql \
--e MYSQL_ROOT_PASSWORD=123456 \
-mysql:5.6
+--name=mysql \
+-v ~/my_docker/mysql/logs:/logs \
+-v ~/my_docker/mysql/config:/etc/mysql/conf.d \
+-v ~/my_docker/mysql/data:/var/lib/mysql \
+-v /etc/localtime:/etc/localtime:ro \
+-e MYSQL_ROOT_PASSWORD=54170801am+1S \
+--restart=always \
+mysql:latest
 ```
 
 ## Dockerfile
@@ -266,7 +266,6 @@ mysql:5.6
 ### Dockerfile概念
 
 > Dockerfile是一个文本文件,包含了一条条的指令,每一条指令构建一层,基于基础镜像,最终构建出一个新的镜像
-
 > Dockerfile -> build -> Docker Images -> run -> Docker Container
 
 #### 组成
