@@ -27,6 +27,12 @@ yum install -y docker-ce
 
 # 查看版本,验证是否安装成功
 docker -v
+
+# 查看当前 Docker 有关信息
+docker info
+
+# 帮助
+docker --help
 ```
 
 配置Docker加速器
@@ -65,8 +71,9 @@ systemctl enable docker
 
 ### Docker镜像相关命令
 
+查看镜像
+
 ```shell
-# 查看镜像
 [root@izbp128jigdcjx00os4h3sz bin]# docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 redis               latest              f0453552d7f2        34 hours ago        98.2MB
@@ -76,16 +83,25 @@ mysql               latest              9b51d9275906        10 days ago         
 [root@izbp128jigdcjx00os4h3sz bin]# docker images -q
 f0453552d7f2
 9b51d9275906
+```
 
-# 搜索镜像
+搜索镜像
+
+```shell
 # docker search 镜像名称
 docker search redis
+```
 
-# 拉取镜像
+拉取镜像
+
+```shell
 # docker pull 镜像名称:版本号(不指定为最新)
 docker pull redis
+```
 
-# 删除镜像
+删除镜像
+
+```shell
 # docker rmi 镜像名称:版本号
 docker rmi mysql:latest
 # 通过ID删除
@@ -93,6 +109,14 @@ docker rmi mysql:latest
 
 # 删除所有本地镜像
 docker rmi `docker images -q`
+```
+
+#### 创建新镜像
+
+提交容器副本使之成为一个新的镜像
+
+```shell
+docker commit -m="message" -a="author" <container_id> target_name:[tag_name]
 ```
 
 ### Docker容器相关命令
@@ -129,28 +153,51 @@ f07547d6a854        centos:7            "/bin/bash"         15 seconds ago      
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                       PORTS               NAMES
 f07547d6a854        centos:7            "/bin/bash"         47 seconds ago      Up 46 seconds                                    c2
 9e44af0b49c0        centos:7            "/bin/bash"         3 minutes ago       Exited (127) 2 minutes ago                       c1
+```
 
-# 查看容器信息
+查看容器信息
+
+```shell
 docker inspect 容器名称
+```
 
-# 进入容器,退出容器不关闭
+进入容器
+
+```shell
+# 退出容器不关闭,在容器中打开新的终端, 并且可以启动新的进程
 docker exec -it c1 /bin/bash
 
-# 停止容器
+# 直接进入容器启动命令的终端, 不会启动新的进程
+docker attch c1
+```
+
+启动,停止容器
+
+```shell
 [root@izbp128jigdcjx00os4h3sz bin]# docker stop c2
 
 c2
 
-# 启动容器
 [root@izbp128jigdcjx00os4h3sz bin]# docker start c2
 c2
+```
 
-# 删除容器,先停止运行再删除
+删除容器,先停止运行再删除
+
+```shell
 [root@izbp128jigdcjx00os4h3sz bin]# docker rm c1
 c1
 ```
 
+从容器内拷贝文件到主机上
+
+```shell
+docker cp <container_id>:<path> <target_path>
+```
+
 ## Docker容器的数据卷
+
+Docker 容器产生的数据,如果不`docker commit`那么容器删除后,数据也就丢失了
 
 ### 概念
 
@@ -168,13 +215,17 @@ c1
 # 容器之间数据交换
 ```
 
-### 配置
+### 配置数据卷
 
 ```shell
+# 可挂载多个数据卷
+# docker run -it -v /宿主机绝对路径:/容器内目录:权限 <image_name>
 docker run -it --name=c3 -v /root/data:/root/data_container centos:7 /bin/bash
 ```
 
 ### 数据卷容器
+
+> 命名的容器挂载数据卷, 其他的容器通过挂载这个 (父容器) 实现数据共享, 挂载数据卷的容器被称为数据卷容器
 
 ```shell
 # 创建数据卷容器
@@ -214,7 +265,52 @@ mysql:5.6
 
 ### Dockerfile概念
 
-Dockerfile是一个文本文件,包含了一条条的指令,每一条指令构建一层,基于基础镜像,最终构建出一个新的镜像
+> Dockerfile是一个文本文件,包含了一条条的指令,每一条指令构建一层,基于基础镜像,最终构建出一个新的镜像
+
+> Dockerfile -> build -> Docker Images -> run -> Docker Container
+
+#### 组成
+
+```shell
+# centos 6.8 的 Dockerfile
+FROM scratch
+MAINTAINER The CentOS Project <cloud-ops@centos.org>
+ADD c68-docker.tar.xz /
+LABEL name="CentOS Base Image" \
+    vendor="CentOS" \
+    license="GPLv2" \
+    build-date="2016-06-02"
+
+# Default command
+CMD ["/bin/bash"]
+```
+
+#### 执行流程
+
+```shell
+# Docker 从基础镜像运行一个容器
+# 执行一条指令并对容器作出修改
+# 执行类似 docker commit 的操作提交一个新的镜像层
+# Docker 再基于刚提交的镜像运行一个新容器
+# 执行 Dockerfile 中的下一条指令直到完成
+```
+
+#### 保留字指令
+
+```shell
+# FROM  基础镜像, 当前新镜像是基于哪个镜像的
+# MAINTAINER  镜像维护者
+# RUN 容器构建时需要运行的命令
+# EXPOSE  当前容器对外暴露的端口号
+# WORKDIR 指定在创建容器后, 终端默认登录的工作目录
+# ENV 用来构建镜像过程中设置环境变量
+# ADD 将宿主机目录下的文件拷贝进镜像且 ADD 命令自动处理 url 和解压 tar 包
+# COPY  类似 ADD, 拷贝文件和目录到镜像中
+# VOLUME  容器数据化, 保存数据和数据持久化
+# CMD 指定容器运行时要启动的命令,可以有多个 CMD 指令, 但只有最后一个生效, CMD 会被 docker run 后面的参数代替
+# ENTRYPOINT  指定容器运行时要启动的命令,ENTRYPOINT 的目的和 CMD 一样, 都是指定容器启动程序以及参数
+# ONBUILD 当构建一个被继承的 Dockerfile 时运行命令, 父镜像被继承后, 父镜像 onbuild 被触发
+```
 
 ### Dockerfile构建
 

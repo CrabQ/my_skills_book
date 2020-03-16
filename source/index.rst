@@ -12,12 +12,12 @@ Welcome to my_skills_book's documentation!
 
    sphinx/index
    Python/index
-   Git/index
+   Databases/index
    Docker/index
-   databases/index
+   Git/index
    Linux/index
-   re/index
    Markdown/index
+   re/index
    VS code/index
    Windows/index
    English/index
