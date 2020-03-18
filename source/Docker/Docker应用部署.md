@@ -26,7 +26,7 @@ docker run -id \
 mysql:latest
 ```
 
-## Centos7Redis部署
+## Centos7下Redis部署
 
 ```shell
 # 拉取
@@ -50,4 +50,10 @@ docker run -id \
 -v /etc/localtime:/etc/localtime:ro \
 --restart=always \
 redis redis-server /etc/redis/redis.conf
+```
+
+## windows 10下Python部署
+
+```shell
+docker run -id --name=tornado_py3.6 -v C:\Users\CRAB\Desktop\my_docker\learn_tornado:/app python:3.6-buster
 ```
