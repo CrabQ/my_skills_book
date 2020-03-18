@@ -573,6 +573,70 @@ Oct
 Mar
 ```
 
+### 磁盘管理
+
+#### 查看磁盘空间
+
+磁盘空间利用大小
+
+```shell
+# -h 易读的方式
+[root@izbp128jigdcjx00os4h3sz mysql]# df -h
+```
+
+当前目录所占空间大小
+
+```shell
+# -s 递归
+[root@izbp128jigdcjx00os4h3sz mysql]# du -sh
+211M    .
+```
+
+查看当前目录下所有子文件夹排序后的大小
+
+```shell
+[root@izbp128jigdcjx00os4h3sz mysql]# du -sh `ls` | sort
+211M    data
+4.0K    logs
+8.0K    config
+```
+
+#### 打包,压缩
+
+打包, 多个文件归并到一个
+
+```shell
+# -c :打包选项
+# -v :显示打包进度
+# -f :使用档案文件
+[root@izbp128jigdcjx00os4h3sz mysql]# tar -cvf config.tar ./config
+./config/
+./config/my.cnf
+```
+
+压缩
+
+```shell
+[root@izbp128jigdcjx00os4h3sz mysql]# gzip 1.txt
+# 1.txt.gz
+```
+
+解包
+
+```shell
+-x 解包
+[root@izbp128jigdcjx00os4h3sz test]# tar -xvf config.tar
+./config/
+./config/my.cnf
+```
+
+解压后缀为`.tar.gz`的文件
+
+```shell
+[root@izbp128jigdcjx00os4h3sz test]# gunzip config.tar.gz
+# 然后解包
+```
+
 ## 定时任务crontab
 
 ```sh
