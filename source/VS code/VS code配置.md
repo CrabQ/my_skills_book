@@ -1,6 +1,7 @@
 # VS code配置
 
 ## 配置
+
 > [vscode_settings](https://github.com/CrabQ/my_skills_book/blob/master/source/VS%20code/vscode_settings.json)
 
 ## 插件安装
