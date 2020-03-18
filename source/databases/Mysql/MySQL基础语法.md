@@ -860,23 +860,35 @@ mysqladmin –u 用户名 –p create 数据库名     //创建数据库
 mysql -u root -p gene_disease_all < ./gene_disease_all.sql
 ```
 
-## 用户
+## 用户,权限管理
 
 ```sql
 -- 创建用户,可远程访问
-create user bmnars@'%' identified by 'vi93nwYV'
+create user abc@'%' identified by 'vi93nwYV'
 -- 只能本地访问
-create user 7JTZsiuI@'localhost' identified by 'sdgsdgr';
+create user abc@'localhost' identified by 'sdgsdgr';
+
+-- 修改用户密码
+alter use abc@'%' identified by '456';
 
 -- 删除用户
-drop user bmnars@'localhost';
+drop user abc@'localhost';
 
--- 用户授权
+-- 用户授权,同时创建用户(5.6版本)
 GRANT ALL PRIVILEGES ON gene_disease.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
--- 8.0版本的授权
-GRANT ALL PRIVILEGES ON my_blog.* TO 7JTZsiuI@'localhost' with grant option;
--- 所有权限
-GRANT ALL PRIVILEGES ON *.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
+
+-- 8.0版本的授权,必须先创建用户
+GRANT ALL PRIVILEGES ON my_blog.* TO 7JTZsiuI@'localhost';
+```
+
+本地管理员用户密码忘记,重置密码操作
+
+```sql
+[root@db01 ~]# mysqld_safe --skip-grant-tables --skip-networking &
+mysql> flush privileges;
+mysql>  alter user root@'localhost' identified by '123456';
+[root@db01 ~]# pkill mysqld
+[root@db01 ~]# systemctl start  mysqld
 ```
 
 ## 日期时间函数
