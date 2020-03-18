@@ -98,6 +98,12 @@ Status: Downloaded newer image for centos:7
 f07547d6a854f705f8b13be0bb82152f5d0f2242117b04869a6065118a8c296b
 ```
 
+run参数
+
+```shell
+# --rm 当退出该容器时自动删除该容器资源
+```
+
 查看容器
 
 ```shell
