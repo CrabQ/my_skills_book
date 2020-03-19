@@ -471,7 +471,6 @@ hhhhh
 [root@izbp128jigdcjx00os4h3sz ~]# sed -i 's/hhh/new/g' result.txt
 ```
 
-
 ### awk 数据流处理工具
 
 awk脚本结构
@@ -635,6 +634,51 @@ Mar
 ```shell
 [root@izbp128jigdcjx00os4h3sz test]# gunzip config.tar.gz
 # 然后解包
+```
+
+### 进程管理工具
+
+```shell
+[root@izbp128jigdcjx00os4h3sz ~]# ps -ef
+```
+
+查询归属于用户root的进程
+
+```shell
+ps -ef|grep root
+# ps -lu root
+```
+
+显示进程信息,并实时更新
+
+```shell
+# P 根据CPU使用百分比大小进行排序
+# M 根据驻留内存大小进行排序
+top
+```
+
+查看端口占用的进程状态
+
+```shell
+netstat -an
+```
+
+杀死指定PID的进程
+
+```shell
+kill PID
+```
+
+杀死相关进程
+
+```shell
+kill -9 3306
+```
+
+分析线程栈
+
+```shell
+pmap PID
 ```
 
 ## 定时任务crontab
