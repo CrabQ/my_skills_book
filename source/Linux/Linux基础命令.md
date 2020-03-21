@@ -715,6 +715,83 @@ free -m
 sar -W 1 3
 ```
 
+## 网络工具
+
+列出所有端口(包括监听和未监听的)
+
+```shell
+-t tcp端口
+netstat -a
+```
+
+使用netstat工具查询端口
+
+```shell
+netstat -antp | grep 6379
+```
+
+查看路由状态
+
+```shell
+route -n
+```
+
+发送ping包到地址IP
+
+```shell
+ping IP
+```
+
+探测前往地址IP的路由路径
+
+```shell
+traceroute IP
+```
+
+DNS查询，寻找域名domain对应的IP
+
+```shell
+host IP
+```
+
+直接下载文件或者网页
+
+```shell
+wget url
+–limit-rate 下载限速
+-o 指定日志文件,输出都写入日志,
+-c 断点续传
+```
+
+SSH登陆
+
+```shell
+ssh ID@host
+```
+
+ftp/sftp文件传输
+
+```shell
+# get filename 下载文件
+# put filename 上传文件
+# ls 列出host上当前路径的所有文件
+# cd 在host上更改当前路径
+# lls 列出本地主机上当前路径的所有文件
+# lcd 在本地主机更改当前路径
+sftp ID@host
+```
+
+将本地localpath指向的文件上传到远程主机的path路径
+
+```shell
+scp localpath ID@host:path
+```
+
+以ssh协议，遍历下载path路径下的整个文件系统，到本地的localpath
+
+```shell
+scp -r ID@site:path localpath
+```
 
 ## 定时任务crontab
 
