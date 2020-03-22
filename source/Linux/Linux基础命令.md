@@ -553,7 +553,7 @@ my_blog_sql
 123
 ```
 
-以下字符串，打印出其中的时间串
+以下字符串,打印出其中的时间串
 
 ```shell
 # 使用-F来设置定界符(默认为空格)
@@ -748,7 +748,7 @@ ping IP
 traceroute IP
 ```
 
-DNS查询，寻找域名domain对应的IP
+DNS查询,寻找域名domain对应的IP
 
 ```shell
 host IP
@@ -787,10 +787,100 @@ sftp ID@host
 scp localpath ID@host:path
 ```
 
-以ssh协议，遍历下载path路径下的整个文件系统，到本地的localpath
+以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
 
 ```shell
 scp -r ID@site:path localpath
+```
+
+## 用户管理工具
+
+添加用户
+
+```python
+# 为用户创建相应的帐号和用户目录/home/username
+useradd -m username
+passwd username
+```
+
+删除用户
+
+```python
+# -r 完全的删除用户信息
+userdel -r username
+```
+
+帐号切换
+
+```python
+su username
+```
+
+### 用户的组
+
+默认情况下,添加用户操作也会相应的增加一个同名的组,用户属于同名组
+
+查看当前用户所属的组
+
+```python
+groups
+```
+
+将用户加入到组
+
+```python
+usermod -G groupNmame username
+```
+
+变更用户所属的根组(将用加入到新的组,并从原有的组中除去)
+
+```python
+usermod -g groupName username
+```
+
+查看所有用户及权限
+
+```python
+more /etc/passwd
+```
+
+查看所有的用户组及权限
+
+```python
+more /etc/group
+```
+
+更改文件,目录读写权限
+
+```python
+chmod userMark(+|-)PermissionsMark
+
+# userMark取值
+# u 用户
+# g 组
+# o 其它用户
+# a 所有用户
+
+# PermissionsMark取值
+# r 读
+# w 写
+# x 执行
+```
+
+更改文件或目录的拥有者
+
+```python
+# -R选项递归更改该目下所有文件的拥有者
+chown username dirOrFile
+```
+
+### 环境变量
+
+bashrc与profile都用于保存用户的环境信息,bashrc用于交互式non-loginshell,而profile用于交互式login shell
+
+```python
+# /etc/profile,/etc/bashrc 是系统全局环境变量设定
+# ~/.profile,~/.bashrc用户目录下的私有环境变量设定
 ```
 
 ## 定时任务crontab
