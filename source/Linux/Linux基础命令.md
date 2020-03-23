@@ -797,7 +797,7 @@ scp -r ID@site:path localpath
 
 添加用户
 
-```python
+```shell
 # 为用户创建相应的帐号和用户目录/home/username
 useradd -m username
 passwd username
@@ -805,14 +805,14 @@ passwd username
 
 删除用户
 
-```python
+```shell
 # -r 完全的删除用户信息
 userdel -r username
 ```
 
 帐号切换
 
-```python
+```shell
 su username
 ```
 
@@ -822,37 +822,37 @@ su username
 
 查看当前用户所属的组
 
-```python
+```shell
 groups
 ```
 
 将用户加入到组
 
-```python
+```shell
 usermod -G groupNmame username
 ```
 
 变更用户所属的根组(将用加入到新的组,并从原有的组中除去)
 
-```python
+```shell
 usermod -g groupName username
 ```
 
 查看所有用户及权限
 
-```python
+```shell
 more /etc/passwd
 ```
 
 查看所有的用户组及权限
 
-```python
+```shell
 more /etc/group
 ```
 
 更改文件,目录读写权限
 
-```python
+```shell
 chmod userMark(+|-)PermissionsMark
 
 # userMark取值
@@ -869,7 +869,7 @@ chmod userMark(+|-)PermissionsMark
 
 更改文件或目录的拥有者
 
-```python
+```shell
 # -R选项递归更改该目下所有文件的拥有者
 chown username dirOrFile
 ```
@@ -878,9 +878,87 @@ chown username dirOrFile
 
 bashrc与profile都用于保存用户的环境信息,bashrc用于交互式non-loginshell,而profile用于交互式login shell
 
-```python
+```shell
 # /etc/profile,/etc/bashrc 是系统全局环境变量设定
 # ~/.profile,~/.bashrc用户目录下的私有环境变量设定
+```
+
+## 系统管理及IPC资源管理
+
+查看Linux系统版本
+
+```shell
+uname -a
+lsb_release -a
+```
+
+查看Unix系统版本,操作系统版本
+
+```shell
+more /etc/release
+```
+
+查看CPU使用情况
+
+```shell
+sar -u 5 10
+```
+
+查询CPU信息
+
+```shell
+cat /proc/cpuinfo
+
+# CPU的核的个数
+cat /proc/cpuinfo | grep processor | wc -l
+```
+
+查看内存信息
+
+```shell
+cat /proc/meminfo
+```
+
+显示内存page大小(以KByte为单位)
+
+```shell
+pagesize
+```
+
+显示架构
+
+```shell
+arch
+```
+
+显示当前系统时间
+
+```shell
+date
+```
+
+格式化输出当前日期时间
+
+```shell
+$date +%Y%m%d.%H%M%S
+>20150512.173821
+```
+
+### IPC资源管理
+
+查看系统使用的IPC资源
+
+```shell
+ipcs
+# -m 查看系统使用的IPC共享内存资源
+# -q 查看系统使用的IPC队列资源
+# -s 查看系统使用的IPC信号量资源
+```
+
+显示当前所有的系统资源limit 信息
+
+```shell
+ulimit – a
 ```
 
 ## 定时任务crontab
