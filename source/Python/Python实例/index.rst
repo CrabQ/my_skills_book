@@ -20,6 +20,7 @@ Python知识点
    pil_区分图片是黑白彩色还是灰度
    Python读取excel
    Python操作Excel之xlwings
+   Python操作Excel之openpyxl
    pymysql_example
    python文件打包
    request_基础
