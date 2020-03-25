@@ -864,7 +864,7 @@ mysql -u root -p gene_disease_all < ./gene_disease_all.sql
 
 ```sql
 -- 创建用户,可远程访问
-create user abc@'%' identified by 'vi93nwYV'
+create user abc@'%' identified by 'sdgsdgr'
 -- 只能本地访问
 create user abc@'localhost' identified by 'sdgsdgr';
 
@@ -872,7 +872,7 @@ create user abc@'localhost' identified by 'sdgsdgr';
 alter use abc@'%' identified by '456';
 
 -- 删除用户
-drop user abc@'localhost';
+drop user abc@'%';
 
 -- 用户授权,同时创建用户(5.6版本)
 GRANT ALL PRIVILEGES ON gene_disease.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
