@@ -39,7 +39,7 @@
    # 创建用户
    create user tiantian@'%' identified by 'tiantian';
    # 为用户授权数据库权限(8.0版本mysql)
-   GRANT ALL PRIVILEGES ON tiantian.* TO 'tiantian'@'%' with grant option;
+   GRANT ALL PRIVILEGES ON tiantian.* TO 'tiantian'@'%';
    ```
 
 4. 新建静态文件文件夹`static`(与`manage.py`同级)

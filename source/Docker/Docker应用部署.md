@@ -9,8 +9,10 @@ docker search mysql
 docker pull mysql
 
 # 在/root目录下创建MySQL目录用于储存MySQL数据信息
-mkdir ~/my_docker/mysql
+mkdir -p ~/my_docker/mysql/logs ~/my_docker/mysql/config ~/my_docker/mysql/data
 
+# 添加配置文件
+vi ~/my_docker/mysql/config/my.cnf
 # 创建容器,设置端口映射,目录映射
 # 让容器的时钟与宿主机时钟同步
 # 开机启动
@@ -21,7 +23,7 @@ docker run -id \
 -v ~/my_docker/mysql/config:/etc/mysql/conf.d \
 -v ~/my_docker/mysql/data:/var/lib/mysql \
 -v /etc/localtime:/etc/localtime:ro \
--e MYSQL_ROOT_PASSWORD=54170801am+1S \
+-e MYSQL_ROOT_PASSWORD=root \
 --restart=always \
 mysql:latest
 ```
