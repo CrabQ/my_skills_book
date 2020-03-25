@@ -36,14 +36,6 @@ docker -v
 # 查看当前 Docker 有关信息
 docker info
 
-# 开启远程访问(可选)
-# vi /lib/systemd/system/docker.service
-ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
-# 重新读取配置文件，重新启动docker服务
-systemctl daemon-reload
-systemctl restart docker
-
-docker -H tcp://121.196.202.188:2375 images
 # 帮助
 docker --help
 ```
