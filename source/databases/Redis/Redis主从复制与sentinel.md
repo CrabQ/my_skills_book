@@ -1,4 +1,4 @@
-# Redis复制
+# Redis主从复制与sentinel
 
 ## 主从复制
 
@@ -197,7 +197,7 @@ dir "/opt/soft/redis/data/"
 logfile "${port}.log"
 # 主节点,2表示客观下线的sentinel投票数量
 sentinel monitor mymaster 172.0.0.1 7000 2
-# 判断时限
+# 判断时限,30秒
 sentinel down-after-milliseconds mymaster 30000
 # 故障转移时新master同一时间传输快照给slave数量
 sentinel parallel-syncs mymaster 1
@@ -266,4 +266,66 @@ sentinel节点:同上
 主节点: sentinel failover 进行替换
 从节点: slaveof即可,sentinel节点可以感知
 sentinel节点: 参考其他sentinel节点启动即可
+```
+
+### sentinel实操
+
+redis主节点配置
+
+```shell
+cd /usr/local/redis/config
+tee redis-7000.conf <<-'EOF'
+port 7000
+daemonize yes
+pidfile /var/run/redis-7000.pid
+logfile "7000.log"
+dir "/usr/local/redis/data"
+EOF
+```
+
+配置2个从节点
+
+```shell
+# 配置第一个
+sed 's/7000/7001/g' redis-7000.conf>redis-7001.conf
+echo 'slaveof 127.0.0.1 7000' >> redis-7001.conf
+
+# 配置第二个
+sed 's/7001/7002/g' redis-7001.conf>redis-7002.conf
+```
+
+开启三个redis节点
+
+```shell
+/usr/local/redis/bin/redis-server redis-7000.conf
+/usr/local/redis/bin/redis-server redis-7001.conf
+/usr/local/redis/bin/redis-server redis-7002.conf
+```
+
+配置三个sentinel
+
+```shell
+# 配置第一个
+tee redis-sentinel-26379.conf <<-'EOF'
+port 26379
+daemonize yes
+dir "/usr/local/redis/data"
+logfile "26379.log"
+sentinel monitor mymaster 127.0.0.1 7000 2
+sentinel down-after-milliseconds mymaster 30000
+sentinel parallel-syncs mymaster 1
+sentinel failover-timeout mymaster 180000
+EOF
+
+# 配置另外两个
+sed 's/26379/26380/g' redis-sentinel-26379.conf>redis-sentinel-26380.conf
+sed 's/26379/26381/g' redis-sentinel-26379.conf>redis-sentinel-26381.conf
+```
+
+开启sentinel
+
+```shell
+/usr/local/redis/bin/redis-sentinel redis-sentinel-26379.conf
+/usr/local/redis/bin/redis-sentinel redis-sentinel-26380.conf
+/usr/local/redis/bin/redis-sentinel redis-sentinel-26381.conf
 ```

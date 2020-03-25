@@ -9,5 +9,5 @@ Redis
    Redis五种数据结构
    Redis高级
    Redis持久化
-   Redis复制
+   Redis主从复制与sentinel
    Redis面试题
