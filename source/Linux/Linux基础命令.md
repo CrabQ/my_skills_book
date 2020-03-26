@@ -2,6 +2,17 @@
 
 ## 命令帮助
 
+命令行快捷键
+
+```shell
+# ctrl + a 光标回到行首
+# ctrl + e 光标回到行尾
+# ctrl + u 剪切光标到行首字符
+# ctrl + k 剪切光标到行尾字符
+# ctrl + insert 复制命令行内容
+# shift + insert 粘贴命令行内容
+```
+
 查看命令的简要说明
 
 ```shell
@@ -9,16 +20,11 @@
 ls (1)               - list directory contents
 ```
 
-详细说明
-
-```shell
-[root@izbp128jigdcjx00os4h3sz ~]# info ls
-```
-
 使用man
 
 ```shell
 [root@izbp128jigdcjx00os4h3sz ~]# man ls
+# --help
 ```
 
 查看程序的binary文件所在路径
@@ -34,6 +40,19 @@ alias ls='ls --color=auto'
 ```shell
 [root@izbp128jigdcjx00os4h3sz ~]# whereis ls
 ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
+```
+
+### 关机相关命令
+
+```shell
+# 立即关机
+shutdown -h now
+# 10分钟关机或者11:00
+shutdown -h +1
+
+# 重启
+reboot
+# shutdown -r now
 ```
 
 ## 文件及目录管理
