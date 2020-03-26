@@ -329,3 +329,27 @@ sed 's/26379/26381/g' redis-sentinel-26379.conf>redis-sentinel-26381.conf
 /usr/local/redis/bin/redis-sentinel redis-sentinel-26380.conf
 /usr/local/redis/bin/redis-sentinel redis-sentinel-26381.conf
 ```
+
+终止主节点进程,测试sentinel自动进行故障转移
+
+```python
+# python客户端
+
+import time
+
+from redis.sentinel import Sentinel
+
+st = Sentinel([('localhost', 26379), ('localhost', 26380), ('localhost', 26381)], socket_timeout=0.1)
+count = 10000
+
+while True:
+    try:
+        time.sleep(3)
+        count += 1
+        master = st.master_for('mymaster', socket_timeout=0.1)
+        master.set(f'key_{count}', count)
+        slave = st.slave_for('mymaster', socket_timeout=0.1)
+        print(f'key_{count}', slave.get(f'key_{count}'))
+    except Exception as e:
+        print(e.args)
+```
