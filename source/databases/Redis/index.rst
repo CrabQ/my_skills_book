@@ -10,4 +10,5 @@ Redis
    Redis高级
    Redis持久化
    Redis主从复制与sentinel
+   Redis集群
    Redis面试题
