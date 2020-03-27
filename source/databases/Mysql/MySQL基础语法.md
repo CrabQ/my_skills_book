@@ -877,6 +877,7 @@ drop user abc@'%';
 -- 用户授权,同时创建用户(5.6版本)
 GRANT ALL PRIVILEGES ON gene_disease.* TO bmnars@"%" IDENTIFIED BY "vi93nwYV";
 
+-- with grant option 超级管理员才具备的,给别的用户授权的功能
 -- 8.0版本的授权,必须先创建用户
 GRANT ALL PRIVILEGES ON my_blog.* TO 7JTZsiuI@'localhost';
 ```
@@ -889,6 +890,52 @@ mysql> flush privileges;
 mysql>  alter user root@'localhost' identified by '123456';
 [root@db01 ~]# pkill mysqld
 [root@db01 ~]# systemctl start  mysqld
+```
+
+## show语句
+
+```sql
+-- 查看用户的权限信息
+show  grants for  root@'localhost'
+
+-- 查看字符集
+show charset；
+
+-- 查看校对规则
+show collation
+
+-- 查看数据库连接情况
+show processlist;
+
+-- 表的索引情况
+show index from
+
+-- 模糊查询数据库某些状态
+SHOW STATUS LIKE '%lock%';
+
+-- 查看部分配置信息
+SHOW variables LIKE '%lock%';
+   T
+-- 查看支持的所有的存储引擎
+show engines
+
+-- 查看InnoDB引擎相关的状态信息
+show engine innodb status\G
+
+-- 列举所有的二进制日志
+show binary logs
+
+-- 查看数据库的日志位置信息
+show master status
+
+-- 查看二进制日志事件
+show binlog evnets in
+
+-- 查看从库状态
+show slave status \G
+
+-- 查看从库relaylog事件信息
+SHOW RELAYLOG EVENTS
 ```
 
 ## 日期时间函数
