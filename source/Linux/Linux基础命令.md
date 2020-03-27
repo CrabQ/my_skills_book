@@ -16,21 +16,21 @@
 查看命令的简要说明
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# whatis ls
+whatis ls
 ls (1)               - list directory contents
 ```
 
 使用man
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# man ls
+man ls
 # --help
 ```
 
 查看程序的binary文件所在路径
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# which ls
+which ls
 alias ls='ls --color=auto'
         /usr/bin/ls
 ```
@@ -38,7 +38,7 @@ alias ls='ls --color=auto'
 查看程序的搜索路径
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# whereis ls
+whereis ls
 ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
 ```
 
@@ -55,80 +55,113 @@ reboot
 # shutdown -r now
 ```
 
-## 文件及目录管理
+## 文件和目录
 
-### 创建和删除
+### pwd:显示当前路径
+
+```shell
+# 显示当前路径
+pwd
+```
+
+### cd:目录切换
+
+```shell
+# 进入路径
+cd /home
+
+# 切换到上一个工作目录
+cd -
+
+# 切换到home目录
+cd
+# cd ~
+```
+
+### ls:显示目录下内容
+
+```shell
+# 显示所有文件,按照修改时间反向排序
+ls -art
+# -l 长格式
+# -h 人性化显示
+```
+
+### tree:树结构显示目录下内容
+
+```shell
+# 只显示目录
+tree -d /root
+
+# 遍历目录的最大层数
+tree -L 2 /root
+```
+
+### mkdir:创建目录
 
 ```shell
 # 创建
-mkdir
+mkdir test
 
-# 删除
-# rm
+# 递归创建
+mkdir test/t/s
+
+# 同时创建多个
+mkdir test/{1,2}/{3,4}
+```
+
+### touch:创建空文件
+
+```shell
+touch test.py
+```
+
+### cp:复制文件和目录
+
+```shell
+# 复制目录
+cp -r 目录
+```
+
+### mv:移动或重命名文件
+
+### rm:删除文件或目录
+
+```shell
 # 删除非空目录
 rm -rf 目录
 # 删除日志
 rm *log
 # $find ./ -name “*log” -exec rm {} ;
-
-# 移动
-mv
-
-# 复制
-cp
-# 复制目录：
-cp -r 目录
 ```
 
-### 目录切换
+### rmdir:删除非空目录
+
+### ln:硬连接和软连接
 
 ```shell
-# 进入路径
-[root@izbp128jigdcjx00os4h3sz ~]# cd /home
-[root@izbp128jigdcjx00os4h3sz home]
-
-# 切换到上一个工作目录
-[root@izbp128jigdcjx00os4h3sz home]# cd -
-/root
-[root@izbp128jigdcjx00os4h3sz ~]#
-
-# 切换到home目录
-cd
-# cd ~
-
-# 显示当前路径
-[root@izbp128jigdcjx00os4h3sz ~]# pwd
-/root
+# 无参数,创建硬链接
+# -s 创建软链接(符号链接)
+ln 源文件 目标文件
+# 软链接相当于快捷方式,硬链接相当于复制一份
 ```
 
-### 列出目录项
+### readlink:查看符号链接文件的内容
 
-```shell
-# 按时间排序,以列表的方式显示目录项
-[root@izbp128jigdcjx00os4h3sz ~]# ls -lrt
-total 22480
--rw-r--r--  1 root root 23010188 Dec 24  2018 Python-3.6.8.tgz
-drwxr-xr-x  2 root root     4096 Oct 23 17:00 envs
-drwxr-xr-x 18  501  501     4096 Oct 24 13:50 Python-3.6.8
-```
-
-### 查找目录及文件 find/locate
+### find:查找文件
 
 ```shell
 # 搜寻文件或目录
-[root@izbp128jigdcjx00os4h3sz ~]# find ./ -name "python"
-./.vscode-server/bin/c47d83b293181d9be64f27ff093689e8e7aed054/extensions/python
-./.vscode-server/bin/9579eda04fdb3a9bba2750f15193e5fafe16b959/extensions/python
-./.vscode-server/bin/26076a4de974ead31f97692a0d32f90d735645c0/extensions/python
-./.vscode-server/bin/8795a9889db74563ddd43eb0a897a2384129a619/extensions/python
-./.vscode-server/bin/f359dd69833dd8800b54d458f6d37ab7c78df520/extensions/python
-./Python-3.6.8/python
+find  -name "python" ./
+# -name 通过名字
+# -mtime [-n|+n|n] 通过文件修改时间
+# -maxdepth levels 查找级数
 ```
 
 查看当前目录下文件个数
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# find ./ | wc -l
+find ./ | wc -l
 16649
 ```
 
@@ -150,24 +183,84 @@ locate string
 updatedb
 ```
 
+### xargs:将标准输入转换成命令行参数
+
+将多行输出转化为单行输出
+
+```shell
+cat result.txt | xargs
+envs my_blog my_blog.log my_blog_sql hhhhh
+```
+
+将单行转化为多行输出
+
+```shell
+# -n指定每行显示的字段数
+cat result.txt | xargs -n 2
+envs my_blog
+my_blog.log my_blog_sql
+hhhhh
+```
+
+### rename:重命名文件
+
+### basename:显示文件名或目录名
+
+### 显示文件或者目录路径
+
+### chattr:改变文件的扩展属性
+
+### lsattr:查看文件扩展属性
+
+### file:显示文件类型
+
+### md5sum:计算和校验文件的MD5值
+
+```shell
+# 生成文件md5值
+md5sum test.py >md5.log
+# -c 从指定文件中读取MD5校验值,并进行校验
+md5sum -c md5.log
+```
+
+### chown:改变文件或者目录的用户和用户组
+
+```shell
+# -R 递归改变
+chown 用户:组 test.py
+```
+
+### chmod:改变文件或目录权限
+
+```shell
+# -R 递归改变
+chmod 753 test.py
+# 增加脚本可执行权限
+chmod a+x test.py
+```
+
+### chgrp:更改文件用户组
+
+### umask:显示或设置权限掩码
+
 ### 查看文件内容
 
 ```shell
 # 显示时同时显示行号:
-[root@izbp128jigdcjx00os4h3sz ~]# cat test.txt -n
+cat test.txt -n
      1  a
      2  b
      3  c
      4  d
 
 # 查看前3行
-[root@izbp128jigdcjx00os4h3sz ~]# head -3 test.txt
+head -3 test.txt
 a
 b
 c
 
 # 查看倒数3行
-[root@izbp128jigdcjx00os4h3sz ~]# tail -3 test.txt
+tail -3 test.txt
 d
 e
 f
@@ -176,7 +269,7 @@ f
 查看两个文件间的差别
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# diff test.txt test2.txt
+diff test.txt test2.txt
 2c2
 < b
 ---
@@ -186,7 +279,7 @@ f
 动态显示文本最新信息
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# tail -f test.txt
+tail -f test.txt
 a
 b
 c
@@ -199,7 +292,7 @@ f
 ### 查找文件内容
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# grep b test2.txt
+grep b test2.txt
 db
 ```
 
@@ -210,8 +303,7 @@ db
 chown
 # 改变文件读、写、执行等属性
 chmod
-# 增加脚本可执行权限
-chmod a+x test.py
+
 ```
 
 ### 管道和重定向
@@ -226,7 +318,7 @@ chmod a+x test.py
 # 前面失败则后一条执行
 ||
 
-[root@izbp128jigdcjx00os4h3sz ~]# ls /home && echo succ! || echo fail!
+ls /home && echo succ! || echo fail!
 envs test.txt
 succ!
 ```
@@ -235,20 +327,20 @@ succ!
 
 ```shell
 # 将标准输出和标准错误重定向到同一文件
-[root@izbp128jigdcjx00os4h3sz ~]# ls /home > result.txt 2>&1
+ls /home > result.txt 2>&1
 # ls /usr &>result.txt
 ```
 
 追加
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# echo hhhhh >> result.txt
+echo hhhhh >> result.txt
 ```
 
 清空文件
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# :> result.txt
+:> result.txt
 ```
 
 ## 文本处理
@@ -327,30 +419,11 @@ grep -c -i 'my' result.txt
 
 ```shell
 # -n 打印匹配的行号
-[root@izbp128jigdcjx00os4h3sz ~]# grep -e 'my' -e 'envs' -n result.txt
+grep -e 'my' -e 'envs' -n result.txt
 1:envs
 2:my_blog
 3:my_blog.log
 4:my_blog_sql
-```
-
-### xargs 命令行参数转换
-
-将多行输出转化为单行输出
-
-```shell
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | xargs
-envs my_blog my_blog.log my_blog_sql hhhhh
-```
-
-将单行转化为多行输出
-
-```shell
-# -n指定每行显示的字段数
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | xargs -n 2
-envs my_blog
-my_blog.log my_blog_sql
-hhhhh
 ```
 
 ### sort排序
@@ -360,7 +433,7 @@ hhhhh
 # -d 按字典序进行排序
 # -r 逆序排序
 # -k N 指定按第N列排序
-[root@izbp128jigdcjx00os4h3sz ~]# sort result.txt  -r -d
+sort result.txt  -r -d
 my_blog_sql
 my_blog.log
 my_blog
@@ -373,7 +446,7 @@ envs
 消除重复行
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq
+cat result.txt | uniq
 envs
 my_blog
 my_blog.log
@@ -384,7 +457,7 @@ hhhhh
 统计各行在文件中出现的次数
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq -c
+cat result.txt | uniq -c
       1 envs
       1 my_blog
       1 my_blog.log
@@ -395,7 +468,7 @@ hhhhh
 找出重复行
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt | uniq -d
+cat result.txt | uniq -d
 ```
 
 ### 用tr进行转换
@@ -403,14 +476,14 @@ hhhhh
 加解密转换,替换对应字符
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# echo 12345 | tr '0-9' '9876543210'
+echo 12345 | tr '0-9' '9876543210'
 87654
 ```
 
 删除所有数字(对结果而言)
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# cat result.txt |tr -d '0-9'
+cat result.txt |tr -d '0-9'
 envs
 my_blog
 my_blog.log
@@ -423,7 +496,7 @@ hhhhh
 ### paste 按列拼接文本
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# paste result.txt result_2.txt -d '|'
+paste result.txt result_2.txt -d '|'
 envs|envs
 my_blog|my_blog
 my_blog.log|my_blog.log
@@ -437,15 +510,15 @@ hhhhh|hhhhh
 
 ```shell
 # 统计行数
-[root@izbp128jigdcjx00os4h3sz ~]# wc -l result.txt
+wc -l result.txt
 7 result.txt
 
 # 统计单词数
-[root@izbp128jigdcjx00os4h3sz ~]# wc -w result.txt
+wc -w result.txt
 7 result.txt
 
 # 统计字符数
-[root@izbp128jigdcjx00os4h3sz ~]# wc -c result.txt
+wc -c result.txt
 53 result.txt
 ```
 
@@ -455,7 +528,7 @@ hhhhh|hhhhh
 
 ```shell
 # 替换每一行的第一处匹配的my
-[root@izbp128jigdcjx00os4h3sz ~]# sed 's/hhh/new/' result.txt
+sed 's/hhh/new/' result.txt
 envs
 my_blog
 my_blog.log
@@ -468,7 +541,7 @@ newhh
 全局替换
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# sed 's/l/z/g' result.txt
+sed 's/l/z/g' result.txt
 envs
 my_bzog
 my_bzog.zog
@@ -481,13 +554,13 @@ hhhhh
 移除空白行
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# sed '/^$/d' result.txt
+sed '/^$/d' result.txt
 ```
 
 默认替换后,输出替换后的内容,如果需要直接替换原文件,使用-i
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# sed -i 's/hhh/new/g' result.txt
+sed -i 's/hhh/new/g' result.txt
 ```
 
 ### awk 数据流处理工具
@@ -504,7 +577,7 @@ awk ' BEGIN{ statements } statements2 END{ statements } '
 使用不带参数的print时,会打印当前行
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
+echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
 start
 line1
 line2
@@ -520,7 +593,7 @@ End
 # $1:第一个字段的文本内容
 # $2:第二个字段的文本内容
 
-[root@izbp128jigdcjx00os4h3sz ~]# echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
+echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
 1:line1 f2 f3-line1-f2
 2: line2 -line2-
 3: line 3-line-3
@@ -529,14 +602,14 @@ End
 统计文件的行数
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# awk 'END {print NR}' result.txt
+awk 'END {print NR}' result.txt
 8
 ```
 
 累加每一行的第一个字段
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
+echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
 > print "begin";} {sum += $1;} END {print "=="; print sum }'
 begin
 ==
@@ -546,8 +619,8 @@ begin
 传递外部变量
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# var=1000
-[root@izbp128jigdcjx00os4h3sz ~]# echo | awk '{print vara}' vara=$var
+var=1000
+echo | awk '{print vara}' vara=$var
 1000
 ```
 
@@ -555,15 +628,15 @@ begin
 
 ```shell
 # 行号小于5
-[root@izbp128jigdcjx00os4h3sz ~]# awk 'NR < 5' result.txt
+awk 'NR < 5' result.txt
 
 # 包含new的行
-[root@izbp128jigdcjx00os4h3sz ~]# awk '/new/' result.txt
+awk '/new/' result.txt
 newhh
 newhh
 
 # 不包含new的行
-[root@izbp128jigdcjx00os4h3sz ~]# awk '!/new/' result.txt
+awk '!/new/' result.txt
 
 envs
 my_blog
@@ -576,14 +649,14 @@ my_blog_sql
 
 ```shell
 # 使用-F来设置定界符(默认为空格)
-[root@izbp128jigdcjx00os4h3sz ~]# echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
+echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
 2015_04_02 20:20:08
 ```
 
 打印指定列
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# ls -lrt | awk '{print $6}'
+ls -lrt | awk '{print $6}'
 
 Dec
 Oct
@@ -658,7 +731,7 @@ Mar
 ### 进程管理工具
 
 ```shell
-[root@izbp128jigdcjx00os4h3sz ~]# ps -ef
+ps -ef
 ```
 
 查询归属于用户root的进程
