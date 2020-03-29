@@ -11,4 +11,5 @@ Redis
    Redis持久化
    Redis主从复制与sentinel
    Redis集群
+   Redis缓存的使用与优化
    Redis面试题
