@@ -48,7 +48,7 @@ ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
 # 立即关机
 shutdown -h now
 # 10分钟关机或者11:00
-shutdown -h +1
+shutdown -h +10
 
 # 重启
 reboot
@@ -104,7 +104,7 @@ tree -L 2 /root
 mkdir test
 
 # 递归创建
-mkdir test/t/s
+mkdir -p test/t/s
 
 # 同时创建多个
 mkdir test/{1,2}/{3,4}
@@ -135,7 +135,7 @@ rm *log
 # $find ./ -name “*log” -exec rm {} ;
 ```
 
-### rmdir: 删除非空目录
+### rmdir: 删除空目录
 
 ### ln: 硬连接和软连接
 
