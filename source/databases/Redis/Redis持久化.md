@@ -229,6 +229,7 @@ no-appendfsync-on-rewrite = yes
 
 ### AOF追加阻塞
 
+```shell
 定位: redis日志,info persistence
 优化: 参考硬盘优化
-
+```

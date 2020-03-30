@@ -165,7 +165,9 @@ type=string,最大512MB
 ### HyperLogLog
 
 基于HyperLogLog算法:极小空间完成独立数量统计
+
 本质还是字符串
+
 内存消耗超小
 
 #### HyperLogLog API

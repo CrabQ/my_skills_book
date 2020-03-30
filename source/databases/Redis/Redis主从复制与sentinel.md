@@ -25,7 +25,7 @@ slaveof 127.0.0.1 6379
 slaveof no one
 ```
 
-####　配置
+#### 配置
 
 ```shell
 slaveof ip port
@@ -122,17 +122,22 @@ RDB文件网络传输时间
 读写分析: 读流量分摊到从节点
 可能遇到的问题
 
-- 复制数据延迟
-- 读到过期数据
-- 从节点故障
+```shell
+复制数据延迟
+读到过期数据
+从节点故障
+```
 
 #### 配置不一致
 
-1. 例如maxmemory不一致:丢失数据
-2. 例如数据结构优化参数(例如hash-max-ziplist-entries):内存不一致
+```shell
+例如maxmemory不一致: 丢失数据
+例如数据结构优化参数(例如hash-max-ziplist-entries): 内存不一致
+```
 
 #### 规避全量复制
 
+```shell
 1. 第一次全量复制
     - 第一次不可避免
     - 小主节点,低峰
@@ -144,6 +149,7 @@ RDB文件网络传输时间
 3. 复制积压缓冲区不足
     - 网络中断,部分复制无法满足
     - 增大复制缓冲区配置rel_backlog_size,网络增强
+```
 
 #### 规避复制风暴
 
@@ -206,6 +212,7 @@ sentinel failover-timeout mymaster 180000
 
 ### Redis sentinel三个定时任务
 
+```shell
 1. 每10秒每个sentinel对master和slave执行info
    1. 发现slave节点
    2. 确认主从关系
@@ -215,6 +222,7 @@ sentinel failover-timeout mymaster 180000
    2. 交互对节点的'看法'和自身信息
 
 3. 每1秒每个sentinel对其他sentinel和redis执行ping
+```
 
 ### 主观下线和客观下线
 

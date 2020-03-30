@@ -182,7 +182,7 @@ OK
 
 ### 官方工具安装
 
-`redis-trib.rb`已弃用,-直接使用`redis-cli --cluster`即可
+`redis-trib.rb`已弃用,直接使用`redis-cli --cluster`即可
 
 ```shell
 # 配置同上
