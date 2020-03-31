@@ -36,7 +36,7 @@ DQL:数据查询语言 show select
 
 作用: 语句执行前,先看执行计划信息,可以有效的防止性能较差的语句带来的性能问题
 
-如果业务中出现了慢语句,也需要借助此命令进行语句的评估,分析优化方案。
+如果业务中出现了慢语句,也需要借助此命令进行语句的评估,分析优化方案.
 ```
 
 获取优化器选择后的执行计划
@@ -45,22 +45,20 @@ DQL:数据查询语言 show select
 desc select * from test;
 ```
 
-## 存储引擎
-
-### InnoDB存储引擎
+## InnoDB存储引擎
 
 优点
 
 ```shell
-事务（Transaction）
-MVCC（Multi-Version Concurrency Control多版本并发控制）
+事务(Transaction)
+MVCC(Multi-Version Concurrency Control多版本并发控制)
 行级锁(Row-level Lock)
-ACSR（Auto Crash Safey Recovery）自动的故障安全恢复
+ACSR(Auto Crash Safey Recovery)自动的故障安全恢复
 支持热备份(Hot Backup)
 Replication: Group Commit , GTID (Global Transaction ID) ,多线程(Multi-Threads-SQL )
 ```
 
-#### 存储引擎查看
+### 存储引擎查看
 
 ```shell
 SELECT @@default_storage_engine;
@@ -89,10 +87,9 @@ select table_schema,table_name ,engine from information_schema.tables where tabl
 
 ```shell
 alter table t1 engine innodb;
-# 注意:此命令我们经常使用他,进行innodb表的碎片整理
+# 此命令我们经常用于进行innodb表的碎片整理
 
-# 批量修改
-
+# 批量修改一个库的存储引擎
 select concat("alter table zabbix.",table_name," engine tokudb;") from
 information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.sql';
 ```
@@ -101,7 +98,7 @@ information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.
 
 ```shell
 ibdata1:系统数据字典信息(统计信息),UNDO表空间等数据
-ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件。
+ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件.
 ibtmp1: 临时表空间磁盘位置,存储临时表
 frm:存储表的列信息
 ibd:表的数据行和索引
@@ -114,8 +111,8 @@ ibd:表的数据行和索引
 ```shell
 # show variables like '%extend%';
 需要将所有数据存储到同一个表空间中 ,管理比较混乱
-5.5版本出现的管理模式,也是默认的管理模式。
-5.6版本以,共享表空间保留,只用来存储:数据字典信息,undo,临时表。
+5.5版本出现的管理模式,也是默认的管理模式.
+5.6版本以,共享表空间保留,只用来存储:数据字典信息,undo,临时表.
 5.7 版本,临时表被独立出来了
 8.0版本,undo也被独立出去了
 ```
@@ -123,13 +120,13 @@ ibd:表的数据行和索引
 独立表空间
 
 ```shell
-从5.6,默认表空间不再使用共享表空间,替换为独立表空间。
+从5.6,默认表空间不再使用共享表空间,替换为独立表空间.
 主要存储的是用户数据
 存储特点为:一个表一个ibd文件,存储数据行和索引信息
 基本表结构元数据存储:xxx.frm
 最终结论:
       元数据            数据行+索引
-mysql表数据    =（ibdataX+frm）+ibd(段、区、页)
+mysql表数据    =(ibdataX+frm)+ibd(段、区、页)
         DDL             DML+DQL
 
 ```
@@ -157,7 +154,7 @@ select @@innodb_flush_log_at_trx_commit;
 # 主要控制了innodb将log buffer中的数据写入日志文件并flush磁盘的时间点,取值分别为0、1、2三个
 # 1,每次事物的提交都会引起日志文件写入、flush磁盘的操作,确保了事务的ACID；flush  到操作系统的文件系统缓存  fsync到物理磁盘.
 # 0,表示当事务提交时,不做日志写入操作,而是每秒钟将log buffer中的数据写入文件系统缓存并且秒fsync磁盘一次；
-# 2,每次事务提交引起写入文件系统缓存,但每秒钟完成一次fsync磁盘操作。
+# 2,每次事务提交引起写入文件系统缓存,但每秒钟完成一次fsync磁盘操作.
 ```
 
 Innodb_flush_method=(O_DIRECT, fdatasync)
@@ -203,7 +200,7 @@ TXID: 事务号,InnoDB会为每一个事务生成一个事务号,伴随着整个
 ###　redo log
 
 ```shell
-在事务ACID过程中,实现的是“D”持久化的作用。对于AC也有相应的作用
+在事务ACID过程中,实现的是“D”持久化的作用.对于AC也有相应的作用
 redo的日志文件:iblogfile0 iblogfile1
 redo的buffer:数据页的变化信息+数据页当时的LSN号
 LSN:日志序列号  磁盘数据页、内存数据页、redo buffer、redolog
@@ -269,7 +266,7 @@ show variables like 'log_error';
 (1)备份恢复必须依赖二进制日志
 (2)主从环境必须依赖二进制日志
 
-注意:MySQL默认是没有开启二进制日志的。
+注意:MySQL默认是没有开启二进制日志的.
 基础参数查看:
 开关:
 select @@log_bin;
@@ -291,21 +288,21 @@ select @@sync_binlog;
 ### binlog记录了什么
 
 ```shell
-binlog是SQL层的功能。记录的是变更SQL语句,不记录查询语句
+binlog是SQL层的功能.记录的是变更SQL语句,不记录查询语句
 
 记录SQL语句种类
-DDL :原封不动的记录当前DDL(statement语句方式)。
-DCL :原封不动的记录当前DCL(statement语句方式)。
+DDL :原封不动的记录当前DDL(statement语句方式).
+DCL :原封不动的记录当前DCL(statement语句方式).
 DML :只记录已经提交的事务DML
 ```
 
 DML三种记录方式
 
 ```shell
-binlog_format（binlog的记录格式）参数影响
-（1）statement（5.6默认）SBR(statement based replication) :语句模式原封不动的记录当前DML。
-（2）ROW(5.7 默认值) RBR(ROW based replication) :记录数据行的变化(用户看不懂,需要工具分析)
-（3）mixed（混合）MBR(mixed based replication)模式  :以上两种模式的混合
+binlog_format(binlog的记录格式)参数影响
+(1)statement(5.6默认)SBR(statement based replication) :语句模式原封不动的记录当前DML.
+(2)ROW(5.7 默认值) RBR(ROW based replication) :记录数据行的变化(用户看不懂,需要工具分析)
+(3)mixed(混合)MBR(mixed based replication)模式  :以上两种模式的混合
 
 SBR与RBR模式的对比
 STATEMENT:可读性较高,日志量少,但是不够严谨
@@ -317,12 +314,12 @@ insert into t1 values(1,'zs',now())
 我们建议使用:row记录模式
 ```
 
-### event（事件）
+### event(事件)
 
 ```shell
 二进制日志的最小记录单元
 对于DDL,DCL,一个语句就是一个event
-对于DML语句来讲:只记录已提交的事务。
+对于DML语句来讲:只记录已提交的事务.
 例如以下列子,就被分为了4个event
 begin;      120  - 340
 DML1        340  - 460
@@ -472,11 +469,11 @@ mysqldumpslow -s c -t 10 /data/mysql/slow.log
 
 ```shell
 热备
-在数据库正常业务时,备份数据,并且能够一致性恢复（只能是innodb）
+在数据库正常业务时,备份数据,并且能够一致性恢复(只能是innodb)
 对业务影响非常小
 
 温备
-锁表备份,只能查询不能修改（myisam）
+锁表备份,只能查询不能修改(myisam)
 影响到写入操作
 
 冷备
@@ -494,7 +491,7 @@ mysqlbinlog
 物理备份工具
 基于磁盘数据文件备份
 xtrabackup(XBK) :percona 第三方
-MySQL Enterprise Backup（MEB）
+MySQL Enterprise Backup(MEB)
 ```
 
 mysqldump (MDP)
@@ -550,7 +547,7 @@ xtrabackup(XBK)
 -B db1 db2 db3 备份多个单库
 
 
-特殊参数使用（必须要加）
+特殊参数使用(必须要加)
 
 -R            备份存储过程及函数
 --triggers  备份触发器
@@ -560,18 +557,18 @@ xtrabackup(XBK)
 --master-data=2
 以注释的形式,保存备份开始时间点的binlog的状态信息
 功能:
-（1）在备份时,会自动记录,二进制日志文件名和位置号
+(1)在备份时,会自动记录,二进制日志文件名和位置号
 0 默认值
 1  以change master to命令形式,可以用作主从复制
 2  以注释的形式记录,备份时刻的文件名+postion号
-（2） 自动锁表
-（3）如果配合--single-transaction,只对非InnoDB表进行锁表备份,InnoDB表进行“热“”备,实际上是实现快照备份。
+(2) 自动锁表
+(3)如果配合--single-transaction,只对非InnoDB表进行锁表备份,InnoDB表进行“热“”备,实际上是实现快照备份.
 
 --single-transaction
 innodb 存储引擎开启热备(快照备份)功能
 master-data可以自动加锁
-（1）在不加--single-transaction ,启动所有表的温备份,所有表都锁定
-（1）加上--single-transaction ,对innodb进行快照备份,对非innodb表可以实现自动锁表功能
+(1)在不加--single-transaction ,启动所有表的温备份,所有表都锁定
+(1)加上--single-transaction ,对innodb进行快照备份,对非innodb表可以实现自动锁表功能
 
 --set-gtid-purged=auto
 使用场景:
@@ -593,7 +590,7 @@ mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F).sql.gz
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F-%T).sql.gz
 
-mysqldump备份的恢复方式（在生产中恢复要谨慎,恢复会删除重复的表）
+mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复的表)
 set sql_log_bin=0;
 source /backup/full_2018-06-28.sql
 ```
