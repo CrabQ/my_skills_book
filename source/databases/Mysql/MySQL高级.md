@@ -7,15 +7,15 @@
 mysql -uroot -p -S /tmp/mysql.sock
 ```
 
-## 初始化配置
+### 初始化配置
 
 配置文件储存位置
 
 ```shell
 /etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf
-# MySQL启动时,会依次读取以上配置文件,如果有重复选项,会以最后一个文件设置的为准.
-
-# 但是,如果启动时加入了--defaults-file=xxxx时,以上的所有文件都不会读取.
+# MySQL启动时,会依次读取以上配置文件
+# 以最后一个文件设置的为准
+# 如果以--defaults-file=xxxx启动,以上的所有文件都不会读取
 ```
 
 ## SQL基础应用
@@ -32,9 +32,11 @@ DQL:数据查询语言 show select
 ## 执行计划获取及分析
 
 ```shell
-获取到的是优化器选择完成的,他认为代价最小的执行计划.
-作用: 语句执行前,先看执行计划信息,可以有效的防止性能较差的语句带来的性能问题.
-如果业务中出现了慢语句，我们也需要借助此命令进行语句的评估，分析优化方案。
+执行计划获取到的是优化器选择完成的,他认为代价最小的执行计划
+
+作用: 语句执行前,先看执行计划信息,可以有效的防止性能较差的语句带来的性能问题
+
+如果业务中出现了慢语句,也需要借助此命令进行语句的评估,分析优化方案。
 ```
 
 获取优化器选择后的执行计划
@@ -87,7 +89,7 @@ select table_schema,table_name ,engine from information_schema.tables where tabl
 
 ```shell
 alter table t1 engine innodb;
-# 注意：此命令我们经常使用他，进行innodb表的碎片整理
+# 注意:此命令我们经常使用他,进行innodb表的碎片整理
 
 # 批量修改
 
@@ -98,11 +100,11 @@ information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.
 ### InnoDB存储引擎物理存储结构
 
 ```shell
-ibdata1：系统数据字典信息(统计信息)，UNDO表空间等数据
-ib_logfile0 ~ ib_logfile1: REDO日志文件，事务日志文件。
-ibtmp1： 临时表空间磁盘位置，存储临时表
-frm：存储表的列信息
-ibd：表的数据行和索引
+ibdata1:系统数据字典信息(统计信息),UNDO表空间等数据
+ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件。
+ibtmp1: 临时表空间磁盘位置,存储临时表
+frm:存储表的列信息
+ibd:表的数据行和索引
 ```
 
 ####　表空间(Tablespace)
@@ -111,9 +113,9 @@ ibd：表的数据行和索引
 
 ```shell
 # show variables like '%extend%';
-需要将所有数据存储到同一个表空间中 ，管理比较混乱
-5.5版本出现的管理模式，也是默认的管理模式。
-5.6版本以，共享表空间保留，只用来存储:数据字典信息,undo,临时表。
+需要将所有数据存储到同一个表空间中 ,管理比较混乱
+5.5版本出现的管理模式,也是默认的管理模式。
+5.6版本以,共享表空间保留,只用来存储:数据字典信息,undo,临时表。
 5.7 版本,临时表被独立出来了
 8.0版本,undo也被独立出去了
 ```
@@ -121,11 +123,11 @@ ibd：表的数据行和索引
 独立表空间
 
 ```shell
-从5.6，默认表空间不再使用共享表空间，替换为独立表空间。
+从5.6,默认表空间不再使用共享表空间,替换为独立表空间。
 主要存储的是用户数据
-存储特点为：一个表一个ibd文件，存储数据行和索引信息
-基本表结构元数据存储：xxx.frm
-最终结论：
+存储特点为:一个表一个ibd文件,存储数据行和索引信息
+基本表结构元数据存储:xxx.frm
+最终结论:
       元数据            数据行+索引
 mysql表数据    =（ibdataX+frm）+ibd(段、区、页)
         DDL             DML+DQL
@@ -136,9 +138,9 @@ MySQL的存储引擎日志
 
 ```shell
 # select @@innodb_file_per_table;
-Redo Log: ib_logfile0  ib_logfile1，重做日志
-Undo Log: ibdata1 ibdata2(存储在共享表空间中)，回滚日志
-临时表:ibtmp1，在做join union操作产生临时数据，用完就自动删除
+Redo Log: ib_logfile0  ib_logfile1,重做日志
+Undo Log: ibdata1 ibdata2(存储在共享表空间中),回滚日志
+临时表:ibtmp1,在做join union操作产生临时数据,用完就自动删除
 ```
 
 缓冲区池
@@ -152,10 +154,10 @@ innodb_flush_log_at_trx_commit (双一标准之一)
 
 ```shell
 select @@innodb_flush_log_at_trx_commit;
-# 主要控制了innodb将log buffer中的数据写入日志文件并flush磁盘的时间点，取值分别为0、1、2三个
-# 1，每次事物的提交都会引起日志文件写入、flush磁盘的操作，确保了事务的ACID；flush  到操作系统的文件系统缓存  fsync到物理磁盘.
-# 0，表示当事务提交时，不做日志写入操作，而是每秒钟将log buffer中的数据写入文件系统缓存并且秒fsync磁盘一次；
-# 2，每次事务提交引起写入文件系统缓存,但每秒钟完成一次fsync磁盘操作。
+# 主要控制了innodb将log buffer中的数据写入日志文件并flush磁盘的时间点,取值分别为0、1、2三个
+# 1,每次事物的提交都会引起日志文件写入、flush磁盘的操作,确保了事务的ACID；flush  到操作系统的文件系统缓存  fsync到物理磁盘.
+# 0,表示当事务提交时,不做日志写入操作,而是每秒钟将log buffer中的数据写入文件系统缓存并且秒fsync磁盘一次；
+# 2,每次事务提交引起写入文件系统缓存,但每秒钟完成一次fsync磁盘操作。
 ```
 
 Innodb_flush_method=(O_DIRECT, fdatasync)
@@ -201,10 +203,10 @@ TXID: 事务号,InnoDB会为每一个事务生成一个事务号,伴随着整个
 ###　redo log
 
 ```shell
-在事务ACID过程中，实现的是“D”持久化的作用。对于AC也有相应的作用
-redo的日志文件：iblogfile0 iblogfile1
+在事务ACID过程中,实现的是“D”持久化的作用。对于AC也有相应的作用
+redo的日志文件:iblogfile0 iblogfile1
 redo的buffer:数据页的变化信息+数据页当时的LSN号
-LSN：日志序列号  磁盘数据页、内存数据页、redo buffer、redolog
+LSN:日志序列号  磁盘数据页、内存数据页、redo buffer、redolog
 ```
 
 redo的刷新策略
@@ -237,7 +239,7 @@ MySQL此时无法正常启动,MySQL触发CSR.在内存追平LSN号,触发ckpt,�
 ### undo 回滚日志
 
 ```shell
-在事务ACID过程中，实现的是“A” 原子性的作用
+在事务ACID过程中,实现的是“A” 原子性的作用
 另外CI也依赖于Undo
 在rolback时,将数据恢复到修改之前的状态
 在CSR实现的是,将redo当中记录的未提交的时候进行回滚.
@@ -267,7 +269,7 @@ show variables like 'log_error';
 (1)备份恢复必须依赖二进制日志
 (2)主从环境必须依赖二进制日志
 
-注意：MySQL默认是没有开启二进制日志的。
+注意:MySQL默认是没有开启二进制日志的。
 基础参数查看:
 开关:
 select @@log_bin;
@@ -289,30 +291,30 @@ select @@sync_binlog;
 ### binlog记录了什么
 
 ```shell
-binlog是SQL层的功能。记录的是变更SQL语句，不记录查询语句
+binlog是SQL层的功能。记录的是变更SQL语句,不记录查询语句
 
 记录SQL语句种类
-DDL ：原封不动的记录当前DDL(statement语句方式)。
-DCL ：原封不动的记录当前DCL(statement语句方式)。
-DML ：只记录已经提交的事务DML
+DDL :原封不动的记录当前DDL(statement语句方式)。
+DCL :原封不动的记录当前DCL(statement语句方式)。
+DML :只记录已经提交的事务DML
 ```
 
 DML三种记录方式
 
 ```shell
 binlog_format（binlog的记录格式）参数影响
-（1）statement（5.6默认）SBR(statement based replication) ：语句模式原封不动的记录当前DML。
-（2）ROW(5.7 默认值) RBR(ROW based replication) ：记录数据行的变化(用户看不懂，需要工具分析)
-（3）mixed（混合）MBR(mixed based replication)模式  ：以上两种模式的混合
+（1）statement（5.6默认）SBR(statement based replication) :语句模式原封不动的记录当前DML。
+（2）ROW(5.7 默认值) RBR(ROW based replication) :记录数据行的变化(用户看不懂,需要工具分析)
+（3）mixed（混合）MBR(mixed based replication)模式  :以上两种模式的混合
 
 SBR与RBR模式的对比
-STATEMENT：可读性较高，日志量少，但是不够严谨
-ROW      ：可读性很低，日志量大，足够严谨
-update t1 set xxx=xxx where id>1000   ? -->一共500w行，row模式怎么记录的日志
-为什么row模式严谨？
+STATEMENT:可读性较高,日志量少,但是不够严谨
+ROW      :可读性很低,日志量大,足够严谨
+update t1 set xxx=xxx where id>1000   ? -->一共500w行,row模式怎么记录的日志
+为什么row模式严谨?
 id  name    intime
 insert into t1 values(1,'zs',now())
-我们建议使用：row记录模式
+我们建议使用:row记录模式
 ```
 
 ### event（事件）
@@ -340,7 +342,7 @@ Position:
 结束标识: end_log_pos 254
 194? 254?
 某个事件在binlog中的相对位置号
-位置号的作用是什么？
+位置号的作用是什么?
 为了方便我们截取事件
 ```
 
@@ -374,7 +376,7 @@ binlog日志的GTID新特性
 
 ```shell
 Global Transaction ID
-是对于一个已提交事务的编号，并且是一个全局唯一的编号
+是对于一个已提交事务的编号,并且是一个全局唯一的编号
 
 vim /etc/my.cnf
 gtid-mode=on
@@ -491,49 +493,49 @@ mysqlbinlog
 
 物理备份工具
 基于磁盘数据文件备份
-xtrabackup(XBK) ：percona 第三方
+xtrabackup(XBK) :percona 第三方
 MySQL Enterprise Backup（MEB）
 ```
 
 mysqldump (MDP)
 
 ```shell
-优点：
+优点:
 1.不需要下载安装
-2.备份出来的是SQL，文本格式，可读性高,便于备份处理
-3.压缩比较高，节省备份的磁盘空间
+2.备份出来的是SQL,文本格式,可读性高,便于备份处理
+3.压缩比较高,节省备份的磁盘空间
 
-缺点：
-4.依赖于数据库引擎，需要从磁盘把数据读出
-然后转换成SQL进行转储，比较耗费资源，数据量大的话效率较低
-建议：
-100G以内的数据量级，可以使用mysqldump
-超过TB以上，我们也可能选择的是mysqldump，配合分布式的系统
+缺点:
+4.依赖于数据库引擎,需要从磁盘把数据读出
+然后转换成SQL进行转储,比较耗费资源,数据量大的话效率较低
+建议:
+100G以内的数据量级,可以使用mysqldump
+超过TB以上,我们也可能选择的是mysqldump,配合分布式的系统
 1EB  =1024 PB =1000000 TB
 ```
 
 xtrabackup(XBK)
 
 ```shell
-优点：
-1.类似于直接cp数据文件，不需要管逻辑结构，相对来说性能较高
-缺点：
+优点:
+1.类似于直接cp数据文件,不需要管逻辑结构,相对来说性能较高
+缺点:
 2.可读性差
-3.压缩比低，需要更多磁盘空间
-建议：
+3.压缩比低,需要更多磁盘空间
+建议:
 >100G<TB
 ```
 
 备份策略
 
-备份方式：
-全备:全库备份，备份所有数据
+备份方式:
+全备:全库备份,备份所有数据
 增量:备份变化的数据
 逻辑备份=mysqldump+mysqlbinlog
 物理备份=xtrabackup_full+xtrabackup_incr+binlog或者xtrabackup_full+binlog
 备份周期:
 根据数据量设计备份周期
-比如：周日全备，周1-周6增量
+比如:周日全备,周1-周6增量
 
 ### mysqldump (逻辑备份的客户端工具)
 
@@ -557,18 +559,18 @@ xtrabackup(XBK)
 
 --master-data=2
 以注释的形式,保存备份开始时间点的binlog的状态信息
-功能：
-（1）在备份时，会自动记录，二进制日志文件名和位置号
+功能:
+（1）在备份时,会自动记录,二进制日志文件名和位置号
 0 默认值
-1  以change master to命令形式，可以用作主从复制
-2  以注释的形式记录，备份时刻的文件名+postion号
+1  以change master to命令形式,可以用作主从复制
+2  以注释的形式记录,备份时刻的文件名+postion号
 （2） 自动锁表
-（3）如果配合--single-transaction，只对非InnoDB表进行锁表备份，InnoDB表进行“热“”备，实际上是实现快照备份。
+（3）如果配合--single-transaction,只对非InnoDB表进行锁表备份,InnoDB表进行“热“”备,实际上是实现快照备份。
 
 --single-transaction
 innodb 存储引擎开启热备(快照备份)功能
 master-data可以自动加锁
-（1）在不加--single-transaction ，启动所有表的温备份，所有表都锁定
+（1）在不加--single-transaction ,启动所有表的温备份,所有表都锁定
 （1）加上--single-transaction ,对innodb进行快照备份,对非innodb表可以实现自动锁表功能
 
 --set-gtid-purged=auto
@@ -587,11 +589,11 @@ mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --
 压缩备份并添加时间戳
 
 ```shell
-例子：
+例子:
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F).sql.gz
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F-%T).sql.gz
 
-mysqldump备份的恢复方式（在生产中恢复要谨慎，恢复会删除重复的表）
+mysqldump备份的恢复方式（在生产中恢复要谨慎,恢复会删除重复的表）
 set sql_log_bin=0;
 source /backup/full_2018-06-28.sql
 ```
