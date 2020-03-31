@@ -101,11 +101,14 @@ master_repl_offset:756
 
 ### 全量复制
 
+```shell
 runid: 每次启动分配的id,重启会改变,(即可能引发全量复制)
 
-主从复制的同时,这期间写入的数据会在缓冲区记录下来,同样发送给从节点,保证数据一致
+主从复制的同时,这期间写入的数据会在缓冲区记录下来
+同样发送给从节点,保证数据一致
+```
 
-全量复制的开销
+#### 全量复制的开销
 
 ```shell
 bgsave时间
@@ -119,7 +122,8 @@ RDB文件网络传输时间
 
 #### 读写分离
 
-读写分析: 读流量分摊到从节点
+读流量分摊到从节点
+
 可能遇到的问题
 
 ```shell
@@ -201,10 +205,13 @@ RDB文件网络传输时间
 port ${port}
 dir "/opt/soft/redis/data/"
 logfile "${port}.log"
+
 # 主节点,2表示客观下线的sentinel投票数量
 sentinel monitor mymaster 172.0.0.1 7000 2
+
 # 判断时限,30秒
 sentinel down-after-milliseconds mymaster 30000
+
 # 故障转移时新master同一时间传输快照给slave数量
 sentinel parallel-syncs mymaster 1
 sentinel failover-timeout mymaster 180000
@@ -237,10 +244,15 @@ sentinel down-after-milliseconds <mastername> <timeout>
 
 ```shell
 原因:只有一个sentinel节点完成故障转移
+
 选举:通过sentinel is-master-down-by-addr命令都希望成为领导者
+
 每个做主观下线的sentinel节点向其他sentinel节点发送命令,要求将它设置为领导者
+
 收到命令的sentinel节点如果没有同意其他sentinel节点发送的命令,那么将同意该请求,否则拒绝
+
 如果该sentinel节点发现自己的票数已经超过sentinel集合半数而且超过quorum,那么它将成为领导者
+
 如果此过程有多个sentinel节点成为了领导者,那么将等待一段时间重新进行选举
 ```
 
@@ -248,8 +260,11 @@ sentinel down-after-milliseconds <mastername> <timeout>
 
 ```shell
 从slave节点中选出一个合适的节点作为新的master节点
+
 对上面的slave节点执行slaveof no one命令让其成为master节点
+
 向剩余的slave节点发送命令,让它们成为新master节点的slave节点,复制规则和parallel-syncs参数有关
+
 更新对原来master节点配置为slave,并保持着对其'关注',当恢复后命令它去复制新的master节点
 ```
 
@@ -257,7 +272,9 @@ sentinel down-after-milliseconds <mastername> <timeout>
 
 ```shell
 选择slave-priority(slave节点优先级)最高的slave节点,如果存在则返回,不存在则继续
+
 选择复制偏移量最大的slave节点(复制的最完整),如果存在则返回,不存在则继续
+
 选择runid最小的slave节点
 ```
 
@@ -265,6 +282,7 @@ sentinel down-after-milliseconds <mastername> <timeout>
 
 ```shell
 从节点:临时下线还是永久下线,是否做一些清理工作,要考虑读写分离的情况
+
 sentinel节点:同上
 ```
 

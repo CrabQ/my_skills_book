@@ -6,10 +6,13 @@
 
 ### 为什么Redis是单线程的
 
+```shell
 Redis是基于内存的操作,CPU不是Redis的瓶颈,Redis的瓶颈最有可能是机器内存的大小或者网络带宽.既然单线程容易实现,而且CPU不会成为瓶颈,那就顺理成章地采用单线程的方案了
+```
 
 ### Redis是单线程的,但Redis为什么这么快
 
+```shell
 1、完全基于内存,绝大部分请求是纯粹的内存操作,非常快速.数据存在内存中,类似于HashMap,HashMap的优势就是查找和操作的时间复杂度都是O(1)
 
 2、数据结构简单,对数据操作也简单,Redis中的数据结构是专门进行设计的
@@ -19,18 +22,25 @@ Redis是基于内存的操作,CPU不是Redis的瓶颈,Redis的瓶颈最有可能
 4、使用多路I/O复用模型,非阻塞IO;这里"多路"指的是多个网络连接,"复用"指的是复用同一个线程
 
 5、使用底层模型不同,它们之间底层实现方式以及与客户端之间通信的应用协议不一样,Redis直接自己构建了VM 机制
+```
 
 ### Redis相比memcached有哪些优势
 
+```shell
 memcached所有的值均是简单的字符串,redis作为其替代者,支持更为丰富的数据类型
 
 redis的速度比memcached快很多
 
 redis可以持久化其数据
+```
 
 ### redis通讯协议
 
-RESP 是redis客户端和服务端之前使用的一种通讯协议;RESP 的特点：实现简单、快速解析、可读性好
+```shell
+RESP 是redis客户端和服务端之前使用的一种通讯协议;
+
+RESP 的特点：实现简单、快速解析、可读性好
+```
 
 ## 通用命令
 
@@ -107,9 +117,11 @@ flushall
 
 ### 字符串应用场景
 
-- 缓存
-- 分布式锁
-- 计数器
+```shell
+缓存
+分布式锁
+计数器
+```
 
 ### 字符串基本语法
 
@@ -243,14 +255,13 @@ get hi
 
 ### 字符串实际应用
 
-记录网站每个用户个人主页的访问量
-
 ```shell
+记录网站每个用户个人主页的访问量
 # 单线程,无竞争
-incr userid:pageview
-```
+# incr userid:pageview
 
 缓存视频的基本信息(数据源在MySQL中)
+```
 
 ## hash
 
@@ -337,10 +348,9 @@ hincrby user:1:info pageview 1
 
 ### hash实际应用
 
-记录网站每个用户个人主页的访问量
-
 ```shell
-hincrby user:1:info pageview count
+记录网站每个用户个人主页的访问量
+# hincrby user:1:info pageview count
 ```
 
 ## list
@@ -460,9 +470,9 @@ blpop key timeout
 
 ### list实际应用
 
-- 时间轴,新内容lpush
-
 ```shell
+时间轴,新内容lpush
+
 # lpush + lpop = Stack
 # lpush + rpop = Queue
 # lpush + ltrin = Capped Collection
@@ -555,10 +565,12 @@ sunion user:1:follow user:2:follow
 
 ### set实际应用
 
-- 用户like,赞,踩
-- 抽奖系统
-- 标签
-- 共同关注
+```shell
+用户like,赞,踩
+抽奖系统
+标签
+共同关注
+```
 
 ## zset
 
@@ -650,4 +662,6 @@ zremrangebyscore user:1:ranking 1 10
 
 ### 实际应用
 
-- 排行榜
+```shell
+排行榜
+```
