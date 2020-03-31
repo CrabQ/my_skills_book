@@ -7,6 +7,7 @@ MySql
 
    MySQL安装及错误
    MySQL基础语法
+   MySQL高级
    MySQL进阶
    MySQL规范
    MySQL导入导出CSV文件
