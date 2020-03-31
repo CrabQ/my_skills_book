@@ -357,6 +357,171 @@ cat test.txt -n
 
 ### vi/vim: 纯文本编辑器
 
+## 文本处理三剑客
+
+### grep: 文本过滤工具
+
+```shell
+# -V 过滤
+# -n 显示行号
+# -i 不区分大小写
+# -c 统计匹配的行数
+# -e 匹配多个
+```
+
+### sed: 字符流编辑器
+
+```shell
+# -i 直接修改文件内容,默认替换后,输出替换后的内容
+sed -i 's/hhh/new/g' result.txt
+
+# 内置命令
+# a 指定行后追加文本
+sed '2a hi' result.txt
+# 第二行后加上一行hi
+
+# d 删除匹配行
+sed '2,5d' result.txt
+# 删除第二到第五行
+
+# i 指定行前追加文本
+```
+
+首处替换
+
+```shell
+# 替换每一行的第一处匹配的my
+sed 's/hhh/new/' result.txt
+envs
+my_blog
+my_blog.log
+my_blog_sql
+newhh
+123
+newhh
+```
+
+全局替换
+
+```shell
+sed 's/l/z/g' result.txt
+envs
+my_bzog
+my_bzog.zog
+my_bzog_sqz
+hhhhh
+123
+hhhhh
+```
+
+移除空白行
+
+```shell
+sed '/^$/d' result.txt
+```
+
+### awk: 数据流处理工具
+
+awk脚本结构
+
+```shell
+awk ' BEGIN{ statements } statements2 END{ statements } '
+# 1.执行begin中语句块
+# 2.从文件或stdin中读入一行,然后执行statements2,重复这个过程,直到文件全部被读取完毕
+# 3.执行end语句块
+```
+
+使用不带参数的print时,会打印当前行
+
+```shell
+echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
+start
+line1
+line2
+End
+```
+
+特殊变量`NR NF $0 $1 $2`
+
+```shell
+# NR: 表示记录数量,在执行过程中对应当前行号
+# NF: 表示字段数量,在执行过程总对应当前行的字段数
+# $0: 整行内容
+# $1: 第一个字段的文本内容
+# $2: 第二个字段的文本内容
+# $NF: 最后一列
+
+echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
+1:line1 f2 f3-line1-f2
+2: line2 -line2-
+3: line 3-line-3
+```
+
+统计文件的行数
+
+```shell
+awk 'END {print NR}' result.txt
+8
+```
+
+累加每一行的第一个字段
+
+```shell
+echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
+> print "begin";} {sum += $1;} END {print "=="; print sum }'
+begin
+==
+10
+```
+
+传递外部变量
+
+```shell
+var=1000
+echo | awk '{print vara}' vara=$var
+1000
+```
+
+用样式对awk处理的行进行过滤
+
+```shell
+# 行号小于5
+awk 'NR < 5' result.txt
+
+# 包含new的行
+awk '/new/' result.txt
+newhh
+newhh
+
+# 不包含new的行
+awk '!/new/' result.txt
+
+envs
+my_blog
+my_blog.log
+my_blog_sql
+123
+```
+
+以下字符串,打印出其中的时间串
+
+```shell
+# 使用-F来设置定界符(默认为空格)
+echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
+2015_04_02 20:20:08
+```
+
+打印指定列
+
+```shell
+ls -lrt | awk '{print $6}'
+
+Dec
+Oct
+Oct
+Mar
+```
+
 ### 查看文件内容
 
 ```shell
@@ -516,25 +681,6 @@ find . -type f -name "*.swp" -delete
 find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
 ```
 
-### grep 文本搜索
-
-```shell
-# -c 统计文件中包含文本的次数
-# -i 搜索时忽略大小写
-grep -c -i 'my' result.txt
-```
-
-匹配多个模式
-
-```shell
-# -n 打印匹配的行号
-grep -e 'my' -e 'envs' -n result.txt
-1:envs
-2:my_blog
-3:my_blog.log
-4:my_blog_sql
-```
-
 ### sort排序
 
 ```shell
@@ -629,148 +775,6 @@ wc -w result.txt
 # 统计字符数
 wc -c result.txt
 53 result.txt
-```
-
-### sed 文本替换利器
-
-首处替换
-
-```shell
-# 替换每一行的第一处匹配的my
-sed 's/hhh/new/' result.txt
-envs
-my_blog
-my_blog.log
-my_blog_sql
-newhh
-123
-newhh
-```
-
-全局替换
-
-```shell
-sed 's/l/z/g' result.txt
-envs
-my_bzog
-my_bzog.zog
-my_bzog_sqz
-hhhhh
-123
-hhhhh
-```
-
-移除空白行
-
-```shell
-sed '/^$/d' result.txt
-```
-
-默认替换后,输出替换后的内容,如果需要直接替换原文件,使用-i
-
-```shell
-sed -i 's/hhh/new/g' result.txt
-```
-
-### awk 数据流处理工具
-
-awk脚本结构
-
-```shell
-awk ' BEGIN{ statements } statements2 END{ statements } '
-# 1.执行begin中语句块
-# 2.从文件或stdin中读入一行,然后执行statements2,重复这个过程,直到文件全部被读取完毕
-# 3.执行end语句块
-```
-
-使用不带参数的print时,会打印当前行
-
-```shell
-echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
-start
-line1
-line2
-End
-```
-
-特殊变量`NR NF $0 $1 $2`
-
-```shell
-# NR:表示记录数量,在执行过程中对应当前行号
-# NF:表示字段数量,在执行过程总对应当前行的字段数
-# $0:这个变量包含执行过程中当前行的文本内容
-# $1:第一个字段的文本内容
-# $2:第二个字段的文本内容
-
-echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
-1:line1 f2 f3-line1-f2
-2: line2 -line2-
-3: line 3-line-3
-```
-
-统计文件的行数
-
-```shell
-awk 'END {print NR}' result.txt
-8
-```
-
-累加每一行的第一个字段
-
-```shell
-echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
-> print "begin";} {sum += $1;} END {print "=="; print sum }'
-begin
-==
-10
-```
-
-传递外部变量
-
-```shell
-var=1000
-echo | awk '{print vara}' vara=$var
-1000
-```
-
-用样式对awk处理的行进行过滤
-
-```shell
-# 行号小于5
-awk 'NR < 5' result.txt
-
-# 包含new的行
-awk '/new/' result.txt
-newhh
-newhh
-
-# 不包含new的行
-awk '!/new/' result.txt
-
-envs
-my_blog
-my_blog.log
-my_blog_sql
-123
-```
-
-以下字符串,打印出其中的时间串
-
-```shell
-# 使用-F来设置定界符(默认为空格)
-echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
-2015_04_02 20:20:08
-```
-
-打印指定列
-
-```shell
-ls -lrt | awk '{print $6}'
-
-Dec
-Oct
-Oct
-Mar
 ```
 
 ### 磁盘管理
