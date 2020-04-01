@@ -858,8 +858,6 @@ wc -c result.txt
 [root@izbp128jigdcjx00os4h3sz mysql]# df -h
 ```
 
-
-
 #### 打包,压缩
 
 打包, 多个文件归并到一个
