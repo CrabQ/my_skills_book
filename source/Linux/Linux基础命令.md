@@ -27,21 +27,6 @@ man ls
 # --help
 ```
 
-查看程序的binary文件所在路径
-
-```shell
-which ls
-alias ls='ls --color=auto'
-        /usr/bin/ls
-```
-
-查看程序的搜索路径
-
-```shell
-whereis ls
-ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
-```
-
 ### 关机相关命令
 
 ```shell
@@ -172,16 +157,6 @@ find ./ -name "*.ooo" -exec rm {} \;
 ```
 
 find是实时查找,如果需要更快的查询,可试试locate
-
-locate会为文件系统建立索引数据库,如果有文件更新,需要定期执行更新命令来更新索引库
-
-```shell
-# 寻找包含有string的路径
-locate string
-
-# 更新数据库
-updatedb
-```
 
 ### xargs: 将标准输入转换成命令行参数
 
@@ -522,6 +497,101 @@ Oct
 Mar
 ```
 
+## Linux信息显示与搜索文件命令
+
+### uname: 显示系统信息
+
+```shell
+# -r 显示内核发行版本号
+# -a 显示系统所有相关信息
+uname -a
+lsb_release -a
+```
+
+### hostname: 显示或设置系统的主机名
+
+```shell
+# -I 显示主机所有IP地址,不依赖DNS解析
+# 临时修改为test
+hostname test
+
+# 永久修改
+vim /etc/hostname
+```
+
+### dmesg: 系统启动异常诊断
+
+### stat: 显示文件或文件系统状态
+
+### du: 统计磁盘空间使用情况
+
+```shell
+# -h 可读方式查看
+# -s 递归
+[root@izbp128jigdcjx00os4h3sz mysql]# du -sh
+211M    .
+```
+
+查看当前目录下所有子文件夹排序后的大小
+
+```shell
+[root@izbp128jigdcjx00os4h3sz mysql]# du -sh `ls` | sort
+211M    data
+4.0K    logs
+8.0K    config
+```
+
+### date: 显示与设置系统时间
+
+```shell
+# -d 显示指定字符串的时间
+# -s 设置系统时间
+date
+```
+
+### echo: 显示一行文本
+
+```shell
+# -n 不要自动换行
+```
+
+### watch: 监视命令执行情况
+
+```shell
+# -n 命令执行的间隔时间,默认2s
+```
+
+### which: 显示命令的全路径
+
+查看程序的binary文件所在路径
+
+```shell
+which ls
+alias ls='ls --color=auto'
+        /usr/bin/ls
+```
+
+### whereis: 显示命令及其相关文件全路径
+
+```shell
+whereis ls
+ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
+```
+
+### locate: 快速定位文件路径
+
+locate会为文件系统建立索引数据库,如果有文件更新,需要定期执行更新命令来更新索引库
+
+```shell
+# 寻找包含有string的路径
+locate string
+
+# 更新数据库
+updatedb
+```
+
+### updatedb: 更新mlocate数据库
+
 ### 查看文件内容
 
 ```shell
@@ -788,22 +858,7 @@ wc -c result.txt
 [root@izbp128jigdcjx00os4h3sz mysql]# df -h
 ```
 
-当前目录所占空间大小
 
-```shell
-# -s 递归
-[root@izbp128jigdcjx00os4h3sz mysql]# du -sh
-211M    .
-```
-
-查看当前目录下所有子文件夹排序后的大小
-
-```shell
-[root@izbp128jigdcjx00os4h3sz mysql]# du -sh `ls` | sort
-211M    data
-4.0K    logs
-8.0K    config
-```
 
 #### 打包,压缩
 
@@ -1090,13 +1145,6 @@ bashrc与profile都用于保存用户的环境信息,bashrc用于交互式non-lo
 
 ## 系统管理及IPC资源管理
 
-查看Linux系统版本
-
-```shell
-uname -a
-lsb_release -a
-```
-
 查看Unix系统版本,操作系统版本
 
 ```shell
@@ -1134,12 +1182,6 @@ pagesize
 
 ```shell
 arch
-```
-
-显示当前系统时间
-
-```shell
-date
 ```
 
 格式化输出当前日期时间
