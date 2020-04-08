@@ -592,6 +592,64 @@ updatedb
 
 ### updatedb: 更新mlocate数据库
 
+## 文件备份与压缩命令
+
+### tar: 打包备份
+
+```shell
+# z 通过gzip压缩或者解压
+# c 创建新的tar包
+# v 显示过程
+# f 指定压缩文件的名字
+# t 不解压查看tar包内容
+# x 解开tar包
+# C 指定解压的目录路径
+# --exclude=PATTERN 打包时排除不需要的文件或目录
+# -h 打包软连接文件指向的真实源文件
+```
+
+### gzip: 压缩或解压文件
+
+只能压缩文件,目录需要先打包
+
+解压会删除源文件
+
+```shell
+# -d 解开压缩文件
+# -c 将内容输出到标准输出,不改变原始文件
+```
+
+### zip: 打包和压缩文件
+
+```shell
+# -r 压缩指定目录下所有文件和路径
+# -x 压缩文件时排除某个文件
+```
+
+### unzip: 解压zip文件
+
+### scp: 远程文件复制
+
+```shell
+# -P port 端口
+# -p 传输后保留文件原始属性
+# -r 递归复制整个目录
+```
+
+将本地localpath指向的文件上传到远程主机的path路径
+
+```shell
+scp localpath ID@host:path
+```
+
+以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
+
+```shell
+scp -r ID@site:path localpath
+```
+
+### rsync: 文件同步工具
+
 ### 查看文件内容
 
 ```shell
@@ -1037,18 +1095,6 @@ ftp/sftp文件传输
 # lls 列出本地主机上当前路径的所有文件
 # lcd 在本地主机更改当前路径
 sftp ID@host
-```
-
-将本地localpath指向的文件上传到远程主机的path路径
-
-```shell
-scp localpath ID@host:path
-```
-
-以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
-
-```shell
-scp -r ID@site:path localpath
 ```
 
 ## 用户管理工具
