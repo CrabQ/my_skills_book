@@ -202,7 +202,9 @@ md5sum -c md5.log
 
 ```shell
 # -R 递归改变
-chown 用户:组 test.py
+# chown 用户:组 test.py
+chown -R mysql.mysql /root/mysql/*
+
 ```
 
 ### chmod: 改变文件或目录权限
