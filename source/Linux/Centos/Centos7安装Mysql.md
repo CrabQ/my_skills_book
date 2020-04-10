@@ -1,5 +1,7 @@
 # Centos7安装Mysql
 
+## yum按照
+
 1. 卸载默认安装的mariadb：
 
    ```shell
@@ -43,3 +45,16 @@
 
    ALTER USER 'root'@'localhost' IDENTIFIED BY 'new password';
    ```
+
+## 源码包安装
+
+```shell
+# 下载
+wget https://cdn.mysql.com/archives/mysql-8.0/mysql-8.0.18-el7-x86_64.tar.gz
+
+# 解压
+tar -zxvf mysql-8.0.18-el7-x86_64.tar.gz
+
+# 移动
+mv mysql-8.0.18-el7-x86_64 /usr/local/mysql
+```
