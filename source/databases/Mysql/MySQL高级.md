@@ -585,3 +585,121 @@ mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复
 set sql_log_bin=0;
 source /backup/full_2018-06-28.sql
 ```
+
+## 主从复制
+
+```shell
+基于二进制日志复制的
+主库的修改操作会记录二进制日志
+从库会请求新的二进制日志并回放,最终达到主从数据同步
+```
+
+主从复制核心功能
+
+```shell
+辅助备份,处理物理损坏
+扩展新型的架构:高可用,高性能,分布式架构等
+```
+
+主从复制前提
+
+```shell
+两台以上mysql实例 ,server_id,server_uuid不同
+主库开启二进制日志
+专用的复制用户
+保证主从开启之前的某个时间点,从库数据是和主库一致(补课)
+告知从库,复制user,passwd,IP port,以及复制起点(change master to)
+线程(三个):Dump thread  IO thread  SQL thread 开启(start slave)
+```
+
+### 主从复制原理
+
+```shell
+1. change master to 时,ip port user password binlog position写入到master.info进行记录
+2. start slave 时,从库会启动IO线程和SQL线程
+3. IO_T,读取master.info信息,获取主库信息连接主库
+4. 主库会生成一个准备binlog DUMP线程,来响应从库
+5. IO_T根据master.info记录的binlog文件名和position号,请求主库DUMP最新日志
+6. DUMP线程检查主库的binlog日志,如果有新的,TP(传送)给从从库的IO_T
+7. IO_T将收到的日志存储到了TCP/IP 缓存,立即返回ACK给主库 ,主库工作完成
+8. IO_T将缓存中的数据,存储到relay-log日志文件,更新master.info文件binlog文件名和postion,IO_T工作完成
+9. SQL_T读取relay-log.info文件,获取到上次执行到的relay-log的位置,作为起点,回放relay-log
+10. SQL_T回放完成之后,会更新relay-log.info文件.
+11. relay-log会有自动清理的功能.
+
+其中:
+主库一旦有新的日志生成,会发送"信号"给binlog dump ,IO线程再请求
+```
+
+### 主从复制搭建实操
+
+```shell
+# 创建两个数据库相关目录
+mkdir -p /root/mysql/330{6,7}/data
+
+# 添加配置文件
+cat > /root/mysql/3306/my.cnf <<EOF
+[mysqld]
+basedir=/var/lib/mysql
+datadir=/root/mysql/3306/data
+socket=/root/mysql/3306/mysql.sock
+log_error=/root/mysql/3306/mysql.log
+port=3306
+server_id=1
+log_bin=/root/mysql/3306/mysql-bin
+EOF
+
+# 3307配置文件
+sed 's/3306/3307/g' /root/mysql/3306/my.cnf>/root/mysql/3307/my.cnf
+# 3307 server_id修改
+sed 's/server_id=1/server_id=2/g' -i /root/mysql/3307/my.cnf
+
+# 目录授权,先创建用户
+chown -R mysql.mysql /root/mysql/*
+
+# 初始化数据
+mysqld --initialize-insecure  --user=mysql --datadir=/root/mysql/3307/data --basedir=/var/lib/mysql
+
+
+# 清理主库数据
+rm -rf /data/3307/data/*
+
+# 重新初始化3307
+mysqld --initialize-insecure --user=mysql --basedir=/app/mysql --datadir=/data/3307/data
+
+# 修改my.cnf ,开启二进制日志功能
+log_bin=/data/3307/data/mysql-bin
+
+# 启动从库,主库
+
+# 主库中创建复制用户
+grant replication slave on *.* to repl@'10.0.0.%' identified by '123';
+
+# 备份主库并恢复到从库
+ mysqldump -S /data/3307/mysql.sock -A --master-data=2 --single-transaction  -R --triggers >/backup/full.sql
+-- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=653;
+
+mysql -S /data/3308/mysql.sock
+db01 [(none)]>source /backup/full.sql
+
+# 告知从库关键复制信息
+mysql -S /data/3308/mysql.sock
+db01 [mysql]>help change master to
+
+CHANGE MASTER TO
+  MASTER_HOST='10.0.0.51',
+  MASTER_USER='repl',
+  MASTER_PASSWORD='123',
+  MASTER_PORT=3307,
+  MASTER_LOG_FILE='mysql-bin.000001',
+  MASTER_LOG_POS=653,
+  MASTER_CONNECT_RETRY=10;
+
+
+# 开启主从专用线程
+start slave ;
+
+# 检查复制状态
+show slave  status \G
+```
+
