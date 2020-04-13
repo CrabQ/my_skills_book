@@ -640,10 +640,11 @@ mkdir -p /root/mysql/330{6,7}/data
 # 添加配置文件
 cat > /root/mysql/3306/my.cnf <<EOF
 [mysqld]
-basedir=/var/lib/mysql
+basedir=/usr/local/mysql
 datadir=/root/mysql/3306/data
 socket=/root/mysql/3306/mysql.sock
 log_error=/root/mysql/3306/mysql.log
+pid-file=/root/mysql/3306/mysql.pid
 port=3306
 server_id=1
 log_bin=/root/mysql/3306/mysql-bin
