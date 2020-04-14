@@ -85,6 +85,7 @@ docker commit -m="message" -a="author" <container_id> target_name:[tag_name]
 # -i:保持容器运行
 # -t:为容器重新分配一个伪输入终端,-it,容器创建后自动进入,退出则关闭容器
 # -d:以守护模式运行容器,通过docker exec进入,退出后容器不关闭
+# --net host: 覆盖主机端口
 
 [root@izbp128jigdcjx00os4h3sz bin]# docker run -it --name=c1 centos:7 /bin/bash
 Unable to find image 'centos:7' locally
