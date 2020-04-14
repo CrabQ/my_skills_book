@@ -379,3 +379,59 @@ while True:
     except Exception as e:
         print(e.args)
 ```
+
+#### sentinel docker方式部署
+
+redis主节点配置
+
+```shell
+# 在/root目录下创建redis目录用于储存redis数据信息
+mkdir -p ~/my_docker/redis/700{0,1,2}/data
+
+# 新建配置文件,以配置文件方式启动
+cat > ~/my_docker/redis/7000/7000.conf <<EOF
+port 7000
+pidfile /data/redis-7000.pid
+logfile "7000.log"
+EOF
+
+# 创建容器,设置端口映射,目录映射
+# 让容器的时钟与宿主机时钟同步
+# 开机启动
+# 以配置文件方式启动
+# --net=host 覆盖主机的端口
+docker run -id \
+--name=redis_7000 \
+--net=host \
+-v ~/my_docker/redis/7000/7000.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/7000/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-server /etc/redis/redis.conf
+```
+
+配置2个从节点
+
+```shell
+# 配置第一个
+sed 's/7000/7001/g' ~/my_docker/redis/7000/7000.conf>~/my_docker/redis/7001/7001.conf
+echo 'slaveof 127.0.0.1 7000' >> ~/my_docker/redis/7001/7001.conf
+
+docker run -id \
+--name=redis_7001 \
+--net=host \
+-v ~/my_docker/redis/7001/7001.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/7001/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-server /etc/redis/redis.conf
+
+# 配置第二个
+sed 's/7001/7002/g' ~/my_docker/redis/7001/7001.conf>~/my_docker/redis/7002/7002.conf
+
+docker run -id \
+--name=redis_7002 \
+--net=host \
+-v ~/my_docker/redis/7002/7002.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/7002/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-server /etc/redis/redis.conf
+```
