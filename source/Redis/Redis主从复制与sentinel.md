@@ -382,9 +382,9 @@ while True:
 
 #### sentinel docker方式部署
 
-redis主节点配置
-
 ```shell
+# redis主节点配置
+
 # 在/root目录下创建redis目录用于储存redis数据信息
 mkdir -p ~/my_docker/redis/700{0,1,2}/data
 
@@ -407,11 +407,9 @@ docker run -id \
 -v ~/my_docker/redis/7000/data:/data \
 -v /etc/localtime:/etc/localtime:ro \
 redis redis-server /etc/redis/redis.conf
-```
 
-配置2个从节点
+# 配置2个从节点
 
-```shell
 # 配置第一个
 sed 's/7000/7001/g' ~/my_docker/redis/7000/7000.conf>~/my_docker/redis/7001/7001.conf
 echo 'slaveof 127.0.0.1 7000' >> ~/my_docker/redis/7001/7001.conf
@@ -440,9 +438,9 @@ redis redis-server /etc/redis/redis.conf
 
 ```shell
 # 配置第一个
-mkdir -p ~/my_docker/redis/2638{0,1,2}/data
+mkdir -p ~/my_docker/redis/sentinel_2638{0,1,2}/data
 
-cat > ~/my_docker/redis/26380/redis-sentinel-26380.conf <<EOF
+cat > ~/my_docker/redis/sentinel_26380/redis-sentinel-26380.conf <<EOF
 port 26380
 logfile "26380.log"
 sentinel monitor mymaster 127.0.0.1 7000 2
@@ -451,31 +449,31 @@ sentinel parallel-syncs mymaster 1
 sentinel failover-timeout mymaster 180000
 EOF
 
-sed 's/26380/26381/g' ~/my_docker/redis/26380/redis-sentinel-26380.conf>~/my_docker/redis/26381/redis-sentinel-26381.conf
-sed 's/26380/26382/g' ~/my_docker/redis/26380/redis-sentinel-26380.conf>~/my_docker/redis/26382/redis-sentinel-26382.conf
+sed 's/26380/26381/g' ~/my_docker/redis/sentinel_26380/redis-sentinel-26380.conf>~/my_docker/redis/sentinel_26381/redis-sentinel-26381.conf
+sed 's/26380/26382/g' ~/my_docker/redis/sentinel_26380/redis-sentinel-26380.conf>~/my_docker/redis/sentinel_26382/redis-sentinel-26382.conf
 
 # 启动三个sentinel
 docker run -id \
---name=redis_26380 \
+--name=redis_sentinel_26380 \
 --net=host \
--v ~/my_docker/redis/26380/redis-sentinel-26380.conf:/etc/redis/redis.conf \
--v ~/my_docker/redis/26380/data:/data \
+-v ~/my_docker/redis/sentinel_26380/redis-sentinel-26380.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/sentinel_26380/data:/data \
 -v /etc/localtime:/etc/localtime:ro \
 redis redis-sentinel /etc/redis/redis.conf
 
 docker run -id \
---name=redis_26381 \
+--name=redis_sentinel_26381 \
 --net=host \
--v ~/my_docker/redis/26381/redis-sentinel-26381.conf:/etc/redis/redis.conf \
--v ~/my_docker/redis/26381/data:/data \
+-v ~/my_docker/redis/sentinel_26381/redis-sentinel-26381.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/sentinel_26381/data:/data \
 -v /etc/localtime:/etc/localtime:ro \
 redis redis-sentinel /etc/redis/redis.conf
 
 docker run -id \
---name=redis_26382 \
+--name=redis_sentinel_26382 \
 --net=host \
--v ~/my_docker/redis/26382/redis-sentinel-26382.conf:/etc/redis/redis.conf \
--v ~/my_docker/redis/26382/data:/data \
+-v ~/my_docker/redis/sentinel_26382/redis-sentinel-26382.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/sentinel_26382/data:/data \
 -v /etc/localtime:/etc/localtime:ro \
 redis redis-sentinel /etc/redis/redis.conf
 ```
