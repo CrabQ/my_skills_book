@@ -35,20 +35,20 @@ mysql:latest
 docker pull redis
 
 # 在/root目录下创建redis目录用于储存redis数据信息
-mkdir ~/my_docker/redis
+mkdir ~/my_docker/redis/7000
 
 # 新建配置文件,以配置文件方式启动
-my_docker/redis/config/6379.conf
+my_docker/redis/7000/7000.conf
 
 # 创建容器,设置端口映射,目录映射
 # 让容器的时钟与宿主机时钟同步
 # 开机启动
 # 以配置文件方式启动
 docker run -id \
--p 6379:6379 \
---name=redis_6379 \
--v ~/my_docker/redis/config/6379.conf:/etc/redis/redis.conf \
--v ~/my_docker/redis/data:/data \
+-p 7000:6379 \
+--name=redis_7000 \
+-v ~/my_docker/redis/7000/7000.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/6379/data:/data \
 -v /etc/localtime:/etc/localtime:ro \
 --restart=always \
 redis redis-server /etc/redis/redis.conf
