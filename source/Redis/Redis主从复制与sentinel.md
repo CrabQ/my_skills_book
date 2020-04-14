@@ -435,3 +435,47 @@ docker run -id \
 -v /etc/localtime:/etc/localtime:ro \
 redis redis-server /etc/redis/redis.conf
 ```
+
+配置三个sentinel
+
+```shell
+# 配置第一个
+mkdir -p ~/my_docker/redis/2638{0,1,2}/data
+
+cat > ~/my_docker/redis/26380/redis-sentinel-26380.conf <<EOF
+port 26380
+logfile "26380.log"
+sentinel monitor mymaster 127.0.0.1 7000 2
+sentinel down-after-milliseconds mymaster 30000
+sentinel parallel-syncs mymaster 1
+sentinel failover-timeout mymaster 180000
+EOF
+
+sed 's/26380/26381/g' ~/my_docker/redis/26380/redis-sentinel-26380.conf>~/my_docker/redis/26381/redis-sentinel-26381.conf
+sed 's/26380/26382/g' ~/my_docker/redis/26380/redis-sentinel-26380.conf>~/my_docker/redis/26382/redis-sentinel-26382.conf
+
+# 启动三个sentinel
+docker run -id \
+--name=redis_26380 \
+--net=host \
+-v ~/my_docker/redis/26380/redis-sentinel-26380.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/26380/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-sentinel /etc/redis/redis.conf
+
+docker run -id \
+--name=redis_26381 \
+--net=host \
+-v ~/my_docker/redis/26381/redis-sentinel-26381.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/26381/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-sentinel /etc/redis/redis.conf
+
+docker run -id \
+--name=redis_26382 \
+--net=host \
+-v ~/my_docker/redis/26382/redis-sentinel-26382.conf:/etc/redis/redis.conf \
+-v ~/my_docker/redis/26382/data:/data \
+-v /etc/localtime:/etc/localtime:ro \
+redis redis-sentinel /etc/redis/redis.conf
+```
