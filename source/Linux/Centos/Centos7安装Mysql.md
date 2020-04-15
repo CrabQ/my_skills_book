@@ -101,3 +101,69 @@ systemctl start mysqld_3306.service
 # Starting MySQL.Logging to '/usr/local/mysql/data/izbp128jigdcjx00os4h3sz.err'.
 # . ERROR! The server quit without updating PID file (/usr/local/mysql/data/izbp128jigdcjx00os4h3sz.pid).
 ```
+
+## 安装mysql5.173
+
+```shell
+# 下载
+wget http://dev.mysql.com/get/Downloads/MySQL-5.1/mysql-5.1.73.tar.gz
+# 解压
+tar -xvf mysql-5.1.73.tar.gz
+cd mysql-5.1.73
+
+# 安装相关依赖
+yum install ncurses ncurses-devel
+yum install -y gcc-c++*
+
+# 编译到指定目录
+./configure  '--prefix=/app/mysql5.1.73' '--without-debug' '--with-charset=utf8' '--with-extra-charsets=all' '--enable-assembler' '--with-pthread' '--enable-thread-safe-client' '--with-mysqld-ldflags=-all-static' '--with-client-ldflags=-all-static' '--with-big-tables' '--with-readline' '--with-ssl' '--with-embedded-server' '--enable-local-infile' '--with-plugins=innobase' CXXFLAGS="-Wno-narrowing -fpermissive"
+# 安装
+make
+make install
+
+# 复制配置文件 自启动文件 自启动
+cp support-files/my-medium.cnf /app/mysql5.1.73_data/my.cnf
+# cp -r support-files/mysql.server /etc/init.d/5.1.73_mysqld
+# /sbin/chkconfig --del 5.1.73_mysqld
+# /sbin/chkconfig --add 5.1.73_mysqld
+# /sbin/chkconfig mysqld on
+
+# 修改权限
+chown -R mysql:mysql /app/mysql5.1.73 /app/mysql5.1.73_data
+# 初始化mysql
+/app/mysql5.1.73/bin/mysql_install_db --user=mysql --basedir=/app/mysql5.1.73 --datadir=/app/mysql5.1.73_data/data/
+
+# 添加执行权限
+# chmod a+wrx /etc/init.d/5.1.73_mysqld
+# /etc/init.d/5.1.73_mysqld start
+
+# 启动
+/app/mysql5.1.73/bin/mysqld_safe --defaults-file=/app/mysql5.1.73_data/my.cnf &
+
+# root添加密码
+/app/mysql5.1.73/bin/mysqladmin -S /app/mysql5.1.73_data/mysql.sock -h localhost -u root password 'root'
+# chmod a+wrx /etc/init.d/mysql
+# service mysqld start
+
+# 测试登录
+/app/mysql5.1.73/bin/mysql -S /app/mysql5.1.73_data/mysql.sock -u root -p
+
+# 使用systemd管理mysql
+vim /etc/systemd/system/mysqld_5.1.173.service
+[Unit]
+Description=MySQL Server
+Documentation=man:mysqld(8)
+Documentation=http://dev.mysql.com/doc/refman/en/using-systemd.html
+After=network.target
+After=syslog.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=mysql
+Group=mysql
+ExecStart=/app/mysql5.1.73/bin/mysqld_safe --defaults-file=/app/mysql5.1.73_data/my.cnf
+LimitNOFILE = 10000
+
+```
