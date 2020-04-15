@@ -102,7 +102,7 @@ systemctl start mysqld_3306.service
 # . ERROR! The server quit without updating PID file (/usr/local/mysql/data/izbp128jigdcjx00os4h3sz.pid).
 ```
 
-## 安装mysql5.173
+## 安装mysql5.1.73
 
 ```shell
 # 下载
@@ -116,40 +116,78 @@ yum install ncurses ncurses-devel
 yum install -y gcc-c++*
 
 # 编译到指定目录
-./configure  '--prefix=/app/mysql5.1.73' '--without-debug' '--with-charset=utf8' '--with-extra-charsets=all' '--enable-assembler' '--with-pthread' '--enable-thread-safe-client' '--with-mysqld-ldflags=-all-static' '--with-client-ldflags=-all-static' '--with-big-tables' '--with-readline' '--with-ssl' '--with-embedded-server' '--enable-local-infile' '--with-plugins=innobase' CXXFLAGS="-Wno-narrowing -fpermissive"
+# --with-unix-socket-path=/app/mysql5.1.73_data/mysql.sock 指定socket位置
+./configure  '--prefix=/app/mysql5.1.73' '--without-debug' '--with-charset=utf8' '--with-extra-charsets=all' '--enable-assembler' '--with-pthread' '--enable-thread-safe-client' '--with-mysqld-ldflags=-all-static' '--with-client-ldflags=-all-static' '--with-big-tables' '--with-readline' '--with-ssl' '--with-embedded-server' '--enable-local-infile' '--with-plugins=innobase' '--with-unix-socket-path=/app/mysql5.1.73_data/mysql.sock' CXXFLAGS="-Wno-narrowing -fpermissive"
 # 安装
 make
 make install
 
 # 复制配置文件 自启动文件 自启动
-cp support-files/my-medium.cnf /app/mysql5.1.73_data/my.cnf
-# cp -r support-files/mysql.server /etc/init.d/5.1.73_mysqld
-# /sbin/chkconfig --del 5.1.73_mysqld
-# /sbin/chkconfig --add 5.1.73_mysqld
-# /sbin/chkconfig mysqld on
+mkdir -p /app/mysql5.1.73_data
+cat > /app/mysql5.1.73_data/my.cnf <<EOF
+[client]
+port            = 3306
+socket=/app/mysql5.1.73_data/mysql.sock
+
+[mysqld]
+port            = 3306
+skip-locking
+key_buffer_size = 16M
+max_allowed_packet = 1M
+table_open_cache = 64
+sort_buffer_size = 512K
+net_buffer_length = 8K
+read_buffer_size = 256K
+read_rnd_buffer_size = 512K
+myisam_sort_buffer_size = 8M
+
+basedir=/app/mysql5.1.73
+datadir=/app/mysql5.1.73_data/data
+user=mysql
+log-error=/app/mysql5.1.73_data/mysqld.log
+pid-file=/app/mysql5.1.73_data/mysqld.pid
+socket=/app/mysql5.1.73_data/mysql.sock
+
+log-bin=mysql-bin
+binlog_format=mixed
+server-id       = 1
+
+[mysqldump]
+quick
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+socket=/app/mysql5.1.73_data/mysql.sock
+
+[myisamchk]
+key_buffer_size = 20M
+sort_buffer_size = 20M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout
+EOF
 
 # 修改权限
 chown -R mysql:mysql /app/mysql5.1.73 /app/mysql5.1.73_data
 # 初始化mysql
 /app/mysql5.1.73/bin/mysql_install_db --user=mysql --basedir=/app/mysql5.1.73 --datadir=/app/mysql5.1.73_data/data/
 
-# 添加执行权限
-# chmod a+wrx /etc/init.d/5.1.73_mysqld
-# /etc/init.d/5.1.73_mysqld start
-
 # 启动
 /app/mysql5.1.73/bin/mysqld_safe --defaults-file=/app/mysql5.1.73_data/my.cnf &
 
 # root添加密码
-/app/mysql5.1.73/bin/mysqladmin -S /app/mysql5.1.73_data/mysql.sock -h localhost -u root password 'root'
+/app/mysql5.1.73/bin/mysqladmin -h localhost -u root password 'root'
 # chmod a+wrx /etc/init.d/mysql
 # service mysqld start
 
 # 测试登录
-/app/mysql5.1.73/bin/mysql -S /app/mysql5.1.73_data/mysql.sock -u root -p
+/app/mysql5.1.73/bin/mysql -u root -p
 
 # 使用systemd管理mysql
-vim /etc/systemd/system/mysqld_5.1.173.service
+cat > /etc/systemd/system/mysqld_5.1.173.service <<EOF
 [Unit]
 Description=MySQL Server
 Documentation=man:mysqld(8)
@@ -165,5 +203,8 @@ User=mysql
 Group=mysql
 ExecStart=/app/mysql5.1.73/bin/mysqld_safe --defaults-file=/app/mysql5.1.73_data/my.cnf
 LimitNOFILE = 10000
+EOF
 
+# 启动
+systemctl start mysqld_5.1.173.service
 ```
