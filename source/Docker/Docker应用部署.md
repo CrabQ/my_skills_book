@@ -9,23 +9,31 @@ docker search mysql
 docker pull mysql
 
 # 在/root目录下创建MySQL目录用于储存MySQL数据信息
-mkdir -p ~/my_docker/mysql/logs ~/my_docker/mysql/config ~/my_docker/mysql/data
-
+mkdir -p ~/my_docker/mysql/3306/{config,data}
 # 添加配置文件
-vi ~/my_docker/mysql/config/my.cnf
+cat > ~/my_docker/mysql/3306/config/my.cnf <<EOF
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/run/mysqld/mysqld.sock
+log_error=/var/lib/mysql/mysql.log
+log_bin=/var/lib/mysql/mysql-bin
+port=3306
+server_id=1
+EOF
+
 # 创建容器,设置端口映射,目录映射
 # 让容器的时钟与宿主机时钟同步
 # 开机启动
 docker run -id \
--p 3306:3306 \
---name=mysql \
--v ~/my_docker/mysql/logs:/logs \
--v ~/my_docker/mysql/config:/etc/mysql/conf.d \
--v ~/my_docker/mysql/data:/var/lib/mysql \
+--name=mysql_3306 \
+-v ~/my_docker/mysql/3306/config:/etc/mysql/conf.d \
+-v ~/my_docker/mysql/3306/data:/var/lib/mysql \
 -v /etc/localtime:/etc/localtime:ro \
 -e MYSQL_ROOT_PASSWORD=root \
---restart=always \
 mysql:latest
+
+# 测试是否成功
+docker exec -it mysql_3306 mysql -uroot -p
 ```
 
 ## Centos7下Redis部署
@@ -38,7 +46,11 @@ docker pull redis
 mkdir ~/my_docker/redis/7000
 
 # 新建配置文件,以配置文件方式启动
-my_docker/redis/7000/7000.conf
+cat > ~/my_docker/redis/7000/7000.conf <<EOF
+port 7000
+pidfile /data/redis-7000.pid
+logfile "7000.log"
+EOF
 
 # 创建容器,设置端口映射,目录映射
 # 让容器的时钟与宿主机时钟同步
