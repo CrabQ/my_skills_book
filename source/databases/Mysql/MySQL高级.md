@@ -631,45 +631,36 @@ source /backup/full_2018-06-28.sql
 主库一旦有新的日志生成,会发送"信号"给binlog dump ,IO线程再请求
 ```
 
-### 主从复制搭建实操
+### 主从复制docker搭建实操
 
 ```shell
 # 创建两个数据库相关目录
-mkdir -p /root/mysql/330{6,7}/data
+mkdir -p /data/docker/mysql_330{6,7}/{config,data}
 
 # 添加配置文件
-cat > /root/mysql/3306/my.cnf <<EOF
+cat > /data/docker/mysql_3306/config/my.cnf <<EOF
 [mysqld]
-basedir=/usr/local/mysql
-datadir=/root/mysql/3306/data
-socket=/root/mysql/3306/mysql.sock
-log_error=/root/mysql/3306/mysql.log
-pid-file=/root/mysql/3306/mysql.pid
+datadir=/var/lib/mysql
+socket=/var/run/mysqld/mysqld.sock
+log_error=/var/lib/mysql/mysql.log
+log_bin=/var/lib/mysql/mysql-bin
 port=3306
-server_id=1
-log_bin=/root/mysql/3306/mysql-bin
+server_id=100
 EOF
 
 # 3307配置文件
-sed 's/3306/3307/g' /root/mysql/3306/my.cnf>/root/mysql/3307/my.cnf
-# 3307 server_id修改
-sed 's/server_id=1/server_id=2/g' -i /root/mysql/3307/my.cnf
+sed 's/3306/3307/g' /data/docker/mysql_3306/config/my.cnf>/data/docker/mysql_3307/config/my.cnf
+sed 's/server_id=100/server_id=101/g' -i /data/docker/mysql_3307/config/my.cnf
 
-# 目录授权,先创建用户
-chown -R mysql.mysql /root/mysql/*
+docker run -id \
+--name=mysql_3306 \
+-v  /data/docker/mysql_3306/config:/etc/mysql/conf.d \
+-v  /data/docker/mysql_3306/data:/var/lib/mysql \
+-v /etc/localtime:/etc/localtime:ro \
+-e MYSQL_ROOT_PASSWORD=root \
+mysql:latest
 
-# 初始化数据
-mysqld --initialize-insecure  --user=mysql --datadir=/root/mysql/3307/data --basedir=/var/lib/mysql
-
-
-# 清理主库数据
-rm -rf /data/3307/data/*
-
-# 重新初始化3307
-mysqld --initialize-insecure --user=mysql --basedir=/app/mysql --datadir=/data/3307/data
-
-# 修改my.cnf ,开启二进制日志功能
-log_bin=/data/3307/data/mysql-bin
+docker exec -it mysql_3306 mysql -uroot -p -e 'select @@version, @@server_id, @@port;'
 
 # 启动从库,主库
 
