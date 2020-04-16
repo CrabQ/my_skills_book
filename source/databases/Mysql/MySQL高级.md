@@ -652,15 +652,31 @@ EOF
 sed 's/3306/3307/g' /data/docker/mysql_3306/config/my.cnf>/data/docker/mysql_3307/config/my.cnf
 sed 's/server_id=100/server_id=101/g' -i /data/docker/mysql_3307/config/my.cnf
 
+# 启动3306
 docker run -id \
 --name=mysql_3306 \
+--net=host \
 -v  /data/docker/mysql_3306/config:/etc/mysql/conf.d \
 -v  /data/docker/mysql_3306/data:/var/lib/mysql \
 -v /etc/localtime:/etc/localtime:ro \
 -e MYSQL_ROOT_PASSWORD=root \
 mysql:latest
 
-docker exec -it mysql_3306 mysql -uroot -p -e 'select @@version, @@server_id, @@port;'
+# 测试
+docker exec -it mysql_3306 mysql -uroot -p -P 3306 -e 'select @@version, @@server_id, @@port;'
+
+# 启动3307
+docker run -id \
+--name=mysql_3307 \
+--net=host \
+-v  /data/docker/mysql_3307/config:/etc/mysql/conf.d \
+-v  /data/docker/mysql_3307/data:/var/lib/mysql \
+-v /etc/localtime:/etc/localtime:ro \
+-e MYSQL_ROOT_PASSWORD=root \
+mysql:latest
+
+# 测试
+docker exec -it mysql_3307 mysql -uroot -p -P 3307 -e 'select @@version, @@server_id, @@port;'
 
 # 启动从库,主库
 
