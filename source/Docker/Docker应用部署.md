@@ -66,6 +66,19 @@ docker run -id \
 redis redis-server /etc/redis/redis.conf
 ```
 
+## Centos8下contos6部署
+
+```shell
+docker run -id \
+--name=centos6 \
+-v /data/docker/centos6:/data \
+-v /etc/localtime:/etc/localtime:ro \
+centos:6
+
+# 进入环境
+docker exec -it centos6 /bin/bash
+```
+
 ## windows 10下Python部署
 
 ```shell
