@@ -678,36 +678,39 @@ mysql:latest
 # 测试
 docker exec -it mysql_3307 mysql -uroot -p -P 3307 -e 'select @@version, @@server_id, @@port;'
 
-# 启动从库,主库
-
 # 主库中创建复制用户
-grant replication slave on *.* to repl@'10.0.0.%' identified by '123';
+docker exec -it mysql_3306 /bin/bash
+mysql -u root -p -P 3306
+create user repl@'127.0.0.%' identified by '123';
+grant replication slave on *.* to repl@'127.0.0.%';
+# 修改加密规则
+ALTER USER repl@'127.0.0.%' IDENTIFIED WITH mysql_native_password BY '123';
 
-# 备份主库并恢复到从库
- mysqldump -S /data/3307/mysql.sock -A --master-data=2 --single-transaction  -R --triggers >/backup/full.sql
+# 备份主库并
+mysqldump -u root -p -A --master-data=2 --single-transaction  -R --triggers >/var/lib/mysql/full.sql
 -- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=653;
+cp full.sql /data/docker/mysql_3307/data/
 
-mysql -S /data/3308/mysql.sock
-db01 [(none)]>source /backup/full.sql
+# 恢复到从库
+docker exec -it mysql_3307 /bin/bash
+mysql -u root -p -P 3307
+source /var/lib/mysql/full.sql
 
+# 查看
+help change master to
 # 告知从库关键复制信息
-mysql -S /data/3308/mysql.sock
-db01 [mysql]>help change master to
-
 CHANGE MASTER TO
-  MASTER_HOST='10.0.0.51',
+  MASTER_HOST='127.0.0.1',
   MASTER_USER='repl',
   MASTER_PASSWORD='123',
-  MASTER_PORT=3307,
-  MASTER_LOG_FILE='mysql-bin.000001',
-  MASTER_LOG_POS=653,
+  MASTER_PORT=3306,
+  MASTER_LOG_FILE='mysql-bin.000003',
+  MASTER_LOG_POS=704,
   MASTER_CONNECT_RETRY=10;
 
-
 # 开启主从专用线程
-start slave ;
+start slave;
 
 # 检查复制状态
-show slave  status \G
+show slave  status \G;
 ```
-
