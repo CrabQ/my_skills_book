@@ -201,38 +201,7 @@ OK
 
 #### docker方式部署
 
-```shell
-mkdir -p ~/my_docker/redis/cluster_701{0,1,2,3,4,5}/data
-
-cat > ~/my_docker/redis/cluster_7010/7010.conf <<EOF
-port 7010
-logfile "7010.log"
-dbfilename "dump-7010.rdb"
-cluster-enabled yes
-cluster-config-file nodes-7010.conf
-cluster-require-full-coverage no
-EOF
-
-# 配置剩余五个
-sed 's/7010/7011/g' ~/my_docker/redis/cluster_7010/7010.conf>~/my_docker/redis/cluster_7011/7011.conf
-sed 's/7010/7012/g' ~/my_docker/redis/cluster_7010/7010.conf>~/my_docker/redis/cluster_7012/7012.conf
-sed 's/7010/7013/g' ~/my_docker/redis/cluster_7010/7010.conf>~/my_docker/redis/cluster_7013/7013.conf
-sed 's/7010/7014/g' ~/my_docker/redis/cluster_7010/7010.conf>~/my_docker/redis/cluster_7014/7014.conf
-sed 's/7010/7015/g' ~/my_docker/redis/cluster_7010/7010.conf>~/my_docker/redis/cluster_7015/7015.conf
-
-# 开启
-docker run -id --name=redis_cluster_7010 --net=host -v ~/my_docker/redis/cluster_7010/7010.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7010/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-docker run -id --name=redis_cluster_7011 --net=host -v ~/my_docker/redis/cluster_7011/7011.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7011/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-docker run -id --name=redis_cluster_7012 --net=host -v ~/my_docker/redis/cluster_7012/7012.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7012/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-docker run -id --name=redis_cluster_7013 --net=host -v ~/my_docker/redis/cluster_7013/7013.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7013/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-docker run -id --name=redis_cluster_7014 --net=host -v ~/my_docker/redis/cluster_7014/7014.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7014/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-docker run -id --name=redis_cluster_7015 --net=host -v ~/my_docker/redis/cluster_7015/7015.conf:/etc/redis/redis.conf -v ~/my_docker/redis/cluster_7015/data:/data -v /etc/localtime:/etc/localtime:ro redis redis-server /etc/redis/redis.conf
-
-# 查看信息
-docker exec -it redis_cluster_7010 redis-cli -p 7010 cluster nodes
-# 创建集群
-docker exec -it redis_cluster_7010 redis-cli -p 7010 --cluster create  127.0.0.1:7010 127.0.0.1:7011 127.0.0.1:7012 127.0.0.1:7013 127.0.0.1:7014 127.0.0.1:7015 --cluster-replicas 1
-```
+[Centos8下redis cluster部署](https://my-skills-book.readthedocs.io/en/latest/Docker/Docker%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2.html#centos8redis-cluster)
 
 ## 集群伸缩
 

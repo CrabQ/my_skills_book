@@ -325,7 +325,7 @@ DML2        460  - 550
 commit;     550  - 760
 ```
 
-####　event的组成
+#### event的组成
 
 ```shell
 三部分构成:
@@ -633,84 +633,4 @@ source /backup/full_2018-06-28.sql
 
 ### 主从复制docker搭建实操
 
-```shell
-# 创建两个数据库相关目录
-mkdir -p /data/docker/mysql_330{6,7}/{config,data}
-
-# 添加配置文件
-cat > /data/docker/mysql_3306/config/my.cnf <<EOF
-[mysqld]
-datadir=/var/lib/mysql
-socket=/var/run/mysqld/mysqld.sock
-log_error=/var/lib/mysql/mysql.log
-log_bin=/var/lib/mysql/mysql-bin
-port=3306
-server_id=100
-EOF
-
-# 3307配置文件
-sed 's/3306/3307/g' /data/docker/mysql_3306/config/my.cnf>/data/docker/mysql_3307/config/my.cnf
-sed 's/server_id=100/server_id=101/g' -i /data/docker/mysql_3307/config/my.cnf
-
-# 启动3306
-docker run -id \
---name=mysql_3306 \
---net=host \
--v  /data/docker/mysql_3306/config:/etc/mysql/conf.d \
--v  /data/docker/mysql_3306/data:/var/lib/mysql \
--v /etc/localtime:/etc/localtime:ro \
--e MYSQL_ROOT_PASSWORD=root \
-mysql:latest
-
-# 测试
-docker exec -it mysql_3306 mysql -uroot -p -P 3306 -e 'select @@version, @@server_id, @@port;'
-
-# 启动3307
-docker run -id \
---name=mysql_3307 \
---net=host \
--v  /data/docker/mysql_3307/config:/etc/mysql/conf.d \
--v  /data/docker/mysql_3307/data:/var/lib/mysql \
--v /etc/localtime:/etc/localtime:ro \
--e MYSQL_ROOT_PASSWORD=root \
-mysql:latest
-
-# 测试
-docker exec -it mysql_3307 mysql -uroot -p -P 3307 -e 'select @@version, @@server_id, @@port;'
-
-# 主库中创建复制用户
-docker exec -it mysql_3306 /bin/bash
-mysql -u root -p -P 3306
-create user repl@'127.0.0.%' identified by '123';
-grant replication slave on *.* to repl@'127.0.0.%';
-# 修改加密规则
-ALTER USER repl@'127.0.0.%' IDENTIFIED WITH mysql_native_password BY '123';
-
-# 备份主库并
-mysqldump -u root -p -A --master-data=2 --single-transaction  -R --triggers >/var/lib/mysql/full.sql
--- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=653;
-cp full.sql /data/docker/mysql_3307/data/
-
-# 恢复到从库
-docker exec -it mysql_3307 /bin/bash
-mysql -u root -p -P 3307
-source /var/lib/mysql/full.sql
-
-# 查看
-help change master to
-# 告知从库关键复制信息
-CHANGE MASTER TO
-  MASTER_HOST='127.0.0.1',
-  MASTER_USER='repl',
-  MASTER_PASSWORD='123',
-  MASTER_PORT=3306,
-  MASTER_LOG_FILE='mysql-bin.000003',
-  MASTER_LOG_POS=704,
-  MASTER_CONNECT_RETRY=10;
-
-# 开启主从专用线程
-start slave;
-
-# 检查复制状态
-show slave  status \G;
-```
+[Centos7下MySQL主从复制部署](https://my-skills-book.readthedocs.io/en/latest/Docker/Docker%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2.html#centos8mysql)
