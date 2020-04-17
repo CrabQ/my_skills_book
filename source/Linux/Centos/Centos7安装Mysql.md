@@ -220,7 +220,7 @@ centos6安装mysql5.1.73
 
 ```shell
 # CentOS release 6.10 (Final)
-# mysql Server version 5.7.23
+# mysql Server version 5.1.73
 
 # 安装
 yum install -y mysql-server.x86_64
@@ -236,7 +236,7 @@ service mysqld start
 /usr/bin/mysqladmin -u root password 'root'
 
 # 创建测试库
-create database genec1;
+mysql -u root -p -e 'create database genec1';
 
 # 导入测试数据
 mysql -u root -p genec1 </data/_glz_Mus_gene.sql
@@ -253,15 +253,15 @@ rpm -ivh https://repo.ius.io/ius-release-el6.rpm
 # 创建备份路径
 mkdir -p /data/mysqlupgrade/mysql51
 
-# 备份配置文件
-cp /etc/my.cnf /data/mysqlupgrade/mysql51/mysql-5.1.cnf.orig
-
 # 跳过权限验证
 cat >> /etc/my.cnf <<EOF
 [client]
 user=root
 password=root
 EOF
+
+# 备份配置文件
+cp /etc/my.cnf /data/mysqlupgrade/mysql51/mysql-5.1.cnf.orig
 
 # 重启
 service mysqld restart
@@ -278,13 +278,10 @@ mysqldump --routines --all-databases | xz > /data/mysqlupgrade/mysql51/mysql-5.1
 
 # 停止mysql
 service mysqld stop
+
 # 升级到5.5
-yum --disableexcludes=all shell
-remove mysql mysql-server mysql-libs
-install mysql55 mysql55-server mysql55-libs mysqlclient16
-ts solve
-ts run
-exit
+yum remove -y remove mysql mysql-server mysql-libs
+yum install -y mysql55 mysql55-server mysql55-libs mysqlclient16
 
 # dbsake,更新配置文件
 yum -y install wget
@@ -327,13 +324,6 @@ mkdir -p /data/mysqlupgrade/mysql55
 # 备份配置文件
 cp /etc/my.cnf /data/mysqlupgrade/mysql55/mysql-5.5.cnf.orig
 
-# 跳过权限验证
-cat >> /etc/my.cnf <<EOF
-[client]
-user=root
-password=root
-EOF
-
 # 重启
 service mysqld restart
 
@@ -351,8 +341,9 @@ service mysqld stop
 
 # 升级到5.6
 yum remove -y mysql55-common-5.5.61-2.ius.el6.x86_64
-yum remove -y mysql55 mysql55-server mysql55-libs
-yum remove -y yum remove mysqlclient16-5.1.61-4.ius.el6.x86_64
+# yum remove -y mysql55 mysql55-server mysql55-libs
+# rpm -qa|grep mysql
+# yum remove -y  mysqlclient16-5.1.61-4.ius.el6.x86_64
 yum install -y mysql56u mysql56u-server mysql56u-libs mysqlclient16
 
 # dbsake,更新配置文件
@@ -393,13 +384,6 @@ mkdir -p /data/mysqlupgrade/mysql56
 # 备份配置文件
 cp /etc/my.cnf /data/mysqlupgrade/mysql56/mysql-5.6.cnf.orig
 
-# 跳过权限验证
-cat >> /etc/my.cnf <<EOF
-[client]
-user=root
-password=root
-EOF
-
 # 重启
 service mysqld restart
 
@@ -412,21 +396,13 @@ mysqldump --routines --all-databases | xz > /data/mysqlupgrade/mysql56/mysql-5.6
 # -- Warning: Skipping the data of table mysql.event. Specify the --events option explicitly.
 # 是否备份事件表 --events
 
-# 停止mysql=
+# 停止mysql
 service mysqld stop
 
 # 升级到5.7
-yum remove -y mysqlclient16-5.1.61-4.ius.el6.x86_64
-yum --disableexcludes=all shell
-remove mysql56u mysql56u-server mysql56u-libs mysql56u-common
-install mysql57u mysql57u-server mysql57u-libs mysqlclient16
-ts solve
-ts run
-exit
-
-# yum remove -y mysql55 mysql55-server mysql55-libs
-# yum remove -y yum remove mysqlclient16-5.1.61-4.ius.el6.x86_64
-# yum install -y mysql56u mysql56u-server mysql56u-libs mysqlclient16
+yum remove -y  mysql56u mysql56u-server mysql56u-libs mysql56u-common
+rpm -qa|grep mysql
+yum install -y mysql57u mysql57u-server mysql57u-libs mysqlclient16
 
 # dbsake,更新配置文件
 wget -O /data/mysqlupgrade/dbsake http://get.dbsake.net
@@ -452,8 +428,9 @@ mysql_upgrade
 mysqlcheck -A
 
 # 修改权限
-sed -i '/\(skip-grant-tables\|skip-networking\)/d' /etc/my.cnf
+sed -i '/\(skip-grant-tables\|skip-networking\|user=root\|password=root\)/d' /etc/my.cnf
 
+# 注意一开始添加进去配置文件的user,passowrd要删除
 # 重启
 service mysqld restart
 
