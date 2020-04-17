@@ -158,6 +158,66 @@ find ./ -name "*.ooo" -exec rm {} \;
 
 find是实时查找,如果需要更快的查询,可试试locate
 
+查找txt和pdf文件
+
+```shell
+# -o or
+find . \( -name "*.txt" -o -name "*.pdf" \) -print
+```
+
+查找所有非txt文本
+
+```shell
+find . ! -name "*.txt" -print
+```
+
+指定搜索深度,打印出当前目录的文件(深度为1)
+
+```shell
+# -type 文件类型 f代表文件 d代表文件夹 l代表链接
+find . -maxdepth 1 -type f
+```
+
+查询7天前被访问过的所有文件
+
+```shell
+# -atime 访问时间,单位是天.分钟单位则是-amin
+# -mtime 修改时间,内容被修改
+# -ctime 变化时间,元数据或权限变化
+find . -atime +7 -type f -print
+```
+
+寻找大于2k的文件
+
+```shell
+find . -type f -size +2k
+```
+
+查询具有可执行权限的所有文件
+
+```shell
+find . -type f -perm 644 -print
+```
+
+用户weber所拥有的文件
+
+```shell
+find . -type f -user weber -print
+```
+
+找到之后删除当前目录下所有的swp文件
+
+```shell
+find . -type f -name "*.swp" -delete
+```
+
+将找到的文件全都copy到另一个目录
+
+```shell
+# {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
+find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
+```
+
 ### xargs: 将标准输入转换成命令行参数
 
 将多行输出转化为单行输出
@@ -214,6 +274,23 @@ chown -R mysql.mysql /root/mysql/*
 chmod 753 test.py
 # 增加脚本可执行权限
 chmod a+x test.py
+```
+
+更改文件,目录读写权限
+
+```shell
+chmod userMark(+|-)PermissionsMark
+
+# userMark取值
+# u 用户
+# g 组
+# o 其它用户
+# a 所有用户
+
+# PermissionsMark取值
+# r 读
+# w 写
+# x 执行
 ```
 
 ### chgrp: 更改文件用户组
@@ -288,6 +365,17 @@ cat test.txt -n
 
 ### paste: 合并文件
 
+```shell
+paste result.txt result_2.txt -d '|'
+envs|envs
+my_blog|my_blog
+my_blog.log|my_blog.log
+my_blog_sql|my_blog_sql
+hhhhh|hhhhh
+123|123
+hhhhh|hhhhh
+```
+
 ### sort: 文本排序
 
 ```shell
@@ -295,6 +383,15 @@ cat test.txt -n
 # -r 倒序
 # -t 指定分隔符
 # -k 按指定区间排序
+# -d 按字典序进行排序
+# -k N 指定按第N列排序
+
+sort result.txt  -r -d
+my_blog_sql
+my_blog.log
+my_blog
+hhhhh
+envs
 ```
 
 ### join: 按两个文件的相同字段合并
@@ -305,11 +402,53 @@ cat test.txt -n
 -c 去除重复行,并计算每行出现的次数
 ```
 
+消除重复行
+
+```shell
+cat result.txt | uniq
+envs
+my_blog
+my_blog.log
+my_blog_sql
+hhhhh
+```
+
+统计各行在文件中出现的次数
+
+```shell
+cat result.txt | uniq -c
+      1 envs
+      1 my_blog
+      1 my_blog.log
+      1 my_blog_sql
+      1 hhhhh
+```
+
+找出重复行
+
+```shell
+cat result.txt | uniq -d
+```
+
 ### wc: 统计文件的行数,单词书或字节数
 
 ```shell
 -l 统计行数
 -L 打印最长行的长度
+```
+
+```shell
+# 统计行数
+wc -l result.txt
+7 result.txt
+
+# 统计单词数
+wc -w result.txt
+7 result.txt
+
+# 统计字符数
+wc -c result.txt
+53 result.txt
 ```
 
 ### iconv: 转换文件的编码格式
@@ -328,6 +467,26 @@ cat test.txt -n
 # -d 删除字符
 ```
 
+加解密转换,替换对应字符
+
+```shell
+echo 12345 | tr '0-9' '9876543210'
+87654
+```
+
+删除所有数字(对结果而言)
+
+```shell
+cat result.txt |tr -d '0-9'
+envs
+my_blog
+my_blog.log
+my_blog_sql
+hhhhh
+
+hhhhh
+```
+
 ### od: 按不同进制显示文件
 
 ### tee: 多重定向
@@ -335,6 +494,26 @@ cat test.txt -n
 ### vi/vim: 纯文本编辑器
 
 ## 文本处理三剑客
+
+重定向
+
+```shell
+# 将标准输出和标准错误重定向到同一文件
+ls /home > result.txt 2>&1
+# ls /usr &>result.tx
+```
+
+追加
+
+```shell
+echo hhhhh >> result.txt
+```
+
+清空文件
+
+```shell
+:> result.txt
+```
 
 ### grep: 文本过滤工具
 
@@ -344,6 +523,9 @@ cat test.txt -n
 # -i 不区分大小写
 # -c 统计匹配的行数
 # -e 匹配多个
+
+grep b test2.txt
+db
 ```
 
 ### sed: 字符流编辑器
@@ -912,6 +1094,19 @@ gw GW 为发往目标网络/主机的任何分组执行网关
 -p 显示socket所属进程的PID和名称
 ```
 
+列出所有端口(包括监听和未监听的)
+
+```shell
+-t tcp端口
+netstat -a
+```
+
+使用netstat工具查询端口
+
+```shell
+netstat -antp | grep 6379
+```
+
 ### ss: 查看网络状态
 
 ### ping: 测试主机之间的网络连通性
@@ -934,6 +1129,18 @@ gw GW 为发往目标网络/主机的任何分组执行网关
 ### ssh: 安全地远程登录主机
 
 ### wget: 命令行下载工具
+
+### ftp/sftp: 文件传输
+
+```shell
+# get filename 下载文件
+# put filename 上传文件
+# ls 列出host上当前路径的所有文件
+# cd 在host上更改当前路径
+# lls 列出本地主机上当前路径的所有文件
+# lcd 在本地主机更改当前路径
+sftp ID@host
+```
 
 ### mailq: 显示邮件传输队列
 
@@ -974,6 +1181,32 @@ gw GW 为发往目标网络/主机的任何分组执行网关
 
 ### sar: 收集系统信息
 
+查看CPU使用率
+
+```shell
+# 每秒采样一次,总共采样2次
+sar -u 1 2
+```
+
+查看CPU平均负载
+
+```shell
+# ar指定-q后,就能查看运行队列中的进程数,系统上的进程大小,平均负载等
+sar -q 1 2
+```
+
+查看内存使用状况
+
+```shell
+sar -r 1 2
+```
+
+查询页面交换
+
+```shell
+sar -W 1 3
+```
+
 ### chkconfig: 管理开机服务
 
 ### ntsysv: 管理开机服务
@@ -996,565 +1229,25 @@ gw GW 为发往目标网络/主机的任何分组执行网关
 
 ### yum: 自动化RPM包管理工具
 
-### 查找文件内容
+## 系统常用内置命令
 
 ```shell
-grep b test2.txt
-db
+# alias: 显示和创建已有命令的别名
+# unalias: 取消已有命令的别名
+# bg: 把任务放到后台
+# fg: 把后台任务放到前台
+# echo: 显示一行文本
+# eval: 读入参数,并将它们组合成一个新的命令,然后执行
+# export: 设置或显示环境便令
 ```
 
-### 文件与目录权限修改
-
-```shell
-# 改变文件的拥有者
-chown
-# 改变文件读、写、执行等属性
-chmod
-
-```
-
-### 管道和重定向
-
-```shell
-# 批处理命令连接执行
-|
-# 串联
-;
-# 前面成功则执行后面一条,否则不执行
-&&
-# 前面失败则后一条执行
-||
-
-ls /home && echo succ! || echo fail!
-envs test.txt
-succ!
-```
-
-重定向
-
-```shell
-# 将标准输出和标准错误重定向到同一文件
-ls /home > result.txt 2>&1
-# ls /usr &>result.txt
-```
-
-追加
-
-```shell
-echo hhhhh >> result.txt
-```
-
-清空文件
-
-```shell
-:> result.txt
-```
-
-## 文本处理
-
-### find 文件查找
-
-查找txt和pdf文件
-
-```shell
-# -o or
-find . \( -name "*.txt" -o -name "*.pdf" \) -print
-```
-
-查找所有非txt文本
-
-```shell
-find . ! -name "*.txt" -print
-```
-
-指定搜索深度,打印出当前目录的文件(深度为1)
-
-```shell
-# -type 文件类型 f代表文件 d代表文件夹 l代表链接
-find . -maxdepth 1 -type f
-```
-
-查询7天前被访问过的所有文件
-
-```shell
-# -atime 访问时间,单位是天.分钟单位则是-amin
-# -mtime 修改时间,内容被修改
-# -ctime 变化时间,元数据或权限变化
-find . -atime +7 -type f -print
-```
-
-寻找大于2k的文件
-
-```shell
-find . -type f -size +2k
-```
-
-查询具有可执行权限的所有文件
-
-```shell
-find . -type f -perm 644 -print
-```
-
-用户weber所拥有的文件
-
-```shell
-find . -type f -user weber -print
-```
-
-找到之后删除当前目录下所有的swp文件
-
-```shell
-find . -type f -name "*.swp" -delete
-```
-
-将找到的文件全都copy到另一个目录
-
-```shell
-# {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
-find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
-```
-
-### sort排序
-
-```shell
-# -n 按数字进行排序
-# -d 按字典序进行排序
-# -r 逆序排序
-# -k N 指定按第N列排序
-sort result.txt  -r -d
-my_blog_sql
-my_blog.log
-my_blog
-hhhhh
-envs
-```
-
-### uniq 消除重复行
-
-消除重复行
-
-```shell
-cat result.txt | uniq
-envs
-my_blog
-my_blog.log
-my_blog_sql
-hhhhh
-```
-
-统计各行在文件中出现的次数
-
-```shell
-cat result.txt | uniq -c
-      1 envs
-      1 my_blog
-      1 my_blog.log
-      1 my_blog_sql
-      1 hhhhh
-```
-
-找出重复行
-
-```shell
-cat result.txt | uniq -d
-```
-
-### 用tr进行转换
-
-加解密转换,替换对应字符
-
-```shell
-echo 12345 | tr '0-9' '9876543210'
-87654
-```
-
-删除所有数字(对结果而言)
-
-```shell
-cat result.txt |tr -d '0-9'
-envs
-my_blog
-my_blog.log
-my_blog_sql
-hhhhh
-
-hhhhh
-```
-
-### paste 按列拼接文本
-
-```shell
-paste result.txt result_2.txt -d '|'
-envs|envs
-my_blog|my_blog
-my_blog.log|my_blog.log
-my_blog_sql|my_blog_sql
-hhhhh|hhhhh
-123|123
-hhhhh|hhhhh
-```
-
-### wc 统计行和字符的工具
-
-```shell
-# 统计行数
-wc -l result.txt
-7 result.txt
-
-# 统计单词数
-wc -w result.txt
-7 result.txt
-
-# 统计字符数
-wc -c result.txt
-53 result.txt
-```
-
-### 磁盘管理
-
-#### 查看磁盘空间
-
-磁盘空间利用大小
-
-```shell
-# -h 易读的方式
-[root@izbp128jigdcjx00os4h3sz mysql]# df -h
-```
-
-#### 打包,压缩
-
-打包, 多个文件归并到一个
-
-```shell
-# -c :打包选项
-# -v :显示打包进度
-# -f :使用档案文件
-[root@izbp128jigdcjx00os4h3sz mysql]# tar -cvf config.tar ./config
-./config/
-./config/my.cnf
-```
-
-压缩
-
-```shell
-[root@izbp128jigdcjx00os4h3sz mysql]# gzip 1.txt
-# 1.txt.gz
-```
-
-解包
-
-```shell
--x 解包
-[root@izbp128jigdcjx00os4h3sz test]# tar -xvf config.tar
-./config/
-./config/my.cnf
-```
-
-解压后缀为`.tar.gz`的文件
-
-```shell
-[root@izbp128jigdcjx00os4h3sz test]# gunzip config.tar.gz
-# 然后解包
-```
-
-### 进程管理工具
-
-```shell
-ps -ef
-```
-
-查询归属于用户root的进程
-
-```shell
-ps -ef|grep root
-# ps -lu root
-```
-
-显示进程信息,并实时更新
-
-```shell
-# P 根据CPU使用百分比大小进行排序
-# M 根据驻留内存大小进行排序
-top
-```
-
-查看端口占用的进程状态
-
-```shell
-netstat -an
-```
-
-杀死指定PID的进程
-
-```shell
-kill PID
-```
-
-杀死相关进程
-
-```shell
-kill -9 3306
-```
-
-分析线程栈
-
-```shell
-pmap PID
-```
-
-### 性能监控
-
-查看CPU使用率
-
-```shell
-# 每秒采样一次,总共采样2次
-sar -u 1 2
-```
-
-查看CPU平均负载
-
-```shell
-# ar指定-q后,就能查看运行队列中的进程数,系统上的进程大小,平均负载等
-sar -q 1 2
-```
-
-查看内存使用状况
-
-```shell
-sar -r 1 2
-```
-
-查看内存使用量
-
-```shell
-free -m
-```
-
-查询页面交换
-
-```shell
-sar -W 1 3
-```
-
-## 网络工具
-
-列出所有端口(包括监听和未监听的)
-
-```shell
--t tcp端口
-netstat -a
-```
-
-使用netstat工具查询端口
-
-```shell
-netstat -antp | grep 6379
-```
-
-查看路由状态
-
-```shell
-route -n
-```
-
-发送ping包到地址IP
-
-```shell
-ping IP
-```
-
-探测前往地址IP的路由路径
-
-```shell
-traceroute IP
-```
-
-DNS查询,寻找域名domain对应的IP
-
-```shell
-host IP
-```
-
-直接下载文件或者网页
-
-```shell
-wget url
-–limit-rate 下载限速
--o 指定日志文件,输出都写入日志,
--c 断点续传
-```
-
-SSH登陆
-
-```shell
-ssh ID@host
-```
-
-ftp/sftp文件传输
-
-```shell
-# get filename 下载文件
-# put filename 上传文件
-# ls 列出host上当前路径的所有文件
-# cd 在host上更改当前路径
-# lls 列出本地主机上当前路径的所有文件
-# lcd 在本地主机更改当前路径
-sftp ID@host
-```
-
-## 用户管理工具
-
-添加用户
-
-```shell
-# 为用户创建相应的帐号和用户目录/home/username
-useradd -m username
-passwd username
-```
-
-删除用户
-
-```shell
-# -r 完全的删除用户信息
-userdel -r username
-```
-
-帐号切换
-
-```shell
-su username
-```
-
-### 用户的组
-
-默认情况下,添加用户操作也会相应的增加一个同名的组,用户属于同名组
-
-查看当前用户所属的组
-
-```shell
-groups
-```
-
-将用户加入到组
-
-```shell
-usermod -G groupNmame username
-```
-
-变更用户所属的根组(将用加入到新的组,并从原有的组中除去)
-
-```shell
-usermod -g groupName username
-```
-
-查看所有用户及权限
-
-```shell
-more /etc/passwd
-```
-
-查看所有的用户组及权限
-
-```shell
-more /etc/group
-```
-
-更改文件,目录读写权限
-
-```shell
-chmod userMark(+|-)PermissionsMark
-
-# userMark取值
-# u 用户
-# g 组
-# o 其它用户
-# a 所有用户
-
-# PermissionsMark取值
-# r 读
-# w 写
-# x 执行
-```
-
-更改文件或目录的拥有者
-
-```shell
-# -R选项递归更改该目下所有文件的拥有者
-chown username dirOrFile
-```
-
-### 环境变量
+## 环境变量
 
 bashrc与profile都用于保存用户的环境信息,bashrc用于交互式non-loginshell,而profile用于交互式login shell
 
 ```shell
 # /etc/profile,/etc/bashrc 是系统全局环境变量设定
 # ~/.profile,~/.bashrc用户目录下的私有环境变量设定
-```
-
-## 系统管理及IPC资源管理
-
-查看Unix系统版本,操作系统版本
-
-```shell
-more /etc/release
-```
-
-查看CPU使用情况
-
-```shell
-sar -u 5 10
-```
-
-查询CPU信息
-
-```shell
-cat /proc/cpuinfo
-
-# CPU的核的个数
-cat /proc/cpuinfo | grep processor | wc -l
-```
-
-查看内存信息
-
-```shell
-cat /proc/meminfo
-```
-
-显示内存page大小(以KByte为单位)
-
-```shell
-pagesize
-```
-
-显示架构
-
-```shell
-arch
-```
-
-格式化输出当前日期时间
-
-```shell
-$date +%Y%m%d.%H%M%S
->20150512.173821
-```
-
-### IPC资源管理
-
-查看系统使用的IPC资源
-
-```shell
-ipcs
-# -m 查看系统使用的IPC共享内存资源
-# -q 查看系统使用的IPC队列资源
-# -s 查看系统使用的IPC信号量资源
-```
-
-显示当前所有的系统资源limit 信息
-
-```shell
-ulimit – a
 ```
 
 ## 程序构建
@@ -1598,22 +1291,4 @@ crontal -e
 
 # 使用Python虚拟环境,所以执行路径为虚拟环境的Python路径/home/bmnars/spider_porject/spider_venv/bin/python
 # 字符%是一个可被crontab识别的换行符所以通过调用.sh文件执行Python脚本
-```
-
-## 查看CPU和内存使用情况
-
-```shell
-top
-　　PID：进程的ID
-　　USER：进程所有者
-　　PR：进程的优先级别,越小越优先被执行
-　　NInice：值
-　　VIRT：进程占用的虚拟内存
-　　RES：进程占用的物理内存
-　　SHR：进程使用的共享内存
-　　S：进程的状态。S表示休眠,R表示正在运行,Z表示僵死状态,N表示该进程优先值为负数
-　　%CPU：进程占用CPU的使用率
-　　%MEM：进程使用的物理内存和总内存的百分比
-　　TIME+：该进程启动后占用的总的CPU时间,即占用CPU使用时间的累加值。
-　　COMMAND：进程启动命令名称
 ```
