@@ -1227,7 +1227,62 @@ sar -W 1 3
 
 ### rpm: RPM包管理器
 
+```shell
+# -q 查询
+# -i info|install
+# -l 显示软件包中的所有文件列表
+# -R 显示软件包的依赖环境
+# -v 详细信息
+# -h #显示安装进度
+# -a 查询所有软件包
+# -e 卸载
+# -f 查询文件或者命令属于哪个软件包
+
+# 查询mysql相关
+rpm -qa|grep mysql
+
+# 安装
+rpm -ivh a.rpm
+```
+
 ### yum: 自动化RPM包管理工具
+
+```shell
+# -y 确认
+
+# 安装
+yum install httpd
+
+# 卸载
+yum remove httpd
+
+# 更新
+yum update httpd
+
+# 列出软件包
+yum list httpd
+
+# 搜索
+yum search httpd
+
+# 列出所有可用软件
+yum list
+
+# 更新系统
+yum update
+
+# 列出启用yum源
+yum repolist
+
+# 列出所有yum源
+yum repolist all
+
+# 清理所有缓存
+yum clean all
+
+# 历史
+yum history
+```
 
 ## 系统常用内置命令
 
