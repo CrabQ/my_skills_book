@@ -783,24 +783,38 @@ updatedb
 ```shell
 # z 通过gzip压缩或者解压
 # c 创建新的tar包
+# x 解开tar包
 # v 显示过程
 # f 指定压缩文件的名字
 # t 不解压查看tar包内容
-# x 解开tar包
 # C 指定解压的目录路径
 # --exclude=PATTERN 打包时排除不需要的文件或目录
 # -h 打包软连接文件指向的真实源文件
+
+# 打包
+tar -zcvf test.tar.gz ./test/
+
+# 解包
+tar -zxvf redis-5.0.7.tar.gz
 ```
 
 ### gzip: 压缩或解压文件
 
 只能压缩文件,目录需要先打包
 
-解压会删除源文件
+压缩,解压都会会删除源文件
 
 ```shell
-# -d 解开压缩文件
+# 压缩
+gzip *.html
+
 # -c 将内容输出到标准输出,不改变原始文件
+# 压缩,不删除源文件
+gzip -c 1.html>1.gz
+
+# -d 解开压缩文件
+# 解压
+gzip -dv *.gz
 ```
 
 ### zip: 打包和压缩文件
@@ -808,9 +822,18 @@ updatedb
 ```shell
 # -r 压缩指定目录下所有文件和路径
 # -x 压缩文件时排除某个文件
+zip -r test.zip ./test/ -x test/1.html
 ```
 
 ### unzip: 解压zip文件
+
+```shell
+# -l 不解压查看tar包内容
+unzip -l test.zip
+
+# -d 指定解压的目录路径
+unzip -d /test test.zip
+```
 
 ### scp: 远程文件复制
 
@@ -1130,6 +1153,15 @@ netstat -antp | grep 6379
 
 ### wget: 命令行下载工具
 
+```shell
+# -O 指定名称
+# -c 断点续传
+# -limit-rate 限速
+# -b 后台执行
+
+wget http://download.redis.io/releases/redis-5.0.7.tar.gz
+```
+
 ### ftp/sftp: 文件传输
 
 ```shell
@@ -1208,6 +1240,16 @@ sar -W 1 3
 ```
 
 ### chkconfig: 管理开机服务
+
+```shell
+# 原理: /etc/rd*.d/目录中对应的软连接(SK开头表示开关)
+
+# --add 添加一个系统服务
+# --del 删除一个系统服务
+
+# 显示不同运行级别下服务的启动状态
+chkconfig --list
+```
 
 ### ntsysv: 管理开机服务
 

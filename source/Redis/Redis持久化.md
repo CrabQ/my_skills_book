@@ -126,6 +126,7 @@ auto-aof-rewirte-min-size
 auto-aof-rewirte-percentage
 
 # 统计
+
 # AOF当前尺寸(单位:字节)
 aof_current_size
 
