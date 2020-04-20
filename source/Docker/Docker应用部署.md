@@ -91,7 +91,7 @@ grant replication slave on *.* to repl@'127.0.0.%';
 # 修改加密规则
 ALTER USER repl@'127.0.0.%' IDENTIFIED WITH mysql_native_password BY '123';
 
-# 备份主库并
+# 备份主库
 mysqldump -u root -p -A --master-data=2 --single-transaction  -R --triggers >/var/lib/mysql/full.sql
 -- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=653;
 cp full.sql /data/docker/mysql_3307/data/

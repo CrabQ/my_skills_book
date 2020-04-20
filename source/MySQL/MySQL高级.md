@@ -252,7 +252,7 @@ undo提供快照技术,保存事务修改之前的数据状态.保证了MVCC,隔
 ```shell
 记录启动,关闭,日常运行过程中,状态信息,警告,错误
 
-默认就是开启的: /数据路径下/hostname.err
+默认就是开启的
 
 show variables like 'log_error';
 
@@ -317,12 +317,6 @@ ROW      : 可读性很低,日志量大,足够严谨
 二进制日志的最小记录单元
 对于DDL,DCL,一个语句就是一个event
 对于DML语句来讲:只记录已提交的事务
-
-例如以下列子,就被分为了4个event
-begin;      120  - 340
-DML1        340  - 460
-DML2        460  - 550
-commit;     550  - 760
 ```
 
 #### event的组成
@@ -364,6 +358,7 @@ mysqlbinlog --start-position=219 --stop-position=1347 /data/binlog/mysql-bin.000
 # mysql内
 set sql_Log_bin=0;
 source /tmp/bin.sql
+set sql_log_bin=1;
 ```
 
 binlog日志的GTID新特性
@@ -392,7 +387,7 @@ GTID的幂等性
 开启GTID后,MySQL恢复Binlog时,重复GTID的事务不会再执行了
 
 --skip-gtids
-mysqlbinlog --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:4' /data/binlog/mysql-bin.000004 /data/binlog/mysql-bin.000004
+mysqlbinlog --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:4' /data/binlog/mysql-bin.000004
 
 set sql_log_bin=0;
 source /tmp/binlog.sql
@@ -441,12 +436,12 @@ flush logs;
 ```shell
 # 记录慢SQL语句的日志,定位低效SQL语句的工具日志
 
-vim /etc/my.cnf
+# vim /etc/my.cnf
 # 开关
 slow_query_log=1
 # 文件位置及名字
 slow_query_log_file=/data/mysql/slow.log
-设定慢查询时间
+# 设定慢查询时间
 long_query_time=0.1
 # 没走索引的语句也记录
 log_queries_not_using_indexes
