@@ -466,7 +466,7 @@ hast-max-ziplist-value, set-max-intest-entries等
 重定向到负责槽的主节点
 readonly命令可以读:连接级别命令(争对当前连接)
 
-读写分离:更加负责
+读写分离:更加复杂
 复制延迟,读取过期数据,从节点故障
 修改客户端: cluster slaves {NodeId}
 不建议
