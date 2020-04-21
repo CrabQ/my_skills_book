@@ -1035,8 +1035,11 @@ f
 # a 显示与终端相关的所有进程,包含每个进程的完整路径
 # x 显示与终端无关的所有进程
 # u 显示指定用户相关的进程信息
+ps -aux
+
 # -e 显示所有进程
 # -f 额外显示UID,PPID,C与STIME栏位
+ps -ef| grep mysql
 ```
 
 ### pstree: 显示进程状态树
@@ -1044,6 +1047,12 @@ f
 ### pgrep: 查找匹配条件的进程
 
 ### kill: 终止进程
+
+```shell
+kill 3436
+# 强制终止
+kill -9 3436
+```
 
 ### killall: 通过进程名终止进程
 
@@ -1056,11 +1065,20 @@ f
 
 ### top: 实时显示系统中各个进程的资源占用状况
 
+```shell
+# 默认以CPU负载排序
+top
+```
+
 ### nice: 调整程序运行时的优先级
 
 ### renice: 调整运行中的进程的优先级
 
 ### nohup: 用户退出系统进程继续工作
+
+```shell
+nohup ping www.baidu.com &
+```
 
 ### strace: 跟踪进程的系统调用
 
@@ -1068,9 +1086,27 @@ f
 
 ### runlevel: 输出当前运行级别
 
+```shell
+# 3: 多用户模式
+runlevel
+N 3
+```
+
 ### init: 初始化Linux进程
 
+```shell
+# 关机
+init 0
+# 重启
+init 6
+```
+
 ### service: 管理系统服务
+
+```shell
+# centos7: systemctl
+systemctl status docker
+```
 
 ## 网络管理命令
 
