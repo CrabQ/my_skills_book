@@ -629,3 +629,24 @@ source /backup/full_2018-06-28.sql
 ### 主从复制docker搭建实操
 
 [Centos7下MySQL主从复制部署](https://my-skills-book.readthedocs.io/en/latest/Docker/Docker%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2.html#centos8mysql)
+
+### 主从复制故障处理
+
+```sql
+-- IO相关
+
+-- 主库查看线程
+show full processlist;
+
+-- 从库查看主从复制状态
+show slave status \G;
+
+-- 故障处理: 主库连接不上
+stop  slave
+reset slave all
+change master to
+start slave
+
+-- 故障处理: 二进制日志位置点不对
+-- 重新搭建主从
+```
