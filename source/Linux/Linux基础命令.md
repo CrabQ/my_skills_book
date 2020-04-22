@@ -110,10 +110,15 @@ cp -r 目录
 
 ### mv: 移动或重命名文件
 
+```shell
+# -f 强制覆盖
+```
+
 ### rm: 删除文件或目录
 
 ```shell
-# 删除非空目录
+# -f 强制删除
+# -r 递归删除目录及其内容
 rm -rf 目录
 # 删除日志
 rm *log
@@ -136,86 +141,45 @@ ln 源文件 目标文件
 ### find: 查找文件
 
 ```shell
-# 搜寻文件或目录
-find  -name "python" ./
-# -name 通过名字
-# -mtime [-n|+n|n] 通过文件修改时间
-# -maxdepth levels 查找级数
-```
-
-查看当前目录下文件个数
-
-```shell
+# 查看当前目录下文件个数
 find ./ | wc -l
 16649
-```
 
-递归当前目录及子目录删除所有.ooo文件
-
-```shell
-find ./ -name "*.ooo" -exec rm {} \;
-```
-
-find是实时查找,如果需要更快的查询,可试试locate
-
-查找txt和pdf文件
-
-```shell
 # -o or
+# 查找txt和pdf文件
 find . \( -name "*.txt" -o -name "*.pdf" \) -print
-```
 
-查找所有非txt文本
-
-```shell
+# 查找所有非txt文本
 find . ! -name "*.txt" -print
-```
 
-指定搜索深度,打印出当前目录的文件(深度为1)
-
-```shell
 # -type 文件类型 f代表文件 d代表文件夹 l代表链接
+# -maxdepth levels 查找级数
 find . -maxdepth 1 -type f
-```
 
-查询7天前被访问过的所有文件
-
-```shell
 # -atime 访问时间,单位是天.分钟单位则是-amin
-# -mtime 修改时间,内容被修改
 # -ctime 变化时间,元数据或权限变化
+# -mtime [-n|+n|n] 通过文件修改时间
+# 查询7天前被访问过的所有文件
 find . -atime +7 -type f -print
-```
 
-寻找大于2k的文件
-
-```shell
+# 寻找大于2k的文件
 find . -type f -size +2k
-```
 
-查询具有可执行权限的所有文件
-
-```shell
+# 查询具有可执行权限的所有文件
 find . -type f -perm 644 -print
-```
 
-用户weber所拥有的文件
-
-```shell
+# 用户weber所拥有的文件
 find . -type f -user weber -print
-```
 
-找到之后删除当前目录下所有的swp文件
-
-```shell
+# 找到之后删除当前目录下所有的swp文件
 find . -type f -name "*.swp" -delete
-```
 
-将找到的文件全都copy到另一个目录
-
-```shell
 # {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
+# 将找到的文件全都copy到另一个目录
 find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
+
+# 递归当前目录及子目录删除所有.ooo文件
+find ./ -name "*.ooo" -exec rm {} \;
 ```
 
 ### xargs: 将标准输入转换成命令行参数
