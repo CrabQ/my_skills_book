@@ -184,17 +184,19 @@ find ./ -name "*.ooo" -exec rm {} \;
 
 ### xargs: 将标准输入转换成命令行参数
 
-将多行输出转化为单行输出
-
 ```shell
+# -d 自定义分隔符
+# 当前目录下所有.log文件移动到dir1下
+find . -name "*.log" | xargs -i mv {} dir1/
+
+# -i {}代替前面的结果
+
+# 将多行输出转化为单行输出
 cat result.txt | xargs
 envs my_blog my_blog.log my_blog_sql hhhhh
-```
 
-将单行转化为多行输出
-
-```shell
 # -n指定每行显示的字段数
+# 将单行转化为多行输出
 cat result.txt | xargs -n 2
 envs my_blog
 my_blog.log my_blog_sql
@@ -350,7 +352,7 @@ hhhhh|hhhhh
 # -d 按字典序进行排序
 # -k N 指定按第N列排序
 
-sort result.txt  -r -d
+sort result.txt -r -d
 my_blog_sql
 my_blog.log
 my_blog
