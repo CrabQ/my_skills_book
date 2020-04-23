@@ -669,3 +669,13 @@ show variables like '%read_only%';
 从库
 从库默认情况下只有一个SQL,只能串行回放事务SQL
 ```
+
+### 延时从库
+
+```sql
+-- 人为配置从库和主库延时N小时
+
+-- SQL线程延时:数据已写入relaylog,SQL线程"慢点"运行
+
+CHANGE MASTER TO MASTER_DELAY = 300;
+```
