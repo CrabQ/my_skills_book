@@ -279,6 +279,17 @@ cat test.txt -n
      3  c
      4  d
 # -b 和-n一样,忽略空白行
+
+cat | mysql -u root -p << EOF
+CHANGE MASTER TO
+  MASTER_HOST='127.0.0.1',
+  MASTER_USER='repl',
+  MASTER_PASSWORD='123',
+  MASTER_PORT=3306,
+  MASTER_LOG_FILE='mysql-bin.000003',
+  MASTER_LOG_POS=704,
+  MASTER_CONNECT_RETRY=10;
+EOF
 ```
 
 ### tac: 反向显示文件内容
@@ -310,6 +321,7 @@ cat test.txt -n
 ```shell
 # -n 显示行号
 # -f 实时显示文件追加的数据
+tail -f a.log
 ```
 
 ### tailf: 跟踪日志文件
