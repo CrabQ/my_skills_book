@@ -496,14 +496,15 @@ echo hhhhh >> result.txt
 ### grep: 文本过滤工具
 
 ```shell
-# -V 过滤
+# -v 过滤
 # -n 显示行号
 # -i 不区分大小写
 # -c 统计匹配的行数
 # -e 匹配多个
+# -E 使用扩展的egrep命令
 
-grep b test2.txt
-db
+# 过滤空行和注释行
+grep -Ev "^$|#" nginx.conf
 ```
 
 ### sed: 字符流编辑器
@@ -513,6 +514,7 @@ db
 sed -i 's/hhh/new/g' result.txt
 
 # 内置命令
+# i 指定行前追加文本
 # a 指定行后追加文本
 sed '2a hi' result.txt
 # 第二行后加上一行hi
@@ -520,8 +522,6 @@ sed '2a hi' result.txt
 # d 删除匹配行
 sed '2,5d' result.txt
 # 删除第二到第五行
-
-# i 指定行前追加文本
 ```
 
 首处替换
