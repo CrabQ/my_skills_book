@@ -368,8 +368,12 @@ Global Transaction ID
 是对于一个已提交事务的编号,并且是一个全局唯一的编号
 
 vim /etc/my.cnf
+# 启用gtid类型
 gtid-mode=on
+# 强制GTID的一致性
 enforce-gtid-consistency=true
+# slave更新是否记入日志
+log-slave-updates=1
 ```
 
 基于GTID进行查看binlog
@@ -678,4 +682,44 @@ show variables like '%read_only%';
 -- SQL线程延时:数据已写入relaylog,SQL线程"慢点"运行
 
 CHANGE MASTER TO MASTER_DELAY = 300;
+
+-- 延时从库状态下主库故障恢复思路
+-- 主库误删除
+-- 停从库SQL线程
+-- 截取relaylog,起点:停止SQL线程时,relay最后应用位置. 终点:误删除之前的position(GTID)
+-- 恢复截取的日志到从库
+-- 从库身份解除,替代主库工作
+```
+
+### 过滤复制
+
+```sql
+-- 主库白黑名单
+show master status\G;
+-- Binlog_Do_DB
+-- Binlog_Ignore_DB
+
+-- 从库白黑名单
+show slave status\G;
+-- Replicate_Do_DB:
+-- Replicate_Ignore_DB:
+```
+
+### GTID复制
+
+```sql
+-- 使用GTID构建主从
+change master to
+master_host='10.0.0.51',
+master_user='repl',
+master_password='123' ,
+MASTER_AUTO_POSITION=1;
+
+start slave;
+
+-- 在主从复制环境中,主库事务在全局由唯一GTID记录,更方便Failover
+-- change master to不再需要binlog文件名和position号,MASTER_AUTO_POSITION=1;
+-- 在复制过程中,从库不再依赖master.info文件,直接读取最后一个relaylog的GTID号
+-- mysqldump备份时,--set-gtid-purged=auto参数默认会将备份中包含的事务操作告知从库,让从库从下一个GTID开始请求binlog
+-- SET @@GLOBAL.GTID_PURGED='8c49d7ec-7e78-11e8-9638-000c29ca725d:1'
 ```
