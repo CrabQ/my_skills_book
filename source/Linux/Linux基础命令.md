@@ -566,64 +566,44 @@ awk ' BEGIN{ statements } statements2 END{ statements } '
 # 1.执行begin中语句块
 # 2.从文件或stdin中读入一行,然后执行statements2,重复这个过程,直到文件全部被读取完毕
 # 3.执行end语句块
-```
 
-使用不带参数的print时,会打印当前行
-
-```shell
+# 使用不带参数的print时,会打印当前行
 echo -e "line1\nline2" | awk 'BEGIN{print "start"} {print } END{ print "End" }'
 start
 line1
 line2
 End
-```
 
-特殊变量`NR NF $0 $1 $2`
-
-```shell
-# NR: 表示记录数量,在执行过程中对应当前行号
-# NF: 表示字段数量,在执行过程总对应当前行的字段数
+# 特殊变量`NR NF $0 $1 $2`
+# NR: 当前行号
+# NF: 字段数
 # $0: 整行内容
 # $1: 第一个字段的文本内容
 # $2: 第二个字段的文本内容
 # $NF: 最后一列
+# 行号小于5
+awk 'NR < 5' result.txt
 
 echo -e "line1 f2 f3\n line2 \n line 3" | awk '{print NR":"$0"-"$1"-"$2}'
 1:line1 f2 f3-line1-f2
 2: line2 -line2-
 3: line 3-line-3
-```
 
-统计文件的行数
-
-```shell
+# 统计文件的行数
 awk 'END {print NR}' result.txt
 8
-```
 
-累加每一行的第一个字段
-
-```shell
+# 累加每一行的第一个字段
 echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
 > print "begin";} {sum += $1;} END {print "=="; print sum }'
 begin
 ==
 10
-```
 
-传递外部变量
-
-```shell
+# 传递外部变量
 var=1000
 echo | awk '{print vara}' vara=$var
 1000
-```
-
-用样式对awk处理的行进行过滤
-
-```shell
-# 行号小于5
-awk 'NR < 5' result.txt
 
 # 包含new的行
 awk '/new/' result.txt
@@ -632,27 +612,19 @@ newhh
 
 # 不包含new的行
 awk '!/new/' result.txt
-
 envs
 my_blog
 my_blog.log
 my_blog_sql
 123
-```
 
-以下字符串,打印出其中的时间串
-
-```shell
 # 使用-F来设置定界符(默认为空格)
+# 以下字符串,打印出其中的时间串
 echo '2015_04_02 20:20:08: mysqli connect failed, please check connect info'|awk -F':' '{print $1 ":" $2 ":" $3; }'
 2015_04_02 20:20:08
-```
 
-打印指定列
-
-```shell
+# 打印指定列
 ls -lrt | awk '{print $6}'
-
 Dec
 Oct
 Oct
@@ -692,11 +664,8 @@ vim /etc/hostname
 # -s 递归
 [root@izbp128jigdcjx00os4h3sz mysql]# du -sh
 211M    .
-```
 
-查看当前目录下所有子文件夹排序后的大小
-
-```shell
+# 查看当前目录下所有子文件夹排序后的大小
 [root@izbp128jigdcjx00os4h3sz mysql]# du -sh `ls` | sort
 211M    data
 4.0K    logs
