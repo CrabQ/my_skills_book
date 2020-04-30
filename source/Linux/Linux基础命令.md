@@ -788,18 +788,14 @@ unzip -d /test test.zip
 # -P port 端口
 # -p 传输后保留文件原始属性
 # -r 递归复制整个目录
-```
 
-将本地localpath指向的文件上传到远程主机的path路径
-
-```shell
+# 将本地localpath指向的文件上传到远程主机的path路径
 scp localpath ID@host:path
-```
+scp -rp ./testc root@121.196.202.188:/tmp
 
-以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
-
-```shell
+# 以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
 scp -r ID@site:path localpath
+scp -rp root@121.196.202.188:/tmp/test .
 ```
 
 ### rsync: 文件同步工具
