@@ -943,16 +943,20 @@ f
 
 ```shell
 # -o 后接一些挂载的选项,是安全性能优化的重要选项
-
 # -t 指定挂载的文件系统类型
+
+# 查看当前挂载信息
+mount
+# 光盘挂载到/mnt
+mount /dev/cdrom /mnt
 ```
 
 ### umount: 卸载文件系统
 
 ```shell
 # -f 强制卸载
-
 # -l 懒惰卸载,清楚对文件系统的所有引用,一般和-f参数配合使用
+umount /mnt
 ```
 
 ### df: 报告文件系统磁盘空间的使用情况
@@ -960,6 +964,7 @@ f
 ```shell
 # -h 人性化显示
 # -i 显示文件提醒的inode信息
+df -h
 ```
 
 ### mkswap: 创建交换分区
@@ -1056,8 +1061,8 @@ systemctl status docker
 ### ifconfig: 配置或显示网络接口信息
 
 ```shell
-up 激活指定的网络接口
-down 关闭指定的网络接口
+# up 激活指定的网络接口
+# down 关闭指定的网络接口
 ```
 
 ### ifup: 激活网络接口
@@ -1099,13 +1104,11 @@ gw GW 为发往目标网络/主机的任何分组执行网关
 列出所有端口(包括监听和未监听的)
 
 ```shell
--t tcp端口
-netstat -a
-```
+# -t tcp端口
+# -n 显示数字形式的地址
+netstat -an
 
-使用netstat工具查询端口
-
-```shell
+# 使用netstat工具查询端口
 netstat -antp | grep 6379
 ```
 
@@ -1119,6 +1122,11 @@ netstat -antp | grep 6379
 
 ### telnet: 远程登录主机
 
+```shell
+# 测试ssh端口是否开放
+telnet 127.0.0.1 22
+```
+
 ### nc: 多功能网络工具
 
 ```shell
@@ -1129,6 +1137,10 @@ netstat -antp | grep 6379
 ```
 
 ### ssh: 安全地远程登录主机
+
+```shell
+ssh -p 22 root@127.0.0.1
+```
 
 ### wget: 命令行下载工具
 
@@ -1150,7 +1162,7 @@ wget http://download.redis.io/releases/redis-5.0.7.tar.gz
 # cd 在host上更改当前路径
 # lls 列出本地主机上当前路径的所有文件
 # lcd 在本地主机更改当前路径
-sftp ID@host
+sftp user@host
 ```
 
 ### mailq: 显示邮件传输队列
