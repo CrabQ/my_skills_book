@@ -1058,11 +1058,18 @@ systemctl status docker
 
 ## 网络管理命令
 
+```shell
+# 查看dns
+cat /etc/resolv.conf
+```
+
 ### ifconfig: 配置或显示网络接口信息
 
 ```shell
 # up 激活指定的网络接口
 # down 关闭指定的网络接口
+# 查看ip
+ifconfig eth0
 ```
 
 ### ifup: 激活网络接口
@@ -1079,6 +1086,8 @@ del 删除路由信息
 -host 到一个主机路由,后接一个主机地址
 netmask NM 为添加的路由指定网路掩码
 gw GW 为发往目标网络/主机的任何分组执行网关
+# 查看默认网关
+route -n
 ```
 
 ### arp: 管理系统的arp缓存
@@ -1326,7 +1335,7 @@ yum history
 # fg: 把后台任务放到前台
 # echo: 显示一行文本
 # eval: 读入参数,并将它们组合成一个新的命令,然后执行
-# export: 设置或显示环境便令
+# export: 设置或显示环境变量
 ```
 
 ## 环境变量
