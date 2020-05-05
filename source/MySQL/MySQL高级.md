@@ -391,7 +391,7 @@ GTID的幂等性
 开启GTID后,MySQL恢复Binlog时,重复GTID的事务不会再执行了
 
 --skip-gtids
-mysqlbinlog --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:4' /data/binlog/mysql-bin.000004
+mysqlbinlog --skip-gtids --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:6-7' /data/binlog/mysql-bin.000036 >/backup/bin.sql
 
 set sql_log_bin=0;
 source /tmp/binlog.sql
