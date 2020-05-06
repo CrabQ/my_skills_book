@@ -631,15 +631,27 @@ Oct
 Mar
 ```
 
+使用awk和chkconfig关闭不需要的开机自启服务
+
+```shell
+chkconfig --list|grep 3:on|grep -vE "crond|sshd|network|rsyslog|stsstat|" | awk '{print "chkconfig " $1 " off"}'|bash
+```
+
 ## Linux信息显示与搜索文件命令
 
 ### uname: 显示系统信息
 
 ```shell
 # -r 显示内核发行版本号
+uname -r
+
+# 显示操作系统
+uname -m
+
 # -a 显示系统所有相关信息
 uname -a
 lsb_release -a
+
 ```
 
 ### hostname: 显示或设置系统的主机名
@@ -876,7 +888,18 @@ f
 
 ### visudo: 编辑sudoers文件
 
+```shell
+# 添加管理用户
+visudo
+test ALL=(ALL) /usr/sbin/useradd,/usr/sbin/userdel
+```
+
 ### sudo: 以另一个用户身份执行命令
+
+```shell
+# 查看当前用户被授予的sudo权限集合
+sudo -l
+```
 
 ### id: 显示用户与用户组的信息
 

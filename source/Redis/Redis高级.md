@@ -151,11 +151,26 @@ unsubscribe sohu:tv
 8个bit可以组成一个Byte,储存1亿用户只要大概12.5MB
 
 ```shell
+# 位图实际是字符串的二进制操作命令
+# f: 01100110
+127.0.0.1:7001> set tkey 'foods'
+OK
+127.0.0.1:7001> BitCount tkey 0 0
+(integer) 4
+127.0.0.1:7001> BitCount tkey 1 2
+(integer) 12
+
 # 给位图指定索引设置值
-setbit key offset value
+# setbit key offset value
+127.0.0.1:7001> SetBit tkey 5 0
+(integer) 1
+127.0.0.1:7001> get tkey
+"boods"
 
 # 获取位图指定索引的值
-getbit key offset
+# getbit key offset
+127.0.0.1:7001> GetBit tkey 5
+(integer) 0
 
 # 获取位图指定范围(start到end,单位为字节,如果不指定则为全部)位值为1的个数
 bitcount key [start end]

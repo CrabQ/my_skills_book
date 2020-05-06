@@ -466,6 +466,9 @@ blpop, brpop
 ```shell
 blpop key timeout
 # lpop阻塞版本,timeout是阻塞超时时间,为0永远不阻塞,brpop相同
+
+RPopLPush a b
+# a列表右边弹出插入到b列表左边
 ```
 
 ### list实际应用
@@ -561,6 +564,13 @@ sunion user:1:follow user:2:follow
 # 4) "news"
 # 5) "his"
 # 6) "sports"
+
+# 结果不是返回而是存储在result, sdiffstore, sinterstore同
+# SunionStore result user:1:follow user:2:follow
+
+# 移动
+smove a b cc
+# 把cc从集合a移动到集合b
 ```
 
 ### set实际应用
