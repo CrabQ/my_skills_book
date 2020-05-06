@@ -1,6 +1,6 @@
 # MySQL高级
 
-## mysql连接管理
+## MySQL连接管理
 
 ```shell
 # 通过socket启动
@@ -114,14 +114,14 @@ ibd:表的数据行和索引
 需要将所有数据存储到同一个表空间中 ,管理比较混乱
 5.5版本出现的管理模式,也是默认的管理模式
 5.6版本,共享表空间保留,只用来存储数据字典信息,undo,临时表
-5.7 版本,临时表被独立出来了
+5.7版本,临时表被独立出来了
 8.0版本,undo也被独立出去了
 ```
 
 #### 独立表空间
 
 ```shell
-从5.6,默认表空间不再使用共享表空间,替换为独立表空间.
+从5.6,默认表空间不再使用共享表空间,替换为独立表空间
 主要存储的是用户数据
 存储特点为:一个表一个ibd文件,存储数据行和索引信息
 基本表结构元数据存储:xxx.frm
@@ -132,11 +132,13 @@ ibd:表的数据行和索引
 ```shell
 # select @@innodb_file_per_table;
 
-Redo Log: ib_logfile0  ib_logfile1,重做日志
+# 重做日志
+Redo Log: ib_logfile0 ib_logfile1
+# 回滚日志,存储在共享表空间中
+Undo Log: ibdata1 ibdata2
 
-Undo Log: ibdata1 ibdata2(存储在共享表空间中),回滚日志
-
-临时表:ibtmp1,在做join union操作产生临时数据,用完就自动删除
+# 临时表,在做join union操作产生临时数据,用完就自动删除
+ibtmp1
 ```
 
 ### 缓冲区池
@@ -175,30 +177,37 @@ Innodb_flush_method=fsync
 
 ### 事务的生命周期
 
-自动提交策略
-
 ```shell
+# 自动提交策略
 select @@autocommit;
 ```
 
 ### 一些定义
 
 ```shell
-ibd 存储 数据行和索引
-buffer pool 缓冲区池,数据和索引的缓冲
-LSN  日志序列号
-WAL  write ahead log 日志优先写的方式实现持久化
-脏页 内存脏页,内存中发生了修改,没写入到磁盘之前,我们把内存页称之为脏页
-CKPT Checkpoint,检查点,就是将脏页刷写到磁盘的动作
-TXID 事务号,InnoDB会为每一个事务生成一个事务号,伴随着整个事务
+ibd
+# 存储数据行和索引
+buffer pool
+# 缓冲区池,数据和索引的缓冲
+LSN
+# 日志序列号
+WAL write ahead log
+# 日志优先写的方式实现持久化
+脏页
+# 内存脏页,内存中发生了修改,没写入到磁盘之前,我们把内存页称之为脏页
+CKPT Checkpoint
+# 检查点,就是将脏页刷写到磁盘的动作
+TXID
+# 事务号,InnoDB会为每一个事务生成一个事务号,伴随着整个事务
 ```
 
 ### redo log
 
 ```shell
-redo的日志文件:iblogfile0 iblogfile1
-redo log buffer redo内存区域
-redo的buffer 数据页的变化信息+数据页当时的LSN号
+# redo的日志文件
+iblogfile0 iblogfile1
+# redo内存区域:数据页的变化信息+数据页当时的LSN号
+redo log buffer
 ```
 
 #### redo的刷新策略
@@ -250,10 +259,7 @@ undo提供快照技术,保存事务修改之前的数据状态.保证了MVCC,隔
 ### 错误日志(log_error)
 
 ```shell
-记录启动,关闭,日常运行过程中,状态信息,警告,错误
-
-默认就是开启的
-
+# 记录启动,关闭,日常运行过程中的状态信息,警告,错误.默认开启
 show variables like 'log_error';
 
 # 设定
@@ -265,9 +271,7 @@ log_timestamps=system
 ### binlog(binary logs):二进制日志
 
 ```sql
--- 备份恢复, 主从环境必须依赖二进制日志
-
--- MySQL默认是没有开启二进制日志的
+-- 备份恢复, 主从环境必须依赖二进制日志.默认关闭
 
 -- 开关
 select @@log_bin;
@@ -364,8 +368,8 @@ set sql_log_bin=1;
 binlog日志的GTID新特性
 
 ```shell
+# 对一个已提交事务的编号,并且是一个全局唯一的编号
 Global Transaction ID
-是对于一个已提交事务的编号,并且是一个全局唯一的编号
 
 vim /etc/my.cnf
 # 启用gtid类型
@@ -379,24 +383,15 @@ log-slave-updates=1
 基于GTID进行查看binlog
 
 ```shell
-具备GTID后,截取查看某些事务日志
---include-gtids
---exclude-gtids
-mysqlbinlog --include-gtids='dff98809-55c3-11e9-a58b-000c2928f5dd:1-6' --exclude-gtids='dff98809-55c3-11e9-a58b-000c2928f5dd:4'  /data/binlog/mysql-bin.000004
-```
+# GTID的幂等性
+# 开启GTID后,MySQL恢复Binlog时,重复GTID的事务不会再执行了
 
-GTID的幂等性
-
-```shell
-开启GTID后,MySQL恢复Binlog时,重复GTID的事务不会再执行了
-
---skip-gtids
+# --skip-gtids, --exclude-gtids
 mysqlbinlog --skip-gtids --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:6-7' /data/binlog/mysql-bin.000036 >/backup/bin.sql
 
 set sql_log_bin=0;
 source /tmp/binlog.sql
 set sql_log_bin=1;
-
 ```
 
 #### 二进制日志其他操作
@@ -405,9 +400,6 @@ set sql_log_bin=1;
 
 ```shell
 show variables like '%expire%';
-
-自动清理时间按照全备周期+1
-set global expire_logs_days=8;
 
 # 永久生效
 my.cnf
@@ -440,7 +432,7 @@ flush logs;
 ```shell
 # 记录慢SQL语句的日志,定位低效SQL语句的工具日志
 
-# vim /etc/my.cnf
+vim /etc/my.cnf
 # 开关
 slow_query_log=1
 # 文件位置及名字
@@ -563,26 +555,24 @@ xtrabackup(XBK)
 # 不加--single-transaction ,启动所有表的温备份,所有表都锁定
 # 加上--single-transaction ,对innodb进行快照备份,对非innodb表可以实现自动锁表功能
 
-# --set-gtid-purged=auto
-# --set-gtid-purged=OFF,可以使用在日常备份参数中.
+# 日常备份
 mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=OFF >/data/backup/full.sql
-# on:在构建主从复制环境时需要的参数配置
-mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=ON >/data/backup/full.sql
 
-# 备份必加参数
-mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=OFF >/data/backup/full.sql
+# --set-gtid-purged=auto:在构建主从复制环境时需要的参数配置
+mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=ON >/data/backup/full.sql
 ```
 
 压缩备份并添加时间戳
 
 ```shell
-例子:
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F).sql.gz
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F-%T).sql.gz
 
-mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复的表)
+# mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复的表)
 set sql_log_bin=0;
 source /backup/full_2018-06-28.sql
+set sql_log_bin=1;
+
 ```
 
 ## 主从复制
