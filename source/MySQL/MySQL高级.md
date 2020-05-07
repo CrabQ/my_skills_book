@@ -31,17 +31,13 @@ DQL:数据查询语言 show select
 
 ## 执行计划获取及分析
 
-```shell
-执行计划获取到的是优化器选择完成的,他认为代价最小的执行计划
-
-作用: 语句执行前,先看执行计划信息,可以有效的防止性能较差的语句带来的性能问题
-
-如果业务中出现了慢语句,也需要借助此命令进行语句的评估,分析优化方案.
-```
-
-获取优化器选择后的执行计划
-
 ```sql
+-- 执行计划获取的是优化器认为代价最小的执行计划
+
+-- 作用: 语句执行前,先看执行计划信息,可以有效的防止性能较差的语句带来的性能问题
+
+-- 如果业务中出现了慢语句,也需要借助此命令进行语句的评估,分析优化方案
+
 desc select * from test;
 ```
 
@@ -55,41 +51,35 @@ MVCC(Multi-Version Concurrency Control多版本并发控制)
 行级锁(Row-level Lock)
 ACSR(Auto Crash Safey Recovery)自动的故障安全恢复
 支持热备份(Hot Backup)
-Replication: Group Commit , GTID (Global Transaction ID) ,多线程(Multi-Threads-SQL )
+Replication: Group Commit, GTID (Global Transaction ID), 多线程(Multi-Threads-SQL )
 ```
 
 ### 存储引擎查看
 
-```shell
+```sql
 SELECT @@default_storage_engine;
 
-# 会话级别
+-- 会话级别
 set default_storage_engine=myisam;
 
-# 全局级别(仅影响新会话):
+-- 全局级别(仅影响新会话):
 set global default_storage_engine=myisam;
 
-# 重启之后,所有参数均失效.如果要永久生效,写入配置文件
-vim /etc/my.cnf
-[mysqld]
-default_storage_engine=myisam
+-- 重启之后,所有参数均失效.如果要永久生效,写入配置文件
+-- vim /etc/my.cnf
+-- [mysqld]
+-- default_storage_engine=myisam
 
-# 存储引擎是表级别的,每个表创建时可以指定不同的存储引擎,建议统一为innodb.
-```
+-- 存储引擎是表级别的,每个表创建时可以指定不同的存储引擎,建议统一为innodb
 
-`INFORMATION_SCHEMA`确认每个表的存储引擎
-
-```sql
+-- INFORMATION_SCHEMA确认每个表的存储引擎
 select table_schema,table_name ,engine from information_schema.tables where table_schema not in ('sys','mysql','information_schema','performance_schema');
-```
 
-修改一个表的存储引擎
-
-```shell
+-- 修改一个表的存储引擎
 alter table t1 engine innodb;
-# 此命令我们经常用于进行innodb表的碎片整理
+-- 此命令经常用于进行innodb表的碎片整理
 
-# 批量修改一个库的存储引擎
+-- 批量修改一个库的存储引擎
 select concat("alter table zabbix.",table_name," engine tokudb;") from
 information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.sql';
 ```
@@ -111,18 +101,18 @@ ibd:表的数据行和索引
 ```shell
 # show variables like '%extend%';
 
-需要将所有数据存储到同一个表空间中 ,管理比较混乱
+所有数据存储到同一个表空间中,管理混乱
 5.5版本出现的管理模式,也是默认的管理模式
-5.6版本,共享表空间保留,只用来存储数据字典信息,undo,临时表
-5.7版本,临时表被独立出来了
-8.0版本,undo也被独立出去了
+5.6版本,共享表空间只用来存储数据字典信息,undo,临时表
+5.7版本,临时表独立出去
+8.0版本,undo独立出去
 ```
 
 #### 独立表空间
 
 ```shell
-从5.6,默认表空间不再使用共享表空间,替换为独立表空间
-主要存储的是用户数据
+从5.6,默认表空间替换为独立表空间
+主要存储用户数据
 存储特点为:一个表一个ibd文件,存储数据行和索引信息
 基本表结构元数据存储:xxx.frm
 ```
@@ -225,7 +215,7 @@ MySQL 在启动时,必须保证redo日志文件和数据文件LSN必须一致, �
 
 一个事务,begin;update;commit
 
-1. 在begin ,会立即分配一个TXID=tx_01
+1. begin时,会立即分配一个TXID=tx_01
 
 2. update时,会将需要修改的数据页(dp_01,LSN=101),加载到data buffer中
 
@@ -241,7 +231,7 @@ MySQL 在启动时,必须保证redo日志文件和数据文件LSN必须一致, �
 7. MySQL再次重启时,必须要redolog和磁盘数据页的LSN是一致的
 但是,此时dp_01,TXID=tx_01磁盘是LSN=101,dp_01,TXID=tx_01,redolog中LSN=102
 
-MySQL此时无法正常启动,MySQL触发CSR.在内存追平LSN号,触发ckpt,将内存数据页更新到磁盘,从而保证磁盘数据页和redolog LSN一值.这时MySQL正长启动
+MySQL此时无法正常启动,MySQL触发CSR.在内存追平LSN号,触发ckpt,将内存数据页更新到磁盘,从而保证磁盘数据页和redolog LSN一至.这时MySQL正常启动
 
 以上的工作过程,我们把它称之为基于REDO的"前滚操作"
 ```
@@ -463,7 +453,7 @@ mysqldumpslow -s c -t 10 /data/mysql/slow.log
 影响到写入操作
 
 冷备
-关闭数据库业务,数据库没有任何变更的情况下,进行备份数据.
+关闭数据库业务,数据库没有任何变更的情况下,进行备份数据
 业务停止
 ```
 
