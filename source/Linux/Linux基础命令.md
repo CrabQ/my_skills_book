@@ -1210,6 +1210,11 @@ sftp user@host
 
 ### dig: 域名查询工具
 
+```shell
+# +trace从根域开始查询结果
+dig +trace www.baidu.com
+```
+
 ### host: 域名查询工具
 
 ### nmap: 网络探测工具和安全/端口扫描器
