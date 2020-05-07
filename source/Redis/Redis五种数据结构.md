@@ -49,6 +49,21 @@ RESP 的特点:实现简单,快速解析,可读性好
 获取所有key,时间复杂度O(n)
 
 ```shell
+# 登录验证, 配置文件requirepass
+auth pwd
+
+# 获取客户端连接信息列表
+client list
+
+# 获取上次保存在磁盘的时间
+last save
+
+# 获取配置参数
+config get dir
+
+# 设置
+config set dir /data
+
 # 通常不在生产环境使用
 keys *
 # 1) "hello"
