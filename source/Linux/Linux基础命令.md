@@ -859,6 +859,10 @@ f
 
 ```shell
 # -g 指定用户对应的用户组,组需已存在
+
+# -s shell 用户登入后使用的shell名称
+# -M 不建立用户家目录
+useradd nginx -s /sbin/nologin -M
 ```
 
 ### usermod: 修改用户信息
@@ -1224,6 +1228,11 @@ dig +trace www.baidu.com
 ## 系统管理命令
 
 ### lsof: 查看进程打开的文件
+
+```shell
+# -i 通过监听指定的协议,端口和主机等信息查看进程状态
+lsof -i:80
+```
 
 ### uptime: 显示系统的运行时间及负载
 
