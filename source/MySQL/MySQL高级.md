@@ -211,7 +211,7 @@ commit;
 ### MySQL CSR: 前滚
 
 ```shell
-MySQL 在启动时,必须保证redo日志文件和数据文件LSN必须一致, 如果不一致就会触发CSR,最终保证一致
+MySQL 在启动时,必须保证redo日志文件和数据文件LSN必须一致,如果不一致就会触发CSR,最终保证一致
 
 一个事务,begin;update;commit
 
@@ -392,7 +392,7 @@ set sql_log_bin=1;
 show variables like '%expire%';
 
 # 永久生效
-my.cnf
+# my.cnf
 expire_logs_days=15;
 # 至少保留两个全备周期+1的binlog
 ```
