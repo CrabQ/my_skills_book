@@ -38,6 +38,13 @@ docker info
 
 # 帮助
 docker --help
+
+# 权限管理
+# 默认只有root用户和docker组的用户才可以访问Docker引擎
+# 添加docker组
+groupadd docker
+# 将当前用户加入组
+usermod -aG docker $USER
 ```
 
 配置Docker加速器
@@ -49,6 +56,8 @@ sudo tee /etc/docker/daemon.json <<-'EOF'
   "registry-mirrors": ["https://thkvkd0a.mirror.aliyuncs.com"]
 }
 EOF
+
+# 重启服务
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 ```

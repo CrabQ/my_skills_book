@@ -2,7 +2,7 @@
 
 ## Docker概念
 
-Docker是一个开源的应用容器引擎.
+Docker是一个开源的应用容器引擎
 
 Docker是一种容器技术,解决软件跨环境迁移的问题
 
@@ -23,50 +23,39 @@ systemctl restart docker
 # 状态查看
 systemctl status docker
 
-开机自启动
+# 开机自启动
 systemctl enable docker
+
+# 查看镜像,容器,数据卷所占用的空间
+docker system df
 ```
 
 ### Docker镜像相关命令
 
-查看镜像
-
 ```shell
-[root@izbp128jigdcjx00os4h3sz bin]# docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-redis               latest              f0453552d7f2        34 hours ago        98.2MB
-mysql               latest              9b51d9275906        10 days ago         547MB
+# 查看镜像
+docker images
 
 # 查看所有镜像id
-[root@izbp128jigdcjx00os4h3sz bin]# docker images -q
-f0453552d7f2
-9b51d9275906
-```
+docker images -q
 
-搜索镜像
-
-```shell
-# docker search 镜像名称
+# 搜索镜像
 docker search redis
-```
 
-拉取镜像
-
-```shell
+# 拉取镜像
 # docker pull 镜像名称:版本号(不指定为最新)
 docker pull redis
-```
 
-删除镜像
-
-```shell
-# docker rmi 镜像名称:版本号
+# 删除镜像
 docker rmi mysql:latest
 # 通过ID删除
 # docker rmi 9b51d9275906
 
 # 删除所有本地镜像
 docker rmi `docker images -q`
+
+# 删除虚悬镜像
+docker image prune
 ```
 
 #### 创建新镜像
@@ -79,82 +68,57 @@ docker commit -m="message" -a="author" <container_id> target_name:[tag_name]
 
 ### Docker容器相关命令
 
-创建容器
-
 ```shell
+# run创建容器
 # -i:保持容器运行
 # -t:为容器重新分配一个伪输入终端,-it,容器创建后自动进入,退出则关闭容器
 # -d:以守护模式运行容器,通过docker exec进入,退出后容器不关闭
 # --net host: 覆盖主机端口
-
-[root@izbp128jigdcjx00os4h3sz bin]# docker run -it --name=c1 centos:7 /bin/bash
-Unable to find image 'centos:7' locally
-7: Pulling from library/centos
-ab5ef0e58194: Pull complete
-Digest: sha256:4a701376d03f6b39b8c2a8f4a8e499441b0d567f9ab9d58e4991de4472fb813c
-Status: Downloaded newer image for centos:7
-[root@9e44af0b49c0 /]#
-
-[root@izbp128jigdcjx00os4h3sz bin]# docker run -id --name=c2 centos:7 /bin/bash
-f07547d6a854f705f8b13be0bb82152f5d0f2242117b04869a6065118a8c296b
-```
-
-run参数
-
-```shell
 # --rm 当退出该容器时自动删除该容器资源
-```
 
-查看容器
+docker run -it --name=c1 centos:7 /bin/bash
 
-```shell
+docker run -id --name=c2 centos:7 /bin/bash
+
 # 查看正在运行的容器
-[root@izbp128jigdcjx00os4h3sz bin]# docker ps
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-f07547d6a854        centos:7            "/bin/bash"         15 seconds ago      Up 13 seconds                           c2
+docker ps
 
 # 查看所有容器
-[root@izbp128jigdcjx00os4h3sz bin]# docker ps -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                       PORTS               NAMES
-f07547d6a854        centos:7            "/bin/bash"         47 seconds ago      Up 46 seconds                                    c2
-9e44af0b49c0        centos:7            "/bin/bash"         3 minutes ago       Exited (127) 2 minutes ago                       c1
-```
+docker ps -a
 
-查看容器信息
-
-```shell
+# 查看容器信息
 docker inspect 容器名称
-```
 
-进入容器
+# 查看容器输出信息
+docker 容器名称 logs
 
-```shell
 # 退出容器不关闭,在容器中打开新的终端, 并且可以启动新的进程
 docker exec -it c1 /bin/bash
-```
 
-启动,停止容器
+# 启动,停止容器
+docker start c2
+docker stop c2
 
-```shell
-[root@izbp128jigdcjx00os4h3sz bin]# docker stop c2
+# 删除容器,先停止运行再删除
+docker rm c1
 
-c2
-
-[root@izbp128jigdcjx00os4h3sz bin]# docker start c2
-c2
-```
-
-删除容器,先停止运行再删除
-
-```shell
-[root@izbp128jigdcjx00os4h3sz bin]# docker rm c1
-c1
+# 清理掉所有处于终止状态的容器
+docker container prune
 ```
 
 从容器内拷贝文件到主机上
 
 ```shell
 docker cp <container_id>:<path> <target_path>
+```
+
+导入导出容器快照
+
+```shell
+docker import 容器名称
+docker export 容器名称
+# 容器快照文件将丢弃所有的历史记录和元数据信息，即仅保存容器当时的快照状态
+# docker load 镜像存储文件将保存完整记录,体积大
 ```
 
 ## Docker容器的数据卷
@@ -198,56 +162,6 @@ docker run -it --name=c1 --volumes-from c3 centos:7 /bin/bash
 docker run -it --name=c2 --volumes-from c3 centos:7 /bin/bash
 ```
 
-## Dockerfile
-
-### Dockerfile概念
-
-> Dockerfile是一个文本文件,包含了一条条的指令,每一条指令构建一层,基于基础镜像,最终构建出一个新的镜像
-> Dockerfile -> build -> Docker Images -> run -> Docker Container
-
-#### 组成
-
-```shell
-# centos 6.8 的 Dockerfile
-FROM scratch
-MAINTAINER The CentOS Project <cloud-ops@centos.org>
-ADD c68-docker.tar.xz /
-LABEL name="CentOS Base Image" \
-    vendor="CentOS" \
-    license="GPLv2" \
-    build-date="2016-06-02"
-
-# Default command
-CMD ["/bin/bash"]
-```
-
-#### 执行流程
-
-```shell
-# Docker 从基础镜像运行一个容器
-# 执行一条指令并对容器作出修改
-# 执行类似 docker commit 的操作提交一个新的镜像层
-# Docker 再基于刚提交的镜像运行一个新容器
-# 执行 Dockerfile 中的下一条指令直到完成
-```
-
-#### 保留字指令
-
-```shell
-# FROM  基础镜像, 当前新镜像是基于哪个镜像的
-# MAINTAINER  镜像维护者
-# RUN 容器构建时需要运行的命令
-# EXPOSE  当前容器对外暴露的端口号
-# WORKDIR 指定在创建容器后, 终端默认登录的工作目录
-# ENV 用来构建镜像过程中设置环境变量
-# ADD 将宿主机目录下的文件拷贝进镜像且 ADD 命令自动处理 url 和解压 tar 包
-# COPY  类似 ADD, 拷贝文件和目录到镜像中
-# VOLUME  容器数据化, 保存数据和数据持久化
-# CMD 指定容器运行时要启动的命令,可以有多个 CMD 指令, 但只有最后一个生效, CMD 会被 docker run 后面的参数代替
-# ENTRYPOINT  指定容器运行时要启动的命令,ENTRYPOINT 的目的和 CMD 一样, 都是指定容器启动程序以及参数
-# ONBUILD 当构建一个被继承的 Dockerfile 时运行命令, 父镜像被继承后, 父镜像 onbuild 被触发
-```
-
 ### Dockerfile构建
 
 ```shell
@@ -268,7 +182,18 @@ Docker Compose是一个编排多容器分布式部署的工具,提供命令集�
 # 运行docker-compose up启动应用
 ```
 
-## Docker私有仓库
+## Docker仓库
+
+### Docker Hub
+
+```shell
+# 登录登出
+docker login
+docker logout
+
+# 推送镜像
+docker push username/ubuntu:18.04
+```
 
 ### 私有仓库搭建
 
@@ -278,6 +203,7 @@ docker pull registry
 
 #  创建私有仓库
 docker run -id --name=registry -p 5000:5000 registry
+# 仓库会被创建在容器的/var/lib/registry目录
 
 # 浏览器输入http://私有仓库地址ip:5000/v2/_catalog测试是否搭建成功
 # 信任私有仓库
@@ -295,7 +221,8 @@ docker start register
 
 ```shell
 # 标记镜像为私有仓库的镜像
-docker tag 镜像名称 私有仓库服务器ip:5000/镜像名称
+# docker tag 镜像名称 私有仓库服务器ip:5000/镜像名称
+docker tag ubuntu:latest 127.0.0.1:5000/ubuntu:latest
 
 # 上传
 docker push 私有仓库服务器ip:5000/镜像名称
@@ -306,4 +233,18 @@ docker push 私有仓库服务器ip:5000/镜像名称
 ```shell
 # 拉取镜像
 docker pull 私有仓库服务器ip:5000/镜像名称
+```
+
+## Docker网络
+
+```shell
+# 创建网络
+docker network create -d bridge my-net
+
+# 连接容器
+docker run -it --rm --name busybox1 --network my-net busybox sh
+docker run -it --rm --name busybox2 --network my-net busybox sh
+
+# 测试连接
+ping busybox2
 ```
