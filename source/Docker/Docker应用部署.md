@@ -301,3 +301,9 @@ docker exec -it centos6 /bin/bash
 ```shell
 docker run -id --name=tornado_py3.6 -v C:\Users\CRAB\Desktop\my_docker\learn_tornado:/app python:3.6-buster
 ```
+
+## windows 10下nginx部署
+
+```shell
+docker run --name stnginx -p 9000:80 -v  C:\Users\CRAB\Desktop\my_docker\docker_data\stnginx\nginx.conf:/etc/nginx/nginx.conf:ro -d nginx
+```
