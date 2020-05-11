@@ -28,9 +28,14 @@
 ## 缓存更新策略
 
 ```shell
-LRU/LFU/FIFO算法剔除: 例如maxmemory-policy,一致性最差,维护成本低
-超时剔除: 例如expire,一致性教差,维护成本低
-主动更新: 开发控制生命周期,一致性最强,维护成本高
+# LRU/LFU/FIFO算法剔除: 例如maxmemory-policy,一致性最差,维护成本低
+# 超时剔除: 例如expire,一致性教差,维护成本低
+# 主动更新: 开发控制生命周期,一致性最强,维护成本高
+
+# 假设最大内存使用量为2MB
+Congfig Set maxmemory 2mb
+# 当Redis使用的空间达到最大值时自动使用LRU算法删除某些不常用的Key对象
+Congfig Set maxmemory-policy allkeys- lru
 ```
 
 建议
