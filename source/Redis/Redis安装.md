@@ -105,3 +105,53 @@ auto-aof-rewirte-percentage 100
 
 aof-load-truncated yes
 ```
+
+## 推荐配置
+
+```shell
+# 守护进程方式启动
+daemonize yes
+
+# 端口
+port 6379
+
+# redis系统日志
+logfile "6379.log"
+
+# redis工作目录
+dir /usr/local/redis/data
+
+# 慢查询
+config set slowlog-max-len 1000
+config set slowlog-log-slower-than 1000
+
+
+# 关闭自动生成RDB文件
+# save 900 1
+# save 300 10
+# save 60 10000
+
+# RDB文件名称
+dbfilename dump-6379.rdb
+
+
+# 必须开启此项才能开启AOF
+appendonly yes
+
+# AOF文件名称
+appendfilename "appendonly_6379.aof"
+
+# AOF策略
+appendfsync everysec
+
+# 一般yes,开销没那么大
+no-appendfsync-on-rewrite yes
+
+# AOF文件重写需要的尺寸
+auto-aof-rewirte-min-size 64mb
+
+# AOF文件增长率
+auto-aof-rewirte-percentage 100
+
+aof-load-truncated yes
+```
