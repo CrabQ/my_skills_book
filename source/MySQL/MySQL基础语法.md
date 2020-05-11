@@ -102,7 +102,7 @@ insert into user values(1, '1', '1', '1@qq.com', 20);
 
 insert into user set id=102, username='2', password='2', email='2@qq.com';
 
-insert user(username, password, email) VALUEs('3','3', '3@qq.com'),
+insert user(username, password, email) VALUES('3','3', '3@qq.com'),
 ('4','4', '4@qq.com');
 
 -- 将查询结果插入到表中
@@ -112,6 +112,10 @@ create table test(
 );
 
 insert test select id, username from user;
+
+
+-- 插入数据，唯一键已存在则更新
+insert into _cs_disease_map(dis_id, gene_symbol) VALUES('2857', "A1BG")  on DUPLICATE key update source = CONCAT(source, ',abc');
 
 -- 更新数据
 update user set age=5;
@@ -236,6 +240,9 @@ select * from cms_user where username like '张%';
 -- 查询用户名为3位的用户
 select * from cms_user where username like '___';
 
+-- 去重
+select DISTINCT gene_symbol FROM _cs_disease_map;
+
 -- 向用户表中添加性别字段
 ALTER TABLE cms_user ADD sex ENUM('男','女','保密');
 UPDATE cms_user SET sex='男' WHERE id IN(1,3,5,7,9);
@@ -272,9 +279,7 @@ select id,sex,group_concat(username), count(*),
 max(age), min(age), avg(age), sum(age)
 from cms_user
 group by sex
-having count(*)>2 and max(age)>60
-;
-
+having count(*)>2 and max(age)>60;
 
 -- 查询编号大于等于4的用户
 select id,sex,group_concat(username), count(*),
@@ -298,7 +303,6 @@ select * from cms_user limit 5;
 select * from cms_user limit 2,5;
 
 -- 更新用户名为4位的用户，让其已有年龄-3
-
 update cms_user set age=age-3 where username like '____';
 
 -- 更新前3条记录，让已有年龄+10
@@ -306,7 +310,6 @@ update cms_user set age=age+10 limit 3;
 
 -- 按照id降序排列，更新前3条
 update cms_user set age=age+10 order by id desc limit 3;
-
 
 -- 内连接
 -- 查询cms_user表中id,username,email,sex
@@ -337,7 +340,6 @@ select u.id,u.username,u.email,u.sex, p.proname
 from cms_user as u
 right join provinces as p on
 p.id=u.proid;
-
 
 -- 创建部门表department(主表)
 CREATE TABLE IF NOT EXISTS department(
@@ -408,7 +410,6 @@ select username,score from student where score >=(select level from scholarship 
 
 -- 查询所有获得奖学金的学员
 select username,score from student where score >=any(select level from scholarship);
-
 select username,score from student where score >=some(select level from scholarship);
 
 -- 查询所有学员中获得一等奖学金的学员
@@ -449,12 +450,6 @@ update cms_user set email=concat('email_', email);
 
 -- TRIM
 SELECT CONCAT('_',TRIM(' ABC '),'_'),CONCAT('_',LTRIM(' ABC '),'_'),CONCAT('_',RTRIM(' ABC '),'_');
-
--- 插入数据，唯一键已存在则更新
-insert into _cs_disease_map(dis_id, gene_symbol) VALUES('2857', "A1BG")  on DUPLICATE key update source = CONCAT(source, ',abc');
-
--- 去重
-select DISTINCT gene_symbol FROM _cs_disease_map;
 ```
 
 ## 索引
@@ -520,6 +515,7 @@ set names 'utf8';
 -- 查看warning信息
 show warnings;
 
+-- 修改编码
 alter table cms_user character set 'utf8mb4';
 
 -- 查看会话变量
@@ -843,23 +839,6 @@ show table status like 'cms_user';
 show variables like '%part%';
 ```
 
-## 数据库备份与恢复
-
-```sql
--- 备份,复时无需指定数据库
-mysqldump -u bmnars -p  --databases gene_disease_all > gene_disease_all.sql
-
--- 恢复
-mysql -u bmnars -p < ./gene_disease_all.sql
-
--- 恢复时需要指定数据库
-mysqldump –u bmnars –p   gene_disease_all > gene_disease_all.sql
-
--- 恢复
-mysqladmin –u 用户名 –p create 数据库名     //创建数据库
-mysql -u root -p gene_disease_all < ./gene_disease_all.sql
-```
-
 ## 用户,权限管理
 
 ```sql
@@ -908,34 +887,16 @@ show collation
 show processlist;
 
 -- 表的索引情况
-show index from
+show index from tables;
 
 -- 模糊查询数据库某些状态
 SHOW STATUS LIKE '%lock%';
-
--- 查看部分配置信息
-SHOW variables LIKE '%lock%';
-   T
+;
 -- 查看支持的所有的存储引擎
-show engines
+show engines;
 
 -- 查看InnoDB引擎相关的状态信息
-show engine innodb status\G
-
--- 列举所有的二进制日志
-show binary logs
-
--- 查看数据库的日志位置信息
-show master status
-
--- 查看二进制日志事件
-show binlog evnets in
-
--- 查看从库状态
-show slave status \G
-
--- 查看从库relaylog事件信息
-SHOW RELAYLOG EVENTS
+show engine innodb status\G;
 ```
 
 ## 日期时间函数
@@ -990,7 +951,7 @@ date_format(receiving_time, '%Y-%m')
 ### 排名
 
 ```sql
--- 按各科成绩进行行排序,并显示排名,Score 重复时合并名次
+-- 按各科成绩进行行排序,并显示排名,Score重复时合并名次
 select *, dense_rank() over (partition by cid order by score desc) as 排名 from sc;
 -- row_number() 1 2 3 4
 -- dense_rank() 1 2 2 3
