@@ -452,6 +452,12 @@ update cms_user set email=concat('email_', email);
 SELECT CONCAT('_',TRIM(' ABC '),'_'),CONCAT('_',LTRIM(' ABC '),'_'),CONCAT('_',RTRIM(' ABC '),'_');
 ```
 
+### 字符串分割
+
+```sql
+select SUBSTRING_INDEX(image_true_path, 'dx') from img_overlap_result limit 10;
+```
+
 ## 索引
 
 ```sql
