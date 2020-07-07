@@ -23,14 +23,39 @@ EOF
 
 # 创建容器,设置端口映射,目录映射
 # 让容器的时钟与宿主机时钟同步
-# 开机启动
 docker run -id \
 --name=mysql_3306 \
+-p 3306:3306 \
 -v ~/my_docker/mysql/3306/config:/etc/mysql/conf.d \
 -v ~/my_docker/mysql/3306/data:/var/lib/mysql \
 -v /etc/localtime:/etc/localtime:ro \
 -e MYSQL_ROOT_PASSWORD=root \
 mysql:latest
+
+# 测试是否成功
+docker exec -it mysql_3306 mysql -uroot -p
+```
+
+## windows 10下MySQL部署
+
+```shell
+docker pull mysql
+
+# 创建MySQL目录用于储存MySQL数据信息
+D:\program\docker_data\mysql\3306\config
+D:\program\docker_data\mysql\3306\data
+# 添加配置文件
+# D:\program\docker_data\mysql\3306\config\my.cnf
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/run/mysqld/mysqld.sock
+log_error=/var/lib/mysql/mysql.log
+log_bin=/var/lib/mysql/mysql-bin
+port=3306
+server_id=1
+
+# 创建容器,设置端口映射,目录映射
+docker run -id --name=mysql_3306 -p 3306:3306 -v D:/program/docker_data/mysql/3306/config:/etc/mysql/conf.d -v D:/program/docker_data/mysql/3306/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root mysql:latest
 
 # 测试是否成功
 docker exec -it mysql_3306 mysql -uroot -p
