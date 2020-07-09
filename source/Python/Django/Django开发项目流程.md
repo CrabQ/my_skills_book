@@ -4,9 +4,13 @@
 
    ```python
    # 切换虚拟环境
-   workon django_1.8.2
+   conda activate first_pro
+   # 安装django
+   pip install django==2.2
    # 新建项目
-   django-admin startproject dailyfresh
+   django-admin startproject first_pro
+   # 测试是否成功启动
+   python manage.py runserver 127.0.0.1:8080
    ```
 
 2. 新建模板文件夹`templates`(与`manage.py`同级)
