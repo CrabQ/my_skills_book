@@ -232,6 +232,83 @@ from django.db.models import Avg,Max,Min,Sum,Count
 Author.objects.filter(name='小明').values('book__price').aggregate(a=Avg('book__price'), c=Count('book__price'), s=Sum('book__price'))
 ```
 
+## 分组
+
+```python
+# annotate
+
+# Publish.objects作为分组依据
+# Publish.objects.annotate(a = Avg('book__price')).values('name','a')
+
+# pub_id作为分组依据
+# Book.objects.values('pub_id').annotate(a=Avg('price')).values('pub_id','a')
+```
+
+## F查询和Q查询
+
+```python
+from django.db.models import F,Q
+
+# F  针对自己单表中字段的比较和处理
+Book.objects.filter(id__gt=F('pub_id'))
+Book.objects.all().update(price=F('price')+100)
+
+# Q    &  |  非~
+# &优先级高
+Book.objects.filter(Q(Q(id=4)|Q(id=6))&Q(price__gt=140))
+```
+
+## 执行原生sql
+
+```python
+Publish.objects.raw('select * from app1_publish;')
+# <RawQuerySet: select * from Publish>
+
+from django.db import connection
+cursor = connection.cursor()
+cursor.execute(sql,)
+cursor.fetchall()
+
+# 展示sql
+# connection.queries
+```
+
+## 事务和锁
+
+```python
+# django开启事务
+# 1. 全局开启(settings.py)
+DATABASES = {
+    'default': {
+            #全局开启事务，绑定的是http请求响应整个过程
+            "ATOMIC_REQUESTS": True,
+                }
+            }
+
+# 2. 局部使用事务
+# 2.1. 用法1
+from django.db import transaction
+
+@transaction.atomic
+def viewfunc(request):
+    do_stuff()
+
+# 2.2. 用法2
+from django.db import transaction
+
+def viewfunc(request):
+    do_stuff()
+
+    with transaction.atomic():   #保存点
+        do_more_stuff()
+
+    do_other_stuff()
+
+# 在事物里面加锁,直至事务结束
+# select * from t1 where id=1 for update;
+models.T1.objects.select_for_update().fitler(id=1)
+```
+
 ## 创建超级用户
 
 ```python
