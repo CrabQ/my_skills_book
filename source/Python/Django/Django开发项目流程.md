@@ -20,13 +20,13 @@
    'DIRS': [os.path.join(BASE_DIR, 'templates')],
    ```
 
-3. 修改模型数据库
+3. 修改配置文件
 
    ```python
    # 时区
    LANGUAGE_CODE = 'zh-Hans'
    TIME_ZONE = 'Asia/Shanghai'
-   # 修改settings.py中的DATABASES
+   # 数据库
    DATABASES = {
        'default': {
            'ENGINE': 'django.db.backends.mysql',
@@ -37,19 +37,12 @@
            'NAME': 'tiantian',
        }
    }
-   # mysql数据库操作
-   # 创建数据库
-   create database tiantian charset=utf8;
-   # 创建用户
-   create user tiantian@'%' identified by 'tiantian';
-   # 为用户授权数据库权限(8.0版本mysql)
-   GRANT ALL PRIVILEGES ON tiantian.* TO 'tiantian'@'%';
    ```
 
 4. 新建静态文件文件夹`static`(与`manage.py`同级)
 
    ```python
-   # 在settings.py中增加
+   # 在settings.py中增加静态文件夹路径
    STATICFILES_DIRS = [
        os.path.join(BASE_DIR, 'static')
    ]
@@ -75,7 +68,6 @@
        uaddress = models.CharField(max_length=100)
        uyoubian = models.CharField(max_length=6)
        uphone = models.CharField(max_length=11)
-
    ```
 
 7. 添加应用
@@ -131,7 +123,6 @@
     urlpatterns = [
         url(r'^register/$', views.register)
     ]
-
     ```
 
 12. 运行测试
