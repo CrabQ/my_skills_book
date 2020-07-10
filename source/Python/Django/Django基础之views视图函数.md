@@ -1,4 +1,4 @@
-# Django基础之_views视图函数
+# Django基础之views视图函数
 
 ## 请求相关的属性方法(request--HttpRequest对象)
 
