@@ -2,6 +2,41 @@
 
 Object Relational Mapping
 
+## 字段
+
+```python
+from django.db import models
+from multiselectfield import MultiSelectField
+
+sex_type = (('1', '男'), ('0', '女'))
+
+class Customer(models.Model):
+    """
+    客户表
+    """
+    qq = models.CharField(verbose_name='QQ', max_length=64, unique=True, help_text='QQ号必须唯一')
+    name = models.CharField('姓名', max_length=32, blank=True, null=True, help_text='学院报名后,请改为真实姓名!')
+    sex = models.CharField('性别', choices=sex_type, max_length=1, default='1', blank=True, null=True)
+    introduce_from = models.ForeignKey('self', verbose_name='转介绍自学员', blank=True, null=True, on_delete=models.CASCADE)
+    birthday = models.DateField('出生日期', default=None, help_text="格式yyyy-mm-dd", blank=True, null=True)
+    date = models.DateTimeField("咨询日期", auto_now_add=True)
+    consultant = models.ForeignKey('UserInfo', verbose_name='销售', related_name='customers', blank=True, null=True, on_delete=models.CASCADE)
+    class_list = models.ManyToManyField('ClassList', verbose_name='已报班级', blank=True, null=True)
+
+    class Meta:
+        # 排序
+        ordering = ['id', ]
+        # 后台显示名称
+        verbose_name = '客户信息表'
+        verbose_name_plural = '客户信息表'
+```
+
+### multiselectfield
+
+```python
+pip install django-multiselectfield
+```
+
 ## 配置MySQL
 
 ```python
