@@ -1,17 +1,15 @@
-# request_基础
-
-## requests
+# request
 
 > [开源地址](https://github.com/kennethreitz/requests)
 > [中文文档 API](http://docs.python-requests.org/zh_CN/latest/index.html)
-安装
+
+## 安装
 
 ```shell
 pip install requests
-
 ```
 
-基本GET请求
+## GET请求
 
 ```python
 import requests
@@ -37,18 +35,15 @@ print(response.url)
 print(response.encoding)
 #'utf-8'
 
+# 手动指定编码方式
+response.encoding = 'utf-8'
+
 # 查看响应码
 print(response.status_code)
 #200
-
 ```
 
->- 使用response.text 时，Requests 会基于 HTTP 响应的文本编码自动解码响应内容，\
-大多数  Unicode字符集都能被无缝地解码。
->- 使用response.content 时，返回的是服务器响应数据的原始二进制字节流，可以用\
-> 来保存图片等二进制文件。
-
-基本POST请求
+## POST请求
 
 ```python
 import requests
@@ -78,7 +73,7 @@ print(response.json())
 #{u'errorCode': 0, u'elapsedTime': 0, u'translateResult': [[{u'src': u'i love python', u'tgt': u'\u6211\u559c\u6b22python'}]], u'smartResult': {u'type': 1, u'entries': [u'', u'\u8086\u6587', u'\u9ad8\u5fb7\u7eb3']}, u'type': u'EN2ZH_CN'}
 ```
 
-代理
+## 代理
 
 ```python
 import requests
@@ -106,12 +101,11 @@ import requests
 auth=('test', '123456')
 
 response = requests.get('http://192.168.199.107', auth = auth)
-
-print(response.text)
-
 ```
 
-Cookies
+## Cookies与Session
+
+### Cookies
 
 ```python
 #import requests
@@ -132,43 +126,85 @@ print(cookiedict)
 
 ```
 
-Session
-在 requests 里，session对象是一个非常常用的对象，这个对象代表一次用户会话：从客户端浏览器连接服务器开始，到客户端浏览器与服务器断开。会话能让我们在跨请求时候保持某些参数，比如在同一个 Session 实例发出的所有请求之间保持 cookie 。
-
-实现人人网登录
+### Session
 
 ```python
+# 实现人人网登录
+
 import requests
 
 # 1. 创建session对象，可以保存Cookie值
 ssion = requests.session()
 
-# 2. 处理 headers
+# 2. 处理headers
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"}
 
 # 3. 需要登录的用户名和密码
-data = {"email":"mr_mao_hacker@163.com", "password":"alarmchime"}  
+data = {"email":"mr_mao_hacker@163.com", "password":"alarmchime"}
 
 # 4. 发送附带用户名和密码的请求，并获取登录后的Cookie值，保存在ssion里
 ssion.post("http://www.renren.com/PLogin.do", data = data)
 
 # 5. ssion包含用户登录后的Cookie值，可以直接访问那些登录后才可以访问的页面
 response = ssion.get("http://www.renren.com/410043129/profile")
-
-# 6. 打印响应内容
-print(response.text)
-
 ```
 
-处理HTTPS请求 SSL证书验证
+### session.headers.update
 
-Requests也可以为HTTPS请求验证SSL证书：
+session.headers.update(headers)无法对request.prepare()生效
 
-> 要想检查某个主机的SSL证书，你可以使用 verify 参数（也可以不写）
->
-> - 如果SSL证书验证不通过，或者不信任服务器的安全证书，则会报出SSLError，据说 12306 证书是自己做的：
+自定义一个微信request,继承Request,使用session.send处理之后获取响应内容，然而发现headers没有更新，代码如下
 
 ```python
+from requests import Request
+from requests import Session
+
+class WeixinRequest(Request):
+    def __init__(self, url, method='GET', headers=None, timeout=5):
+        super(WeixinRequest, self).__init__(method, url, headers)
+        self.timeout = timeout
+
+if __name__ == '__main__':
+    session = Session()
+    headers ={
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
+    }
+    url = 'https://www.baidu.com'
+    weixin = WeixinRequest(url=url)
+    print(session.headers)
+    session.headers.update(headers)
+    print(session.headers)
+    response = session.send(weixin.prepare())
+    print(response.request.headers)
+
+# 未update前的Session()自带headers
+{'User-Agent': 'python-requests/2.21.0', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+# update后的headers
+{'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+# session.send(weixin.prepare())获取的headers
+{}
+```
+
+要用`Session.prepare_request()`取代 `Request.prepare()`
+
+> 参考: [prepared-request](https://requests.readthedocs.io/en/master/user/advanced/#prepared-requests)
+
+```python
+# response = session.send(weixin.prepare())
+response = session.send(session.prepare_request(weixin))
+
+{'User-Agent': 'python-requests/2.21.0', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+{'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+{'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+```
+
+## SSL证书验证
+
+Requests也可以为HTTPS请求验证SSL证书
+
+```python
+# 12306需要证书验证
+
 import requests
 response = requests.get("https://www.12306.cn/mormhweb/")
 print(response.text)
@@ -178,5 +214,4 @@ SSLError: ("bad handshake: Error([('SSL routines', 'ssl3_get_server_certificate'
 
 #如果我们想跳过 12306 的证书验证，把 verify 设置为 False 就可以正常请求了。
 r = requests.get("https://www.12306.cn/mormhweb/", verify = False)
-
 ```
