@@ -90,7 +90,7 @@ print response.text
 # 如果代理需要使用HTTP Basic Auth，可以使用下面这种格式：
 proxy = { "http": "mr_mao_hacker:sffqry9r@61.158.163.130:16816" }
 
-response = requests.get("http://www.baidu.com", proxies = proxy)
+response = requests.get("http://www.baidu.com", proxies=proxy)
 
 print(response.text)
 
@@ -100,7 +100,7 @@ import requests
 
 auth=('test', '123456')
 
-response = requests.get('http://192.168.199.107', auth = auth)
+response = requests.get('http://192.168.199.107', auth=auth)
 ```
 
 ## Cookies与Session
