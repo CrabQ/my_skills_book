@@ -674,11 +674,11 @@ vim /etc/hostname
 ```shell
 # -h 可读方式查看
 # -s 递归
-[root@izbp128jigdcjx00os4h3sz mysql]# du -sh
+du -sh
 211M    .
 
 # 查看当前目录下所有子文件夹排序后的大小
-[root@izbp128jigdcjx00os4h3sz mysql]# du -sh `ls` | sort
+du -sh `ls` | sort
 211M    data
 4.0K    logs
 8.0K    config
@@ -806,8 +806,9 @@ scp localpath ID@host:path
 scp -rp ./testc root@121.196.202.188:/tmp
 
 # 以ssh协议,遍历下载path路径下的整个文件系统,到本地的localpath
-scp -r ID@site:path localpath
-scp -rp root@121.196.202.188:/tmp/test .
+# scp -r ID@site:path localpath
+# 相同文件会覆盖
+scp -rp cnda@192.168.9.122:/home/cnda/new /home/cnda/12new
 ```
 
 ### rsync: 文件同步工具
@@ -992,6 +993,9 @@ umount /mnt
 # -h 人性化显示
 # -i 显示文件提醒的inode信息
 df -h
+
+# 文件系统的inode数限制
+df -i
 ```
 
 ### mkswap: 创建交换分区
