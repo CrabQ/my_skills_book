@@ -5,3 +5,5 @@ build/*
 *.pyc
 
 test.py
+
+*.csv
