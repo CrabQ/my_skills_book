@@ -1,5 +1,7 @@
 # git学习笔记
+
 > [廖雪峰的Git教程](https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000)
+
 ## 基础
 
 ```python
@@ -78,16 +80,19 @@ git stash pop
 git stash apply stash@{0}
 
 ```
+
 ## 分支
+
 > 合并dev分支，--no-ff参数，表示禁用Fast forward，简单地说就是 -no-ff 模式进行了一次新的 git commit 操作。合并分支时，加上--no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并。而fast forward合并就看不出来曾经做过合并，它是直接把 master 的指针直接指向了 dev 分支的最新提交。
+
 ```python
-# 查看当前分支 
+# 查看当前分支
 git branch
 
-# 新建分支dev 
+# 新建分支dev
 git branch dev
 
-# 切换到dev分支 
+# 切换到dev分支
 git checkout dev
 
 # 新建分支dev并切换当前分支为dev
@@ -99,7 +104,7 @@ git merge dev
 # 使用普通模式合并dev分支
 git merge --no-ff -m "merge with no-ff" dev
 
-# 删除dev分支 
+# 删除dev分支
 git branch -d dev
 
 # 强制删除dev分支
@@ -120,7 +125,9 @@ git branch --set-upstream-to=origin/dev dev
 ```
 
 ## 标签
+
 > 创建的标签都只存储在本地，不会自动推送到远程
+
 ```python
 # 新建标签v1.0,默认为HEAD,也可以指定一个commit id
 git tag v1.0
@@ -151,27 +158,34 @@ git push origin :refs/tags/v1.5
 ```
 
 ## 忽略文件
-> 忽略某些文件时，在Git工作区的根目录下创建一个特殊的`.gitignore`文件，`.gitignore`文件本身要放到版本库里，并且可以对.gitignore做版本管理！
 
-```python
-# 忽略所有` .a `结尾的文件
+```shell
+# 忽略某些文件,创建.gitignore，
+# .gitignore文件放到版本库做版本管理
+
+# 忽略所有.a结尾的文件
 *.a
 
-# 但` lib.a `除外
+# 但 lib.a 除外
 !lib.a
 
-# 仅仅忽略项目根目录下的 `TODO `文件,不包括 `subdir/TODO`
+# 仅仅忽略项目根目录下的 TODO 文件,不包括 subdir/TODO
 /TODO
 
-#忽略 `build/ `目录下的所有文件
+#忽略 build/ 目录下的所有文件
 build/
 
-#会忽略` doc/notes.txt `但不包括` doc/server/arch.txt`
+#会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
 doc/*.txt
 
+# 忽略任何目录结构下的.ipynb_checkpoints文件夹
+**/.ipynb_checkpoints/
 ```
 
-.gitignore只能忽略那些原来没有被track的文件，如果某些文件已经被纳入了版本管理中，则修改.gitignore是无效的。那么解决方法就是先把本地缓存删除（改变成未track状态），然后再提交：
+.gitignore只能忽略原来没有被track的文件,如果文件已纳入版本管理,修改.gitignore无效.
+
+解决方法: 先把本地缓存删除(改变成未track状态),然后再提交
+
 ``` git
 git rm -r --cached test/
 

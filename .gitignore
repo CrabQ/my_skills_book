@@ -7,3 +7,5 @@ build/*
 test.py
 
 *.csv
+
+**/.ipynb_checkpoints/
