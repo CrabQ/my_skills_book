@@ -90,7 +90,7 @@ docker ps -a
 docker inspect 容器名称
 
 # 查看容器输出信息
-docker 容器名称 logs
+docker logs 容器名称
 
 # 退出容器不关闭,在容器中打开新的终端, 并且可以启动新的进程
 docker exec -it c1 /bin/bash
