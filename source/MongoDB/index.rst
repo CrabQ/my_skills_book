@@ -1,10 +1,10 @@
-Mongodb
+MongoDB
 ==========
 
 .. toctree::
    :maxdepth: 2
    :glob:
 
-   Mongodb安装
-   Mongodb实例
+   MongoDB安装
+   MongoDB基础
    pymongo实例

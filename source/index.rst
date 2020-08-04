@@ -14,7 +14,7 @@ Welcome to my_skills_book's documentation!
    Python/index
    MySQL/index
    Redis/index
-   databases/index
+   MongoDB/index
    Docker/index
    Git/index
    Linux/index

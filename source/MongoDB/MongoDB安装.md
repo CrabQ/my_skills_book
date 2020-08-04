@@ -1,7 +1,10 @@
-# win 10安装Mongodb
+# 安装MongoDB
+
+## win 10安装MongoDB
 
 下载
->  [mongodb](https://www.mongodb.com/download-center/community)
+
+> [mongodb](https://www.mongodb.com/download-center/community)
 
 ```shell
 # 安装路径
@@ -31,3 +34,5 @@ pip3 install pymongo
 
 安装robomongo(navicat12也可以链接MongoDB)
 > [robomongo](https://robomongo.org/download)
+
+## docker安装

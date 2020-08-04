@@ -94,15 +94,16 @@ count = collection.find({'age': 20}).count()
 排序
 
 ```python
-#  pymongo.ASCENDING 指定升序，如果要降序排列可以传入 pymongo.DESCENDING。
+# pymongo.ASCENDING 指定升序，如果要降序排列可以传入 pymongo.DESCENDING。
 results = collection.find().sort('name', pymongo.ASCENDING)
 ```
 
 偏移
 
 ```python
-# 忽略前 2 个元素，得到第三个及以后的元素
+# 忽略前2个元素，得到第三个及以后的元素
 results = collection.find().sort('name', pymongo.ASCENDING).skip(2)
+
 # 指定要取的结果个数
 results = collection.find().sort('name', pymongo.ASCENDING).skip(2).limit(2)
 ```
@@ -110,7 +111,7 @@ results = collection.find().sort('name', pymongo.ASCENDING).skip(2).limit(2)
 更新
 
 ```python
-# 将 name 为 Kevin 的数据的年龄进行更新，首先指定查询条件，然后将数据查询出来，修改年龄
+# 将name为Kevin的数据的年龄进行更新
 
 # 单个
 condition = {'name': 'Kevin'}
@@ -139,6 +140,7 @@ print(result.matched_count, result.modified_count)
 result = collection.delete_one({'name': 'Kevin'})
 print(result)
 print(result.deleted_count)
+
 result = collection.delete_many({'age': {'$lt': 25}})
 print(result.deleted_count)
 
