@@ -332,3 +332,15 @@ docker run -id --name=tornado_py3.6 -v C:\Users\CRAB\Desktop\my_docker\learn_tor
 ```shell
 docker run --name stnginx -p 9000:80 -v  C:\Users\CRAB\Desktop\my_docker\docker_data\stnginx\nginx.conf:/etc/nginx/nginx.conf:ro -d nginx
 ```
+
+## windows 10下MongoDB部署
+
+```shell
+docker pull mongo
+
+# 创建容器,设置端口映射,目录映射
+docker run --name=mongo_27017 -p 27017:27017  -id mongo:latest
+
+# 测试是否成功
+docker exec -it mongo_27017 mongo
+```
