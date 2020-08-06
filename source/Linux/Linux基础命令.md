@@ -751,10 +751,10 @@ updatedb
 # -h 打包软连接文件指向的真实源文件
 
 # 打包
-tar -zcvf test.tar.gz ./test/
+tar -zcf new.tar.gz ./new/
 
 # 解包
-tar -zxvf redis-5.0.7.tar.gz
+tar -zxvf new.tar.gz
 ```
 
 ### gzip: 压缩或解压文件
