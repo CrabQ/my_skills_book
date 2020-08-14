@@ -344,3 +344,9 @@ docker run --name=mongo_27017 -p 27017:27017  -id mongo:latest
 # 测试是否成功
 docker exec -it mongo_27017 mongo
 ```
+
+## windows 10下elasticsearch部署
+
+```shell
+docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.8.11
+```

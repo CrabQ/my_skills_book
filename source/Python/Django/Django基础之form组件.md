@@ -74,6 +74,17 @@ class LoginForm(forms.Form):
 widget=forms.widgets.TextInput(attrs={'class':'form-control'}),
 ```
 
+### 批量添加标签样式
+
+```python
+class LoginForm(forms.Form):
+    # 批量添加标签样式
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class':'form-control'})
+```
+
 ## 校验用户提交的数据合法性
 
 ```python
@@ -105,6 +116,43 @@ html写法
 </form>
 ```
 
+### RegexValidator验证器
+
+```python
+from django.forms import Form
+from django.forms import widgets
+from django.forms import fields
+from django.core.validators import RegexValidator
+
+class MyForm(Form):
+    user = fields.CharField(
+        validators=[RegexValidator(r'^[0-9]+$', '请输入数字'), RegexValidator(r'^159[0-9]+$', '数字必须以159开头')],
+    )
+```
+
+### 自定义验证函数
+
+```python
+
+import re
+from django.forms import Form
+from django.forms import widgets
+from django.forms import fields
+from django.core.exceptions import ValidationError
+
+
+# 自定义验证规则
+def mobile_validate(value):
+    mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+    if not mobile_re.match(value):
+        raise ValidationError('手机号码格式错误')
+
+class PublishForm(Form):
+
+    # 使用自定义验证规则
+    phone = fields.CharField(validators=[mobile_validate, ], )
+```
+
 ### 局部钩子和全局钩子
 
 ```python
@@ -131,7 +179,9 @@ class LoginForm(forms.Form):
             raise ValidationError('两次输入的密码不一致！')
 ```
 
-## modelform
+## ModelForm
+
+Django 提供一个辅助类来让我们可以从Django的模型创建Form, 这就是ModelForm
 
 ```python
 from django.core.exceptions import ValidationError
@@ -148,7 +198,8 @@ class BookModelForm(forms.ModelForm):
         fields='__all__'
         # 排除
         exclude = ['title','xx',]
-
+        # 帮助提示信息
+        # help_texts = None
         labels = {
             'title':'书名',
             'publishDate':'出版日期',
@@ -169,10 +220,26 @@ class BookModelForm(forms.ModelForm):
     # 全局钩子
     # def clean(self):
     #     ...
+```
 
-    # 批量添加标签样式
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class':'form-control'})
+### 使用ModelForm创建对象
+
+```python
+>>> from myapp.models import Book
+>>> from myapp.forms import BookForm
+
+# 根据POST数据创建一个新的form对象
+>>> form_obj = BookForm(request.POST)
+
+# 创建书籍对象
+>>> new_ book = form_obj.save()
+```
+
+### 使用ModelForm更新数据
+
+```python
+>>> edit_obj = Book.objects.get(id=1)
+# 基于一个书籍对象创建form对象, 使用POST提交的数据更新书籍对象
+>>> form_obj = BookForm(request.POST, instance=edit_obj)
+>>> form_obj.save()
 ```

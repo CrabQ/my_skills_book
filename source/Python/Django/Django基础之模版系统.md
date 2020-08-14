@@ -7,6 +7,8 @@
 ## 过滤器
 
 ```python
+# 注意: |左右没有空格
+
 # 获取数据长度
 <p>{{ name_list|length }}</p>
 
@@ -36,6 +38,10 @@
 
 # 将字符串识别成标签
 <p>{{ tag|safe }}</p>
+
+# 转义过滤
+from django.utils.satestring import mark_safe
+mark_safe('<h1>hi</h1>')
 ```
 
 标签
@@ -102,14 +108,14 @@ from django import template
 
 register = template.Library()
 
-@register.filter
+@register.filter(name='add_u')
 # 最多两个参数
 def add_underline(v1, v2):
     return v1+v2
 
 # 模板使用,数据加上__
     {% load add_info %}
-    <p>{{ data|add_underline:'__' }}</p>
+    <p>{{ data|add_u:'__' }}</p>
 ```
 
 ## 自定义标签
@@ -123,14 +129,14 @@ from django import template
 
 register = template.Library()
 
-@register.simple_tag
 # 任意参数
+@register.simple_tag(name='add_w')
 def add_word(v1, v2, v3):
     return v1+v2+v3
 
 # 模板使用,数据加上
     {% load add_info %}
-    <p>{% add_word data '__' '++' %}</p>
+    <p>{% add_w data '__' '++' %}</p>
 ```
 
 ## inclusion_tag

@@ -1,6 +1,6 @@
 # Django基础之ajax
 
-## html代码
+## 设置csrf_token两种方式
 
 ```html
 <script>
@@ -93,4 +93,18 @@ def login(request):
     })
 
 </script>
+```
+
+## CSRF Token相关装饰器
+
+```python
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.utils.decorators import method_decorator
+
+# 在CBV上
+# csrf_protect 三种方式都可以
+# csrf_exempt 只能加给dispatch方法
+@method_decorator(csrf_exempt)
+def dispatch(self, request, *args, **kwargs):
+    pass
 ```
