@@ -601,6 +601,29 @@ OneToOneField
 通常一对一字段用来扩展已有字段. (简单的信息一张表, 隐私的信息另一张表, 之间通过一对一外键关联)
 ```
 
+多对多三种方式
+
+```python
+# 有三种多对多方式
+# 1. 全自动, 使用orm, 让django自动创建第三张表, 无法扩展
+class Article(models.Model):
+    tags = models.ManyToManyField(to='Tag',)
+
+# 2. 纯手动, 自己创建第三张表, 不能使用orm提供的add remove clear set, 正反向查询方法
+
+# 3. 半自动, 可使用正反向查询方法, 不能使用orm提供的add remove clear set
+class Article(models.Model):
+    tags = models.ManyToManyField(to='Tag', through='Article2Tag', through_fields=('article', 'tag'))
+
+class Tag(models.Model):
+    name = models.CharField(verbose_name='文章标签', max_length=32)
+    blog = models.ForeignKey('Blog', on_delete=models.CASCADE, null=True)
+
+class Article2Tag(models.Model):
+    article = models.ForeignKey('Article', on_delete=models.CASCADE)
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
+```
+
 ## Django终端打印SQL语句
 
 ```python
