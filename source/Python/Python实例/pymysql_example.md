@@ -21,9 +21,13 @@ sql = 'INSERT INTO {table}({keys}) VALUES ({values}) ON DUPLICATE KEY UPDATE'.fo
 update = ','.join([" {key} = %s".format(key=key) for key in data])
 sql += update
 try:
+    cursor.execute(sql, tuple(data.values())*2):
+    db.commit()
+    # 如下写法, 可能不会return, 使用发现正常插入数据, execute返回值会为0, 尚未找到答案
+    # db.insert_id() 也是, 即使在db.commit()之前获取, 也可能是0, 尚未找到答案
     if cursor.execute(sql, tuple(data.values())*2):
-        print('Successful')
         db.commit()
+        return kw
 except:
     print('Failed')
     db.rollback()
