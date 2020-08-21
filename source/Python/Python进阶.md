@@ -322,3 +322,20 @@ asyncio内置库,async/await原生协程支持异步编程
 一些内置库的修改. urllib, selector等
 性能优化等
 ```
+
+### 父类指定子类继承后一定要实现的方法(定义抽象方法)
+
+```python
+from abc import ABCMeta, abstractmethod
+
+
+class A(metaclass=ABCMeta):
+    @abstractmethod
+    def b(self]):
+        pass
+
+
+class B(A):
+    def b(self]):
+        pass
+```
