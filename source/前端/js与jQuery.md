@@ -378,3 +378,22 @@ $(function(){
 
 // 直接写在body最下方
 ```
+
+动态展示用户上传的头像
+
+```js
+<script>
+    $('#myfile').change(function () {
+        // 先生成一个文件阅读器对象
+        let myFileReaderObj = new FileReader();
+        // 获取用户上传的头像
+        let fileObj = $(this)[0].files[0];
+        // 文件阅读器对象读取文件
+        myFileReaderObj.readAsDataURL(fileObj) // 异步IO操作
+        // 等待文件阅读器对象加载完毕之后展示
+        myFileReaderObj.onload = function () {
+            $('#myimg').attr('src', myFileReaderObj.result)
+        }
+    })
+</script>
+```
