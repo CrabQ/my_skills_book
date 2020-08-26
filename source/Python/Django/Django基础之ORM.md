@@ -661,3 +661,11 @@ def ser(request):
 
     return HttpResponse(ret)
 ```
+
+## orm查询月份
+
+```python
+from django.db.models.functions import TruncMonth
+
+Sales.objects.annotate(month=TruncMonth('timestamp')).values('month').annotate(c=Count('id')).values('month', 'c')
+```
