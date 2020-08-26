@@ -397,3 +397,36 @@ $(function(){
     })
 </script>
 ```
+
+## ajax
+
+ajax 传输文件数据
+
+```js
+    $('#id_commit').click(function () {
+        let formDataObj = new FormData();
+        $.each($('#myform').serializeArray(), function (index, obj) {
+            formDataObj.append(obj.name, obj.value)
+        });
+        formDataObj.append('avatar', $('#myfile')[0].files[0]);
+        $.ajax({
+            url: '',
+            type: 'post',
+            data: formDataObj,
+
+            // 有文件时需要制定两个参数
+            contentType: false,
+            processData: false,
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = args.url
+                } else {
+                    $.each(args.msg, function (index, obj) {
+                        let targetId = '#id_' + index;
+                        $(targetId).next().text(obj[0]).parent().addClass('has-error');
+                    })
+                }
+            }
+        });
+    })
+```
