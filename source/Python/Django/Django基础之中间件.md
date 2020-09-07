@@ -27,7 +27,7 @@ process_request(self,request)
 # 返回值是None交给下一个中间件处理, 如果是HttpResponse对象, Django将相应对象返回给浏览器, 不继续往下执行
 
 process_view(self, request, view_func, view_args, view_kwargs)
-# 中间件列表倒序执行
+# 中间件列表顺序执行
 # view_func是Django即将使用的视图函数. 它是实际的函数对象, 而不是函数的名称作为字符串
 # process_view方法是在Django路由系统之后, 视图系统之前执行的
 # 所有中间件的process_request执行完毕之后 -> process_view
