@@ -37,6 +37,14 @@ class Customer(models.Model):
 pip install django-multiselectfield
 ```
 
+### Meta
+
+```python
+class Meta:
+    # 抽象表, 不在数据库建立表
+    abstract = True
+```
+
 ## 配置MySQL
 
 ```python

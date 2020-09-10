@@ -41,7 +41,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # 方法2
 from django.views.static import serve
 from django.urls import  re_path
-from BBS import settings
+from django.conf import settings
 
 urlpatterns = [
     re_path(r'^media/(?P<path>.*)', serve, {'document_root':settings.MEDIA_ROOT}),

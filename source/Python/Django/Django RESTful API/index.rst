@@ -7,6 +7,8 @@ Django RESTful API
 
    RESTful API设计指南
    Django Rest_Framework
+   jwt
+   drf_jwt
 
 
 

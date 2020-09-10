@@ -639,6 +639,9 @@ ListModelMixin、RetrieveModelMixin、CreateModelMixin、UpdateModelMixin、Dest
 #### 视图集中定义附加action动作
 
 ```python
+# {"get": "list", "post": "create"}
+# {"get": "retrieve","put":"update","delete":"destroy"}
+
 # urls.py
     path('books/', views.BookViewSet.as_view({"get": "login"}), ),
 
@@ -652,6 +655,48 @@ class BookViewSet(GenericViewSet, ListModelMixin):
         pass
 ```
 
+## 路由组件
+
+```shell
+对于视图集ViewSet, 除了可以自己手动指明请求方式与动作action之间的对应关系外
+还可以使用Routers来帮助我们快速实现路由信息
+
+REST framework提供了两个router
+SimpleRouter
+DefaultRouter
+
+DefaultRouter会多附带一个默认的API根视图
+返回一个包含所有列表视图的超链接响应数据
+```
+
+```python
+# urls.py
+from django.urls import path
+from rest_framework import routers
+from app01 import views
+
+# router对象, 注册视图集
+router = routers.SimpleRouter()
+# prefix 该视图集的路由前缀  viewset 视图集  basename 路由别名的前缀
+router.register('books', views.BookViewSet, basename='book')
+
+urlpatterns = [
+    # path('books/', views.BookViewSet.as_view({"get": "list", "post": "create"}), ),
+    # path('books/', views.BookView.as_view(), ),
+    # path('books/<int:pk>/', views.BookDetailView.as_view(), )
+]
+
+
+# 添加路由数据
+urlpatterns += router.urls
+
+
+# 自动生成路由地址[增/删/改/查一条/查多条的功能]
+# 不会自动生成在视图集自定义方法的路由, 需要进行action动作的声明
+```
+
+### 视图集中附加action的声明
+
 ```python
 from rest_framework.decorators import action
 
@@ -663,11 +708,458 @@ class BookView(ListModelMixin, CreateModelMixin, GenericAPIView):
     queryset = models.Book.objects.all()
     serializer_class = BookSerializer
 
-    # action装饰器, 生成对应路由, detail=False,生成的路由是否带ID
+    # action装饰器, 生成对应路由
+    # detail=True 表示路径格式是xxx/<pk>/action方法名/
+    # False 表示路径格式是xxx/action方法名/
     @action(["get", "post"], detail=False)
     def get_1(self, request):
         return self.list(request)
 
     def post(self, request):
         return self.create(request)
+```
+
+## 认证权限频率
+
+### 认证Authentication
+
+```python
+# 1. 编写自定义认证类, 继承BaseAuthentication, 重写authenticate
+from rest_framework.authentication import BaseAuthentication
+
+class TokenAuth(BaseAuthentication):
+    def authenticate(self, request):
+        pass
+
+# 2. 视图函数导入认证类使用或者全局使用
+# 局部禁用 authentication_classes = []
+
+# settings.py
+# 全局使用
+REST_FRAMEWORK={
+    "DEFAULT_AUTHENTICATION_CLASSES":["app01.app_auth.TokenAuth",]
+}
+
+# 局部使用
+# 视图函数在视图类中添加
+authentication_classes = [TokenAuth, ]
+
+# 认证失败会有两种可能的返回值
+# 401 Unauthorized 未认证
+# 403 Permission Denied 权限被禁止
+```
+
+实例
+
+```python
+# 修改模型, 添加用户
+# app01/models.py
+class User(models.Model):
+    username=models.CharField(max_length=32)
+    password=models.CharField(max_length=32)
+    user_type=models.IntegerField(choices=((1,'超级用户'),(2,'普通用户'),(3,'二笔用户')))
+
+class UserToken(models.Model):
+    user=models.OneToOneField(to='User')
+    token=models.CharField(max_length=64)
+
+
+# 1. 编写自定义认证类 app01/app_auth.py
+from rest_framework.authentication import BaseAuthentication
+
+class TokenAuth(BaseAuthentication):
+    def authenticate(self, request):
+    # 认证逻辑: 认证通过则返回两个值
+    # 失败则抛出AuthenticationFailed异常
+        token = request.GET.get('token')
+        # 用户登录时生成token, 存入数据库, 同时返回给用户, 让用户携带token访问资源
+        token_obj = models.UserToken.objects.filter(token=token).first()
+        if token_obj:
+            return token_obj.user, token
+        else:
+            raise AuthenticationFailed('认证失败')
+
+
+# 2. 视图函数导入认证类使用
+from app_auth import TokenAuth
+
+class Course(APIView):
+    authentication_classes = [TokenAuth, ]
+```
+
+#### 内置认证方案(需要配合权限使用)
+
+```python
+# 开启SessionAuthentication可用内置权限认证
+class Course(APIView):
+    authentication_classes = [SessionAuthentication, ]
+    permission_classes = [IsAdminUser,]
+
+# settings.py
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # session认证
+        'rest_framework.authentication.BasicAuthentication',   # 基本认证
+    )
+}
+```
+
+### 权限Permissions
+
+```Python
+# 权限在认证之后, 基本和认证差不多
+
+# 权限控制可以限制用户对于视图的访问和对于具体数据对象的访问
+# 在执行视图的dispatch()方法前会先进行视图访问权限的判断
+# 在通过get_object()获取具体对象时会进行模型对象访问权限的判断
+
+# 全局使用
+REST_FRAMEWORK={
+    "DEFAULT_AUTHENTICATION_CLASSES":["app01.service.auth.Authentication",],
+    "DEFAULT_PERMISSION_CLASSES":["app01.service.permissions.SVIPPermission",]
+}
+
+# 局部使用
+# 视图函数在视图类中添加
+permission_classes = [UserPermission,]
+
+# 自定义权限需继承rest_framework.permissions.BasePermission父类并实现以下两个任何一个方法或全部
+# has_permission(self, request, view)
+#   是否可以访问视图， view表示当前视图对象
+
+# has_object_permission(self, request, view, obj)
+#   是否可以访问数据对象， view表示当前视图， obj为数据对象
+```
+
+实例
+
+```python
+# 限制只有超级用户能访问
+from rest_framework.permissions import BasePermission
+class UserPermission(BasePermission):
+    message = '不是超级用户，查看不了'
+    def has_permission(self, request, view):
+        user_type = request.user.user_type
+        if user_type == 1:
+            return True
+        else:
+            return False
+```
+
+#### 内置权限
+
+```python
+from rest_framework.permissions import AllowAny,IsAuthenticated,IsAdminUser,IsAuthenticatedOrReadOnly
+# AllowAny 允许所有用户
+# IsAuthenticated 仅通过认证的用户
+# IsAdminUser 仅管理员用户
+# IsAuthenticatedOrReadOnly 已经登陆认证的用户可以对数据进行增删改操作,没有登陆认证的只能查看数据
+
+# 全局配置
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+# 未配置则采用AllowAny
+```
+
+### 限流Throttling
+
+```python
+# 全局使用
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES':['app01.utils.MyThrottles',],
+}
+
+# 局部使用
+# 视图函数在视图类中添加
+throttle_classes = [MyThrottles,]
+```
+
+#### 内置频率类
+
+```python
+#写一个类，继承自SimpleRateThrottle（根据ip限制）
+from rest_framework.throttling import SimpleRateThrottle
+class VisitThrottle(SimpleRateThrottle):
+    scope = 'luffy'
+    def get_cache_key(self, request, view):
+        return self.get_ident(request)
+#在setting里配置：（一分钟访问三次）
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES':{
+        'luffy':'3/m'  # key要跟类中的scop对应
+    }
+}
+
+
+# 根据用户ip限制
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '3/m',
+    }
+}
+# 使用 `second`, `minute`, `hour` 或`day`来指明周期
+# 可以全局使用, 局部使用
+
+# 限制匿名用户每分钟访问3次
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '3/m',
+    }
+}
+
+# 限制登陆用户每分钟访问10次
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '10/m'
+    }
+}
+```
+
+## 过滤Filtering
+
+安装
+
+```shell
+pip install django-filter
+```
+
+配置
+
+```python
+INSTALLED_APPS = [
+    'django_filters',  # 需要注册应用，
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
+
+
+# 视图中添加filter_fields属性, 指定过滤字段
+# 需要是继承GenericAPIView的视图函数
+class StudentListView(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    filter_fields = ('age', 'sex')
+# 127.0.0.1:8000/four/students/?sex=1
+```
+
+## 排序
+
+```python
+from django_filters.rest_framework import DjangoFilterBackend
+
+class StudentListView(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentModelSerializer
+    filter_backends = [OrderingFilter]
+    # 如果同时需要过滤和排序, 先过滤再排序
+    # filter_backends = [OrderingFilter,DjangoFilterBackend]
+
+    ordering_fields = ('id', 'age')
+
+# 127.0.0.1:8000/books/?ordering=-age
+# -id 表示针对id字段进行倒序排序
+# id  表示针对id字段进行升序排序
+```
+
+## 自定义异常处理
+
+```python
+from rest_framework.views import exception_handler
+
+# 1. 自定义异常处理函数
+def custom_exception_handler(exc, context):
+    # 先调用REST framework默认的异常处理方法获得标准错误响应对象
+    response = exception_handler(exc, context)
+
+    # 在此处补充自定义的异常处理
+    if response is None:
+        if isinstance(exc, DatabaseError):
+            response = Response({'detail': '服务器内部错误'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+        else:
+            response = Response({'detail': '未知错误'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return response
+
+# 2. 声明
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'my_project.my_app.utils.custom_exception_handler'
+}
+```
+
+## 分页
+
+```python
+# 全局分页
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':  'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100  # 每页数目
+}
+
+# 局部分页
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+class BookDetailView(RetrieveAPIView):
+    queryset = BookInfo.objects.all()
+    serializer_class = BookInfoSerializer
+    pagination_class = LargeResultsSetPagination
+
+# 局部禁用
+pagination_class = None
+```
+
+### PageNumberPagination
+
+```shell
+GET  http://127.0.0.1:8000/students/?page=4
+
+page_size               每页数目
+page_query_param        前端发送的页数关键字名, 默认为 page
+page_size_query_param   前端发送的每页数目关键字名，默认为None
+max_page_size           前端最多能设置的每页数量
+```
+
+```python
+# APIView
+from rest_framework.pagination import PageNumberPagination
+class  Pager(APIView):
+    def get(self,request,*args,**kwargs):
+        # 获取所有数据
+        ret=models.Book.objects.all()
+        # 创建分页对象
+        page=PageNumberPagination()
+        # 在数据库中获取分页的数据
+        page_list=page.paginate_queryset(ret,request,view=self)
+        # 对分页进行序列化
+        ser=BookSerializer1(instance=page_list,many=True)
+        return Response(ser.data)
+
+
+#ListAPIView
+# 127.0.0.1/four/students/?p=1&size=5
+
+# 声明分页的配置类
+from rest_framework.pagination import PageNumberPagination
+
+class StandardPageNumberPagination(PageNumberPagination):
+    # 默认每一页显示的数据量
+    page_size = 2
+    # 允许客户端通过get参数来控制每一页的数据量
+    page_size_query_param = "size"
+    max_page_size = 10
+    # 自定义页码的参数名
+    page_query_param = "p"
+
+class StudentAPIView(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentModelSerializer
+    pagination_class = StandardPageNumberPagination
+```
+
+### LimitOffsetPagination
+
+```shell
+GET http://127.0.0.1/four/students/?limit=100&offset=400
+
+default_limit       默认限制, 默认值与PAGE_SIZE设置一致
+limit_query_param   limit参数名, 默认 limit
+offset_query_param  offset参数名, 默认 offset
+max_limit           最大limit限制, 默认None
+```
+
+```python
+# http://127.0.0.1:8000/pager/?offset=4&limit=3
+
+# APIView
+from rest_framework.pagination import LimitOffsetPagination
+
+class  Pager(APIView):
+    def get(self,request,*args,**kwargs):
+        # 获取所有数据
+        ret=models.Book.objects.all()
+        # 创建分页对象
+        page=LimitOffsetPagination()
+        # 在数据库中获取分页的数据
+        page_list=page.paginate_queryset(ret,request,view=self)
+        # 对分页进行序列化
+        ser=BookSerializer1(instance=page_list,many=True)
+        # return page.get_paginated_response(ser.data)
+        return Response(ser.data)
+
+
+#ListAPIView
+from rest_framework.pagination import LimitOffsetPagination
+
+class StandardLimitOffsetPagination(LimitOffsetPagination):
+    # 默认每一页查询的数据量,类似上面的page_size
+    default_limit = 2
+    limit_query_param = "size"
+    offset_query_param = "start"
+
+class StudentAPIView(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentModelSerializer
+    # 调用页码分页类
+    # pagination_class = StandardPageNumberPagination
+    # 调用查询偏移分页类
+    pagination_class = StandardLimitOffsetPagination
+```
+
+### CursorPagination
+
+```shell
+GET http://127.0.0.1/four/students/?cursor=cD0xNQ%3D%3D
+
+cursor_query_param  默认查询字段, 不需要修改
+page_size           每页数目
+ordering            按什么排序, 需要指定
+```
+
+```python
+#APIView
+
+from rest_framework.pagination import CursorPagination
+
+# 看源码，是通过sql查询，大于id和小于id
+class  Pager(APIView):
+    def get(self,request,*args,**kwargs):
+        # 获取所有数据
+        ret=models.Book.objects.all()
+        # 创建分页对象
+        page=CursorPagination()
+        page.ordering='nid'
+        # 在数据库中获取分页的数据
+        page_list=page.paginate_queryset(ret,request,view=self)
+        # 对分页进行序列化
+        ser=BookSerializer1(instance=page_list,many=True)
+        # 可以避免页码被猜到
+        return page.get_paginated_response(ser.data)
+
+
+# ListAPIView
+
+class MyCursorPagination(CursorPagination):
+    page_size=2
+    ordering='-id'
+
+from rest_framework.generics import ListAPIView
+class AuthorListView(ListAPIView):
+    serializer_class = serializers.AuthorModelSerializer
+    queryset = models.Author.objects.filter(is_delete=False)
+    pagination_class =MyCursorPagination
 ```
