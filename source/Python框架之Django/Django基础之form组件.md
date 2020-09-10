@@ -93,12 +93,13 @@ def register(request):
     if request.method == 'GET':
         return render(request,'register.html',{'form_obj':form_obj})
     else:
-            form_obj = LoginForm(request.POST)
-            if form_obj.is_valid(): #校验数据 ，全部通过校验，返回TrueFalse
-
-                return HttpResponse('登录成功')
-            else:
-                return render(request,'register.html',{'form_obj':form_obj})
+        form_obj = LoginForm(request.POST)
+        #校验数据，全部通过校验，返回True
+        if form_obj.is_valid():
+            # model.save()
+            return HttpResponse('注册成功')
+        else:
+            return render(request,'register.html',{'form_obj':form_obj})
 ```
 
 html写法
@@ -130,7 +131,7 @@ class MyForm(Form):
     )
 ```
 
-### 自定义验证函数
+#### 自定义验证函数
 
 ```python
 
@@ -156,8 +157,6 @@ class PublishForm(Form):
 ### 局部钩子和全局钩子
 
 ```python
-# 通过model的属性自动翻译成form的属性，来进行form组件的工作
-
 class LoginForm(forms.Form):
     ...
 
@@ -184,6 +183,8 @@ class LoginForm(forms.Form):
 Django 提供一个辅助类来让我们可以从Django的模型创建Form, 这就是ModelForm
 
 ```python
+# 通过model的属性自动翻译成form的属性，来进行form组件的工作
+
 from django.core.exceptions import ValidationError
 
 from . import models

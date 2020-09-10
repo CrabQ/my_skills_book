@@ -86,7 +86,8 @@ def my_view(request):
 
 ```python
 # CBV  -- class based view
-# 正常写法
+def articles(request, id=1):
+    return HttpResponse(str(id))
 
 # FBV -- function based view
 # views
@@ -94,11 +95,13 @@ from django.http import HttpResponse
 from django.views import View
 
 class HomeView(View):
+    # 对应不同的请求方法
     def get(self, request):
         return HttpResponse('ok')
 
     def post(self, request):
-            return HttpResponse('ok')
+        return HttpResponse('ok')
+
 
 # urls
 from django.urls import path
@@ -110,6 +113,8 @@ urlpatterns = [
 ```
 
 ### CBV的dispatch方法
+
+通过反射执行各种请求方法
 
 ```python
 class HomeView(View):
@@ -175,10 +180,12 @@ class HomeView(View):
         return HttpResponse('ok')
 ```
 
-## 读取文件数据
+## 一些实例
+
+### 读取文件数据
 
 ```python
-# 保存上传文件前, 数据需要存放在某个位置. 默认当上传文件小于2.5M时,django会将上传文件的全部内容读进内存, 从内存读取一次, 写磁盘一次
+# 保存上传文件前, 当上传文件小于2.5M时,django会将上传文件的全部内容读进内存, 从内存读取一次, 写磁盘一次
 # 当上传文件很大时, django会把上传文件写到临时文件中, 然后存放到系统临时文件夹中
 
 def index(request):

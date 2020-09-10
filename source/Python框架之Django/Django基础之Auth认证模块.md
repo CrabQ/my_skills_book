@@ -1,6 +1,6 @@
 # Django基础之Auth认证模块
 
-Auth模块是Django自带的用户认证模块
+Auth模块是Django自带的用户认证模块, 本质是一个app
 
 ## auth模块常用方法
 

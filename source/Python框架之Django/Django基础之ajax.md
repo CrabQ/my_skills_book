@@ -1,6 +1,6 @@
 # Django基础之ajax
 
-## 设置csrf_token两种方式
+## 前端页面设置csrf_token两种方式
 
 ```html
 <script>
@@ -28,7 +28,7 @@
 </script>
 ```
 
-## 注意点
+后端返回数据
 
 ```python
 if username == '1' and password == '2':

@@ -65,10 +65,9 @@ class Meta:
 import pymysql
 pymysql.install_as_MySQLdb()
 
-# 时区关闭,MySQL时区会有问题
+# 时区关闭, 否则MySQL时区会有问题
 TIME_ZONE = 'Asia/Shanghai'
 USE_TZ = False
-
 ```
 
 ## 数据库同步指令
@@ -80,37 +79,51 @@ python manage.py migrate
 
 ## ORM单表操作
 
+### 增
+
 ```python
-# 增
+
 Book(title='title1', price=2.33, pub_date=datetime.datetime.now(), publish='publish').save()
 Book.objects.create(title='title2', price=3.22, pub_date=datetime.datetime.now(), publish='publish1')
 
 # 增加或者更新, defaults填写新字段
 Book.objects.update_or_create(id=100, defaults={'title':'update'})
-# 返回一个元祖,对象,以及是否create
+# 返回一个元祖: 对象, 是否create
 # (<Book: update>, False)
+```
 
-# 删
+### 删
+
+```python
 Book.objects.filter(id=100).delete()
 # (1, {'app1.Book': 1})
-Book.objects.get(id=101).delete()
-# (1, {'app1.Book': 1})
+```
 
-# 改
+### 改
+
+```python
 Book.objects.filter(id=102).update(title='update102')
 # 1
+```
 
-# 查
+### 查
+
+```python
+# 所有
 Book.objects.all()
 
+# filter
 Book.objects.filter(id=103)
 # <QuerySet [<Book: titel4>]>
 
+# get
 Book.objects.get(id=103)
 # <Book: titel4>
 
+# 排除
 Book.objects.exclude(id=103)
 
+# 排序
 Book.objects.order_by('-id')
 
 Book.objects.order_by('-id').reverse()
@@ -168,8 +181,10 @@ Book.objects.filter(pub_date__year__gt=2018)
 
 ## ORM多表操作
 
+### 多表关系建立
+
 ```python
-# 一对一
+# 一对一, to_field默认主键
 models.OneToOneField(to='表名',to_field='字段名',on_delete=models.CASCADE)
 
 # 一对多
@@ -178,27 +193,52 @@ models.ForeignKey(to='表名',to_field='字段名',on_delete=models.CASCADE)
 # 多对多,自动创建第三表
 models.ManyToManyField(to='另外一个表名')
 
-from app1.models import Book, Author, AuthorDetail, Publish
+
 # Author一对一AuthorDetail
 # Publish一对多Book
 # Author多对多Book
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=32)
+    price = models.FloatField()
+    pub_date = models.DateTimeField()
+    # 级联删除, 一般出版社没了,书籍的出版社应该不变, 即do nothing, 要考虑两者之间的关系
+    pub = models.ForeignKey(to='Publish', on_delete=models.CASCADE)
+    aut = models.ManyToManyField(to='Author')
+
+class Author(models.Model):
+    name = models.CharField(max_length=16)
+    age = models.IntegerField()
+    author_detail = models.OneToOneField(to='AuthorDetail', on_delete=models.CASCADE)
+
+class AuthorDetail(models.Model):
+    birthday = models.DateField()
+    tel = models.CharField(max_length=32)
+    addr = models.CharField(max_length=128)
+
+class Publish(models.Model):
+    name = models.CharField(max_length=32)
+    city = models.CharField(max_length=16)
+    email = models.EmailField()
 ```
 
-### 增
+### 增加
 
 ```python
+# 一对一: author_detail=obj, author_detail_id=obj.id
 new_ad = AuthorDetail.objects.create(birthday='2020-08-08', tel='1882932482', addr='广州市')
 
 Author.objects.create(name='小明', age=40, author_detail=new_ad)
 
 Author.objects.create(name='小明', age=40, author_detail_id=new_ad.id)
 
-# 一对多
+# 一对多: pub=obj, pub_id=obj.id
 new_p = Publish.objects.create(name='小明出版社', email='m@qq.com', city='广州')
 Book.objects.create(title='小明的故事', price=28.8, pub_date=datetime.now(), pub=new_p)
 Book.objects.create(title='小明的故事2', price=28.8, pub_date=datetime.now(), pub_id=new_p.id)
 
-# 多对多
+# 多对多: add(obj1, obj2)|add(obj1.id, obj2.id)
 # 方式1
 book1 = Book.objects.get(id=1)
 book1.aut.add(*[3,4])
@@ -210,7 +250,7 @@ book2 = Book.objects.get(id=2)
 book2.aut.add(*[au1, au2])
 ```
 
-### 删
+### 删除
 
 ```python
 # 一对一与一对多一致
@@ -220,6 +260,7 @@ Publish.objects.get(id=1).delete()
 # 多对多
 book_obj = Book.objects.get(id=3)
 book_obj.aut.remove(1)
+
 # 全清
 book_obj.aut.clear(1)
 ```
@@ -227,7 +268,6 @@ book_obj.aut.clear(1)
 ### 更新
 
 ```python
-
 # 删除然后更新
 book_obj.aut.set(['2','3'])
 ```
@@ -263,7 +303,7 @@ AuthorDetail.objects.filter(author__name='小明').values('author__age')
 
 # 一对多正向
 Book.objects.filter(title='小明的故事').values('pub__name')
-# 反向, 对象.类名小写_set
+# 反向
 Publish.objects.filter(name="小明出版社").values('book__title')
 
 # 多对多正向
@@ -333,11 +373,15 @@ models.Product.objects.update(name=Concat(F('name'),Value('新款')))
 
 ### update()与save()的区别
 
-两者都是对数据的修改保存操作, 但是save()函数是将数据列的全部数据项全部重新写一遍
+```shell
+都是对数据的修改保存操作
 
-而update()则是针对修改的项进行更新, 效率高耗时少
+save()是将数据列的全部数据项全部重新写一遍
+
+update()则是针对修改的项进行更新, 效率高耗时少
 
 推荐对数据的修改保存用update()
+```
 
 ### bulk_create批量插入数据
 
@@ -373,7 +417,7 @@ cursor.fetchall()
 # 1. 全局开启(settings.py)
 DATABASES = {
     'default': {
-            #全局开启事务，绑定的是http请求响应整个过程
+            #全局开启事务,绑定的是http请求响应整个过程
             "ATOMIC_REQUESTS": True,
                 }
             }
@@ -427,21 +471,18 @@ if __name__ == '__main__':
 ## 字段合集
 
 ```python
-复制代码
 AutoField(Field)
-        - int自增列，必须填入参数 primary_key=True
+        - int自增列,必须填入参数 primary_key=True
 
 BigAutoField(AutoField)
-    - bigint自增列，必须填入参数 primary_key=True
-
-    注：当model中如果没有自增列，则自动会创建一个列名为id的列
-    from django.db import models
+    - bigint自增列,必须填入参数 primary_key=True
 
 SmallIntegerField(IntegerField):
     - 小整数 -32768 ～ 32767
 
 PositiveSmallIntegerField(PositiveIntegerRelDbTypeMixin, IntegerField)
     - 正小整数 0 ～ 32767
+
 IntegerField(Field)
     - 整数列(有符号的) -2147483648 ～ 2147483647
 
@@ -459,37 +500,37 @@ NullBooleanField(Field):
 
 CharField(Field)
     - 字符类型
-    - 必须提供max_length参数， max_length表示字符长度
+    - 必须提供max_length参数, max_length表示字符长度
 
 TextField(Field)
     - 文本类型
 
 EmailField(CharField)：
-    - 字符串类型，Django Admin以及ModelForm中提供验证机制
+    - 字符串类型,Django Admin以及ModelForm中提供验证机制
 
 IPAddressField(Field)
-    - 字符串类型，Django Admin以及ModelForm中提供验证 IPV4 机制
+    - 字符串类型,Django Admin以及ModelForm中提供验证 IPV4 机制
 
 GenericIPAddressField(Field)
-    - 字符串类型，Django Admin以及ModelForm中提供验证 Ipv4和Ipv6
+    - 字符串类型,Django Admin以及ModelForm中提供验证 Ipv4和Ipv6
     - 参数：
-        protocol，用于指定Ipv4或Ipv6， 'both',"ipv4","ipv6"
-        unpack_ipv4， 如果指定为True，则输入::ffff:192.0.2.1时候，可解析为192.0.2.1，开启此功能，需要protocol="both"
+        protocol,用于指定Ipv4或Ipv6, 'both',"ipv4","ipv6"
+        unpack_ipv4, 如果指定为True,则输入::ffff:192.0.2.1时候,可解析为192.0.2.1,开启此功能,需要protocol="both"
 
 URLField(CharField)
-    - 字符串类型，Django Admin以及ModelForm中提供验证 URL
+    - 字符串类型,Django Admin以及ModelForm中提供验证 URL
 
 SlugField(CharField)
-    - 字符串类型，Django Admin以及ModelForm中提供验证支持 字母、数字、下划线、连接符（减号）
+    - 字符串类型,Django Admin以及ModelForm中提供验证支持 字母、数字、下划线、连接符（减号）
 
 CommaSeparatedIntegerField(CharField)
-    - 字符串类型，格式必须为逗号分割的数字
+    - 字符串类型,格式必须为逗号分割的数字
 
 UUIDField(Field)
-    - 字符串类型，Django Admin以及ModelForm中提供对UUID格式的验证
+    - 字符串类型,Django Admin以及ModelForm中提供对UUID格式的验证
 
 FilePathField(Field)
-    - 字符串，Django Admin以及ModelForm中提供读取文件夹下文件的功能
+    - 字符串,Django Admin以及ModelForm中提供读取文件夹下文件的功能
     - 参数：
             path,                      文件夹路径
             match=None,                正则匹配
@@ -498,16 +539,16 @@ FilePathField(Field)
             allow_folders=False,       允许文件夹
 
 FileField(Field)
-    - 字符串，路径保存在数据库，文件上传到指定目录
+    - 字符串,路径保存在数据库,文件上传到指定目录
     - 参数：
         upload_to = ""      上传文件的保存路径
-        storage = None      存储组件，默认django.core.files.storage.FileSystemStorage
+        storage = None      存储组件,默认django.core.files.storage.FileSystemStorage
 
 ImageField(FileField)
-    - 字符串，路径保存在数据库，文件上传到指定目录
+    - 字符串,路径保存在数据库,文件上传到指定目录
     - 参数：
         upload_to = ""      上传文件的保存路径
-        storage = None      存储组件，默认django.core.files.storage.FileSystemStorage
+        storage = None      存储组件,默认django.core.files.storage.FileSystemStorage
         width_field=None,   上传图片的高度保存的数据库字段名（字符串）
         height_field=None   上传图片的宽度保存的数据库字段名（字符串）
 
@@ -521,7 +562,7 @@ TimeField(DateTimeCheckMixin, Field)
     - 时间格式      HH:MM[:ss[.uuuuuu]]
 
 DurationField(Field)
-    - 长整数，时间间隔，数据库中按照bigint存储，ORM中获取的值为datetime.timedelta类型
+    - 长整数,时间间隔,数据库中按照bigint存储,ORM中获取的值为datetime.timedelta类型
 
 FloatField(Field)
     - 浮点型
@@ -529,8 +570,8 @@ FloatField(Field)
 DecimalField(Field)
     - 10进制小数
     - 参数：
-        max_digits，小数总长度
-        decimal_places，小数位长度
+        max_digits,小数总长度
+        decimal_places,小数位长度
 
 BinaryField(Field)
     - 二进制类型
@@ -572,44 +613,40 @@ BinaryField(Field)
 ```python
 null 用于表示某个字段可以为空
 
-unique 如果设置为unique=True 则该字段在此表中必须是唯一的
+unique 如果设置为unique=True, 则该字段在此表中必须是唯一的
 
-db_index 如果db_index=True 则代表着为此字段设置索引
+db_index 如果db_index=True, 则代表着为此字段设置索引
 
 default 默认值
 
 DateField和DateTimeField
-auto_now_add 配置auto_now_add=True n创建数据记录的时候会把当前时间添加到数据库
-auto_now     配置上auto_now=True 每次更新数据记录的时候会更新该字段
+auto_now_add 配置auto_now_add=True, 创建数据记录的时候会把当前时间添加到数据库
+auto_now     配置上auto_now=True, 每次更新数据记录的时候会更新该字段
 ```
 
 ### 关系字段
 
-ForeignKey
+#### ForeignKey
 
 ```python
-外键类型在ORM中用来表示外键关联关系, 一般把ForeignKey字段设置在 '一对多'中'多'的一方
+外键类型在ORM中用来表示外键关联关系, 一般把ForeignKey字段设置在'一对多'中'多'的一方
 
 ForeignKey可以和其他表做关联关系, 也可以和自身做关联关系
 
 字段参数
 to 设置要关联的表
-
 to_field 设置要关联的表的字段
-
-on_delete 当删除关联表中的数据时,当前表与其关联的行的行为
-models.CASCADE 删除关联数据,与之关联也删除
-
+on_delete 当删除关联表中的数据时,当前表与其关联的行的行为(models.CASCADE 删除关联数据,与之关联也删除)
 db_constraint 是否在数据库中创建外键约束,默认为True
 ```
 
-OneToOneField
+#### OneToOneField
 
 ```python
 通常一对一字段用来扩展已有字段. (简单的信息一张表, 隐私的信息另一张表, 之间通过一对一外键关联)
 ```
 
-多对多三种方式
+#### 多对多三种方式
 
 ```python
 # 有三种多对多方式
@@ -664,7 +701,6 @@ from django.core import serializers
 
 def ser(request):
     user_list=models.User.objects.all()
-
     ret=serializers.serialize('json',user_list)
 
     return HttpResponse(ret)

@@ -3,7 +3,7 @@
 ## 静态文件配置
 
 ```python
-# 修改settings.py文件
+# settings.py
 
 # 别名,url地址里引用 模板使用{% load static %}
 STATIC_URL = '/static/'
@@ -14,10 +14,10 @@ STATICFILES_DIRS = [
 ]
 ```
 
-## 用户上传文件配置
+## 上传文件配置
 
 ```python
-# 修改settings.py文件
+# settings.py
 
 # 用户上传文件的根目录
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -26,12 +26,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ### 暴露后端指定文件夹资源
 
 ```python
-# 方法1
 # settings.py
+
 MEDIA_URL = '/media/'
 
-
 # 设置开发环境中访问文件方法
+# 方法1
 from BBS import settings
 from django.conf.urls.static import static
 

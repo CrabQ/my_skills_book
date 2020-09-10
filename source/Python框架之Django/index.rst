@@ -6,7 +6,7 @@ Django
    :glob:
 
    Django请求流程图
-   Django开发项目流程
+   Django基础
    Django基础之url路由分发
    Django基础之views视图函数
    Django基础之模版系统

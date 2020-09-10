@@ -10,6 +10,5 @@ Python
    Python实例/index
    爬虫/index
    Scrapy/index
-   Django/index
    flask/index
    经典算法题

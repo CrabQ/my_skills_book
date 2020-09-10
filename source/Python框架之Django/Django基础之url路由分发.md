@@ -1,6 +1,8 @@
 # Django基础之url路由分发
 
-url路由分发的本质是url与要为该url调用的视图函数之间的映射表
+## 路由分发的本质
+
+url与调用的视图函数之间的映射
 
 ```python
 def index():
@@ -16,7 +18,7 @@ URL_LIST = [
 ]
 ```
 
-## 路由匹配与分发
+## 路由匹配
 
 ```python
 # 2.0之后写法
@@ -27,6 +29,16 @@ urlpatterns = [
 
     path('articles/<int:year>/<int:month>/', views.month_archive, name='articles'),
 ]
+```
+
+### 路由转换器
+
+```shell
+str     匹配除了路径分隔符 / 之外的非空字符串, 默认
+int     匹配正整数, 包含0
+slug    匹配字母, 数字以及横杠, 下划线组成的字符串
+uuid    匹配格式化的uuid, 如 075194d3-6885-417e-a8a8-6c931e272f00
+path    匹配任何非空字符串, 包含了路径分隔符
 ```
 
 ## 路由分发
@@ -43,20 +55,25 @@ urlpatterns = [
 
 ## 默认参数
 
+如果想让两个路由指向同一个视图函数, 视图函数需要设置默认值
+
 ```python
 # urls.py
-from django.conf.urls import path
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    upath(r'articles/', views.articles),
-    upath(r'articles/<int:id>/', views.articles),
+    path(r'articles/', views.articles),
+    path(r'articles/<int:id>/', views.articles),
 ]
 
 # views.py
+from django.http.response import HttpResponse
+
+
 def articles(request, id=1):
-    pass
+    return HttpResponse(str(id))
 ```
 
 ## 传递额外参数给视图函数
@@ -75,15 +92,13 @@ urlpatterns = [
 ## 命名URL和URL的反向解析
 
 ```python
-# 别名
+# url设置别名
 path('articles/<int:year>/<int:month>/', views.month_archive, name='articles'),
 
 # 模板引用
 {% url 'articles' 2020 9 %}
 
-# 反向解析,views视图引用
-from django.urls import reverse
-
+# 反向解析, views视图引用
 reverse("articles", args=('2020', '9'))
 ```
 
@@ -91,17 +106,15 @@ reverse("articles", args=('2020', '9'))
 
 ```python
 # 路由分发时加上命名空间
-    path(r'app1/', include('app01.urls', namespace='app01')),
+path(r'app1/', include('app01.urls', namespace='app01')),
 
-# 模板引用时加上命名空间避免冲突, 其他也是同样写法
+# 模板引用时加上命名空间避免冲突
 {% url 'app01:articles' 2020 9 %}
 ```
 
 ## 其他
 
-### APPEND_SLASH
-
-url取消自动加斜杠
+### url取消自动加斜杠
 
 ```shell
 # settings.py, 默认为True
