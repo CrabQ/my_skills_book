@@ -6,7 +6,9 @@
 pip install djangorestframework
 ```
 
-## 基本使用
+## 序列化组件
+
+前期准备
 
 ```python
 # settings.py注册
@@ -272,16 +274,16 @@ class BookSerializer(serializers.ModelSerializer):
         }
 ```
 
-## 请求与相应
+### 请求与相应
 
-### Request
+#### Request
 
 ```shell
 request.data            返回解析之后的请求体数据
 request.query_params    与Django标准的request.GET相同
 ```
 
-### Response
+#### Response
 
 ```shell
 Response(data, status=None, template_name=None, headers=None, content_type=None)
