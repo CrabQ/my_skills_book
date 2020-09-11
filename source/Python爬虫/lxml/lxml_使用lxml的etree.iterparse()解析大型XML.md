@@ -1,6 +1,6 @@
 # lxml_使用lxml的etree.iterparse()解析大型XML
 
-##　解析大型XML
+## 解析大型XML
 
 有一个7G的大型xml需要解析，因为xml具有多层级，需要获取多个层级下的文本数据，使用sax事件驱动进行解析的话不方便获取数据，决定采用lxml的etree.iterparse()进行解析。
 lxml 的 iterparse 方法是 ElementTree API 的扩展。iterparse 为所选的元素上下文返回一个 Python 迭代器。它接受两个有用的参数：要监视的事件元组和标记名。

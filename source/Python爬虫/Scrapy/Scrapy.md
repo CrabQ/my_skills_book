@@ -81,7 +81,7 @@ class TestSpider(CrawlSpider):
     ]
 
     rules = (
-        # 不定义callback，默认follow=True, 递归爬取
+        # 不定义callback,默认follow=True, 递归爬取
         Rule(LinkExtractor(allow=('/group?f=index_group', ), deny=('deny\.php', ))),
         # 定义了callback则不递归
         Rule(LinkExtractor(allow=('/article/\d+/\d+\.html', )), callback='parse_item'),
@@ -101,17 +101,17 @@ scrapy crawl 爬虫名称 -o xxx.csv
 ### 基于管道的持久化存储
 
 ```shell
-items.py：数据结构模板文件, 定义数据属性
-pipelines.py：管道文件, 接收数据(items)进行持久化操作
+items.py       数据结构模板文件, 定义数据属性
+pipelines.py   管道文件, 接收数据(items)进行持久化操作
 ```
 
 流程
 
 ```shell
-1.爬虫文件爬取到数据后，需要将数据封装到items对象中。
-2.使用yield关键字将items对象提交给pipelines管道进行持久化操作。
-3.在管道文件中的process_item方法中接收爬虫文件提交过来的item对象，然后编写持久化存储的代码将item对象中存储的数据进行持久化存储
-4.settings.py配置文件中开启管道
+1. 爬虫文件爬取到数据后,需要将数据封装到items对象中
+2. 使用yield关键字将items对象提交给pipelines管道进行持久化操作
+3. 在管道文件中的process_item方法中接收爬虫文件提交过来的item对象,然后编写持久化存储的代码将item对象中存储的数据进行持久化存储
+4. settings.py配置文件中开启管道
 ```
 
 #### 基于mysql的管道存储
@@ -174,7 +174,7 @@ class WangyiSpider(RedisSpider):
         #实例化一个浏览器对象(实例化一次)
         self.bro = webdriver.Chrome(executable_path='chromedriver')
 
-    #必须在整个爬虫结束后，关闭浏览器
+    #必须在整个爬虫结束后,关闭浏览器
     def closed(self,spider):
         print('爬虫结束')
         self.bro.quit()
@@ -200,8 +200,8 @@ from scrapy.http import HtmlResponse
 ## Scarpy下载中间件
 
 ```shell
-# 引擎将请求传递给下载器过程中， 下载中间件可以对请求进行一系列处理。比如设置请求的 User-Agent，设置代理等
-# 在下载器完成将Response传递给引擎中，下载中间件可以对响应进行一系列处理。比如进行gzip解压等。
+# 引擎将请求传递给下载器过程中, 下载中间件可以对请求进行一系列处理比如设置请求的 User-Agent,设置代理等
+# 在下载器完成将Response传递给引擎中,下载中间件可以对响应进行一系列处理比如进行gzip解压等
 
 # process_request
 # 篡改响应头,代理
