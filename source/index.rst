@@ -13,6 +13,7 @@ Welcome to my_skills_book's documentation!
    sphinx/index
    Python/index
    Python框架之Django/index
+   Python框架之flask/index
    MySQL/index
    Redis/index
    MongoDB/index
