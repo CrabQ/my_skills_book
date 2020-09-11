@@ -7,7 +7,6 @@ Python
 
    Python进阶
    Python实例/index
-   爬虫/index
-   Scrapy/index
-   flask/index
+   miniconda
+   Python并发编程
    经典算法题

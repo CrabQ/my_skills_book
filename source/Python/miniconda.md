@@ -12,6 +12,7 @@ conda env list
 
 # 激活环境
 activate py36
+
 # linux激活环境
 source activate py36
 
@@ -36,8 +37,10 @@ conda remove requests
 
 # 更新conda
 conda update conda
+
 # 更新conda应用
 conda update miniconda
+
 # 更新python到最新版
 conda udpate python
 ```
@@ -45,7 +48,7 @@ conda udpate python
 ## 修改镜像地址
 
 ```shell
-# ~/.condarc
+# ~/.condarc 写入如下内容
 # 添加镜像源
 conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
 
