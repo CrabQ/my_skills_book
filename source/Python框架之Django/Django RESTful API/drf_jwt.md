@@ -124,10 +124,10 @@ from jwt_abstract_user import models
 
 # 2. 自定义login,手动签发token: 3).认证用户, 完成多方式登录, 手动签发token
 class LoginModelSerializer(serializers.ModelSerializer):
+    # 覆盖数据库中的字段,变成新的字段
     username = serializers.CharField()
 
     class Meta:
-        # 覆盖数据库中的字段,变成新的字段
         model = models.User
         fields = ['username', "password"]
 

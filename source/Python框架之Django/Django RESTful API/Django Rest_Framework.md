@@ -190,7 +190,7 @@ class BookView(APIView):
     def get(self, request):
         b_obj = models.Book.objects.all()
 
-        # 如果转换多个模型对象数据，则需要加上many=True
+        # 如果转换多个模型对象数据,则需要加上many=True
         serializer = BookSerializer(instance=b_obj, many=True)
         res = {"status": 200, "msg": "ok", "data": serializer.data}
 
@@ -331,16 +331,16 @@ REST framework 提供了众多的通用视图基类与扩展类, 以简化视图
 ```shell
 rest_framework.views.APIView
 
-APIView是REST framework提供的所有视图的基类，继承自Django的View父类
+APIView是REST framework提供的所有视图的基类,继承自Django的View父类
 
-传入到视图方法中的是REST framework的Request对象，而不是Django的HttpRequeset对象
-在进行dispatch()分发前，会对请求进行身份认证、权限检查、流量控制
+传入到视图方法中的是REST framework的Request对象,而不是Django的HttpRequeset对象
+在进行dispatch()分发前,会对请求进行身份认证、权限检查、流量控制
 
 
 支持定义的类属性
-    authentication_classes  列表或元祖，身份认证类
-    permissoin_classes      列表或元祖，权限检查类
-    throttle_classes        列表或元祖，流量控制类
+    authentication_classes  列表或元祖,身份认证类
+    permissoin_classes      列表或元祖,权限检查类
+    throttle_classes        列表或元祖,流量控制类
 ```
 
 #### GenericAPIView[通用视图类]
@@ -348,8 +348,8 @@ APIView是REST framework提供的所有视图的基类，继承自Django的View�
 ```shell
 rest_framework.generics.GenericAPIView
 
-继承自APIVIew，主要增加了操作序列化器和数据库查询的方法，
-作用是为下面Mixin扩展类的执行提供方法支持。通常在使用时，可搭配一个或多个Mixin扩展类
+继承自APIVIew,主要增加了操作序列化器和数据库查询的方法,
+作用是为下面Mixin扩展类的执行提供方法支持。通常在使用时,可搭配一个或多个Mixin扩展类
 ```
 
 属性
@@ -366,21 +366,21 @@ filter_backends     指明过滤控制后端
 ```python
 # get_serializer_class(self)
 # 控制视图方法执行不同的序列化器对象
-# 返回序列化器类，默认返回serializer_class, 可重写
+# 返回序列化器类,默认返回serializer_class, 可重写
 def get_serializer_class(self):
     if self.request.user.is_staff:
         return FullAccountSerializer
     return BasicAccountSerializer
 
 # get_serializer(self, args, *kwargs)
-# 返回序列化器对象，主要用来提供给Mixin扩展类使用
+# 返回序列化器对象,主要用来提供给Mixin扩展类使用
 
 # get_queryset(self)
-# 返回视图使用的查询集，主要用来提供给Mixin扩展类使用
-# 是列表视图与详情视图获取数据的基础，默认返回queryset属性
+# 返回视图使用的查询集,主要用来提供给Mixin扩展类使用
+# 是列表视图与详情视图获取数据的基础,默认返回queryset属性
 
 # get_object(self)
-# 返回详情视图所需的模型类数据对象，主要用来提供给Mixin扩展类使用
+# 返回详情视图所需的模型类数据对象,主要用来提供给Mixin扩展类使用
 # get_object()方法根据pk参数查找queryset中的数据对象, 传递参数名需指定为PK
 ```
 
@@ -447,7 +447,7 @@ class BookDetailView(GenericAPIView):
 #### ListModelMixin
 
 ```python
-# 列表视图扩展类，提供list(request, *args, **kwargs)方法快速实现列表视图，返回200状态码
+# 列表视图扩展类,提供list(request, *args, **kwargs)方法快速实现列表视图,返回200状态码
 
 class BookView(mixins.ListModelMixin, GenericAPIView):
     queryset = models.Book.objects.all()
@@ -460,9 +460,9 @@ class BookView(mixins.ListModelMixin, GenericAPIView):
 #### CreateModelMixin
 
 ```python
-# 创建视图扩展类，提供create(request, *args, **kwargs)方法快速实现创建资源的视图，成功返回201状态码
+# 创建视图扩展类,提供create(request, *args, **kwargs)方法快速实现创建资源的视图,成功返回201状态码
 
-# 如果序列化器对前端发送的数据验证失败，返回400错误
+# 如果序列化器对前端发送的数据验证失败,返回400错误
 
 class BookView(ListModelMixin, CreateModelMixin, GenericAPIView):
     queryset = models.Book.objects.all()
@@ -478,7 +478,7 @@ class BookView(ListModelMixin, CreateModelMixin, GenericAPIView):
 #### RetrieveModelMixin
 
 ```python
-# 详情视图扩展类，提供retrieve(request, *args, **kwargs)方法，可以快速实现返回一个存在的数据对象
+# 详情视图扩展类,提供retrieve(request, *args, **kwargs)方法,可以快速实现返回一个存在的数据对象
 
 # 状态码 200 or 400
 
@@ -493,9 +493,9 @@ class BookDetailView(RetrieveModelMixin, GenericAPIView):
 #### UpdateModelMixin
 
 ```python
-# 更新视图扩展类，提供update(request, *args, **kwargs)方法，可以快速实现更新一个存在的数据对象
+# 更新视图扩展类,提供update(request, *args, **kwargs)方法,可以快速实现更新一个存在的数据对象
 
-# 同时也提供partial_update(request, *args, **kwargs)方法，可以实现局部更新
+# 同时也提供partial_update(request, *args, **kwargs)方法,可以实现局部更新
 
 # 状态码 200 or 400
 
@@ -513,7 +513,7 @@ class BookDetailView(RetrieveModelMixin, UpdateModelMixin, GenericAPIView):
 #### DestroyModelMixin
 
 ```python
-# 删除视图扩展类，提供destroy(request, *args, **kwargs)方法，可以快速实现删除一个存在的数据对象
+# 删除视图扩展类,提供destroy(request, *args, **kwargs)方法,可以快速实现删除一个存在的数据对象
 
 # 状态码 200 or 400
 
@@ -566,7 +566,7 @@ RetrieveUpdateDestoryAPIView
 ### 视图集ViewSet
 
 ```shell
-使用视图集ViewSet，可以将一系列逻辑相关的动作放到一个类中
+使用视图集ViewSet, 可以将一系列逻辑相关的动作放到一个类中
 
 list() 提供一组数据
 retrieve() 提供单个数据
@@ -574,19 +574,19 @@ create() 创建数据
 update() 保存数据
 destory() 删除数据
 
-ViewSet视图集类不再实现get()、post()等方法，而是实现动作 action 如 list() 、create() 等
+ViewSet视图集类不再实现get(), post()等方法,而是实现动作 action 如 list() 、create() 等
 
-视图集只在使用as_view({"get":"list"})方法的时候，才会将action动作与具体请求方式对应上
+视图集只在使用as_view({"get":"list"})方法的时候,才会将action动作与具体请求方式对应上
 ```
 
 #### ViewSet
 
 ```python
-# 继承自APIView与ViewSetMixin，作用也与APIView基本类似，提供了身份认证、权限校验、流量管理等
+# 继承自APIView与ViewSetMixin,作用也与APIView基本类似,提供了身份认证、权限校验、流量管理等
 
 # ViewSet主要通过继承ViewSetMixin来实现在调用as_view()时传入字典（如{‘get’:’list’}）的映射处理工作
 
-# 在ViewSet中，没有提供任何动作action方法，需要我们自己实现action方法
+# 在ViewSet中,没有提供任何动作action方法,需要我们自己实现action方法
 
 # app01/urls.py
 from django.urls import path
@@ -615,7 +615,7 @@ class BookViewSet(ViewSet):
 
 ```python
 # 继承自GenericAPIView与ViewSetMixin
-# 提供GenericAPIView提供的基础方法，可以直接搭配Mixin扩展类使用
+# 提供GenericAPIView提供的基础方法,可以直接搭配Mixin扩展类使用
 
 # url 如上ViewSet
 class BookViewSet(GenericViewSet, ListModelMixin):
@@ -654,7 +654,6 @@ class BookViewSet(GenericViewSet, ListModelMixin):
     def login(self, request):
         # 获取本次请求的视图方法名
         print(self.action)
-        pass
 ```
 
 ## 路由组件
@@ -827,10 +826,10 @@ permission_classes = [UserPermission,]
 
 # 自定义权限需继承rest_framework.permissions.BasePermission父类并实现以下两个任何一个方法或全部
 # has_permission(self, request, view)
-#   是否可以访问视图， view表示当前视图对象
+#   是否可以访问视图, view表示当前视图对象
 
 # has_object_permission(self, request, view, obj)
-#   是否可以访问数据对象， view表示当前视图， obj为数据对象
+#   是否可以访问数据对象, view表示当前视图, obj为数据对象
 ```
 
 实例
@@ -839,7 +838,7 @@ permission_classes = [UserPermission,]
 # 限制只有超级用户能访问
 from rest_framework.permissions import BasePermission
 class UserPermission(BasePermission):
-    message = '不是超级用户，查看不了'
+    message = '不是超级用户,查看不了'
     def has_permission(self, request, view):
         user_type = request.user.user_type
         if user_type == 1:
@@ -882,12 +881,13 @@ throttle_classes = [MyThrottles,]
 #### 内置频率类
 
 ```python
-#写一个类，继承自SimpleRateThrottle（根据ip限制）
+#写一个类,继承自SimpleRateThrottle（根据ip限制）
 from rest_framework.throttling import SimpleRateThrottle
 class VisitThrottle(SimpleRateThrottle):
     scope = 'luffy'
     def get_cache_key(self, request, view):
         return self.get_ident(request)
+
 #在setting里配置：（一分钟访问三次）
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES':{
@@ -941,7 +941,7 @@ pip install django-filter
 
 ```python
 INSTALLED_APPS = [
-    'django_filters',  # 需要注册应用，
+    'django_filters',  # 需要注册应用,
 ]
 
 REST_FRAMEWORK = {
@@ -968,7 +968,7 @@ class StudentListView(ListAPIView):
     serializer_class = StudentModelSerializer
     filter_backends = [OrderingFilter]
     # 如果同时需要过滤和排序, 先过滤再排序
-    # filter_backends = [OrderingFilter,DjangoFilterBackend]
+    # filter_backends = [DjangoFilterBackend, OrderingFilter]
 
     ordering_fields = ('id', 'age')
 
@@ -1032,7 +1032,7 @@ GET  http://127.0.0.1:8000/students/?page=4
 
 page_size               每页数目
 page_query_param        前端发送的页数关键字名, 默认为 page
-page_size_query_param   前端发送的每页数目关键字名，默认为None
+page_size_query_param   前端发送的每页数目关键字名,默认为None
 max_page_size           前端最多能设置的每页数量
 ```
 
@@ -1137,7 +1137,7 @@ ordering            按什么排序, 需要指定
 
 from rest_framework.pagination import CursorPagination
 
-# 看源码，是通过sql查询，大于id和小于id
+# 看源码,是通过sql查询,大于id和小于id
 class  Pager(APIView):
     def get(self,request,*args,**kwargs):
         # 获取所有数据

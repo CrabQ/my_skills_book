@@ -53,6 +53,12 @@ base64url(
 
 ## python实现
 
+### 安装
+
+```shell
+pip install pyjwt
+```
+
 ```python
 import datetime
 
