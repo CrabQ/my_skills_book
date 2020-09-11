@@ -1,4 +1,4 @@
-# pymysql_example
+# pymysql
 
 插入数据
 

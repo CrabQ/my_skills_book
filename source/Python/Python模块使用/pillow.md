@@ -1,6 +1,8 @@
-# pil_区分图片是黑白彩色还是灰度
+# pillow
 
-> 引用网上的，出处忘了。准确率还可以
+## 区分图片是黑白彩色还是灰度
+
+> 引用网上的, 出处忘了. 准确率还可以
 
 ```python
 from PIL import Image, ImageStat

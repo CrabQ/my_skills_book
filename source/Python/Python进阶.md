@@ -355,6 +355,29 @@ def run():
 run()
 ```
 
+### 类装饰器
+
+```python
+import time
+
+class LogTime():
+    # 装饰器加参数
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, func):
+        def _log(*args, **kwargs):
+            start = time.time()
+            res = func(*args, **kwargs)
+            print(f'run: {time.time()-start}')
+            return  res
+        return _log
+
+@LogTime()
+def sleep():
+    time.sleep(2)
+```
+
 ## 迭代器与生成器
 
 ### 迭代器
@@ -396,7 +419,7 @@ my_iter((1,2,3,4))
 
 ```
 
-### 生成器
+## 生成器
 
 ```shell
 # 函数体包含yield关键字, 调用函数不会执行函数体代码, 得到的返回值即生成器对象

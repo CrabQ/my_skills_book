@@ -1,10 +1,10 @@
-# python文件打包
+# pyinstaller
 
 ## 使用pyinstaller打包
 
-输出配置文件.spec文件,进行自定义配置
+输出.spec文件,进行自定义配置
 
-```python
+```shell
 pyi-makespec-w server.py
 # -w 不生成黑色控制台窗口
 ```
@@ -21,6 +21,6 @@ a = Analysis(['server.py'],
 
 打包
 
-```python
+```shell
 pyinstaller server.spec
 ```

@@ -1,4 +1,4 @@
-# Python读取excel
+# xlrd与xlsxwriter
 
 ## xlrd读取excel
 
@@ -28,40 +28,7 @@ def read_excel(infile):
     # print(rows, cols)
 ```
 
-## openpyxl追加写入Excel
-
-```python
-import openpyxl
-
-# 向excel中写入新的一条记录
-def save_result_to_excel(data:dict, excel_name):
-    # 不存在则创建excel
-    if not os.path.exists(excel_name):
-        wb = openpyxl.Workbook()
-        sheet = wb[wb.sheetnames[0]]
-        # 设置列宽
-        sheet.column_dimensions['A'].width = 40.0
-        sheet.column_dimensions['B'].width = 30.0
-        sheet.column_dimensions['C'].width = 20.0
-
-        cols = len(data.keys())
-        for i in range(cols):
-            sheet.cell(row=1, column=i+1).value = list(data.keys())[i]
-            sheet.cell(row=2, column=i+1).value = list(data.values())[i][0]
-    else:
-        # 获取已存在的Excel
-        wb = openpyxl.load_workbook(excel_name)
-        sheet = wb[wb.sheetnames[0]]
-        cols = len(data.keys())
-        # 获取行数
-        max_row = sheet.max_row
-        for i in range(cols):
-            sheet.cell(row=max_row+1, column=i+1).value = list(data.values())[i][0]
-    # 最后保存
-    wb.save(excel_name)
-```
-
-## xlsxwriter写入xlsx文件
+## xlsxwriter覆盖写入xlsx文件
 
 ```python
 
@@ -69,13 +36,8 @@ import xlsxwriter
 from xlsxwriter.exceptions import DuplicateWorksheetName
 
 def write_excel(self, sheet, result):
-    """
-    向excel中写入数据
-    :params sheet: 疾病名字，表名
-    :params result: 数据列表
-    """
     # excel文件路径
-    infile = 'C:/Users/CRAB/Desktop/右边分类.xlsx'
+    infile = 'a.xlsx'
     # 打开一个xlsx文件（如果打开的文件存在 ，则清空该文件，如果文件不存在，则新建）
     workbook = xlsxwriter.Workbook(infile)
     try:
