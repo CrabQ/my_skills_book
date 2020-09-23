@@ -879,6 +879,23 @@ useradd nginx -s /sbin/nologin -M
 
 ### groupdel: 删除用户组
 
+### groups: 用户分组
+
+```shell
+# 查看用户分组
+groups jack
+```
+
+### gpasswd: 添加用户到分组
+
+```shell
+# 添加用户jack到分组mike
+gpasswd -a jack mike
+
+# 从mike分组剔除jack
+gpasswd -d jack mike
+```
+
 ### passwd: 修改用户密码
 
 ### chage: 修改用户密码有效期
@@ -1310,6 +1327,10 @@ chkconfig --list
 
 ### rpm: RPM包管理器
 
+
+
+![image-20200922131022465](C:\Users\CRAB\Desktop\MY\my_skills_book\source\Linux\Linux基础命令.assets\image-20200922131022465.png)
+
 ```shell
 # -q 查询
 # -i info|install
@@ -1332,6 +1353,12 @@ rpm -ivh a.rpm
 
 ```shell
 # -y 确认
+
+# 列出所有安装包
+yum list installed
+
+# 检查更新
+yum check-update
 
 # 安装
 yum install httpd
