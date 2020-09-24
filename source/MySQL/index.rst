@@ -1,11 +1,11 @@
-MySql
+MySQL
 ==========
 
 .. toctree::
    :maxdepth: 2
    :glob:
 
-   MySQL安装及错误
+   MySQL安装及管理
    MySQL基础语法
    MySQL高级
    MySQL进阶

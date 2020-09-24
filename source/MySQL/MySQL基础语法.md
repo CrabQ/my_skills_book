@@ -123,7 +123,7 @@ update user set age=5;
 -- 删除数据
 delete from user where id=1;
 
--- 清空表
+-- 清空表, 自增值重置, delete * 自增值不变
 truncate table user;
 ```
 

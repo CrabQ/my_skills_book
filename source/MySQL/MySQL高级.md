@@ -18,17 +18,6 @@ mysql -uroot -p -S /tmp/mysql.sock
 # 如果以--defaults-file=xxxx启动,以上的所有文件都不会读取
 ```
 
-## SQL基础应用
-
-常用SQL分类
-
-```shell
-DDL:数据定义语言 create alter
-DCL:数据控制语言 grant revoke
-DML:数据操作语言 insert update delete
-DQL:数据查询语言 show select
-```
-
 ## 执行计划获取及分析
 
 ```sql
