@@ -1,19 +1,163 @@
 
-# MySQL基础语法
+# mysql基础定义
 
-## 数据库与表
+## mysqld处理sql过程
+
+![mysqld处理sql过程.png](.assets/mysqld处理sql过程.png)
+
+## mysql逻辑存储结构
+
+```shell
+库 表 列(字段) 数据行(记录)
+
+表属性 列属性
+```
+
+## mysql物理存储结构
+
+```shell
+myisam
+    user.frm 存储表结构(列, 列属性)
+    user.MYD 存储数据记录
+    user.MYI 存储索引
+
+innodb
+    time_zone.frm 存储表结构(列, 列属性)
+    time_zone.ibd 存储数据记录
+    ibdata1       数据字典信息
+```
+
+## innodb段,区, 页
+
+```shell
+一般情况下(非分区表)
+一个表就是一个段
+一个段由多个区构成
+一个区由64个连续的页(16k)组成, 1M大小
+```
+
+## 字符集和校对规则
+
+```shell
+# charset
+# GBK: 中文2个字符, utf8: 3, utf8mb4: 4
+# utf8mb4: 支持emoji
+
+# collation
+# utf8mb4其中两个字符集校对规则
+# utf8mb4_general_ci 大小写不敏感
+# utf8mb4_bin        大小写敏感
+```
+
+## 用户和权限管理
+
+### 用户
+
+```sql
+-- 用户 用户名@'白名单'
+
+-- 新建用户
+create user crab@'10.0.0.%' identified by '123';
+
+-- 8.0之前, 同时新建和授权
+grant all on *.* to crab@'10.0.0.%' identified by '123';
+
+-- 查询用户
+select user,host from mysql.user;
+
+-- 修改密码
+alter user crab@'10.0.0.%' identified by '12345';
+
+-- 删除用户
+drop user crab@'10.0.0.%';
+```
+
+### 权限
+
+```sql
+-- with grant option 是否可以给别人授权
+-- grant 权限 on 作用目标 to 用户 identified by 密码 with grant option;
+
+-- 创建一个用户ww, 通过10网段对ww库下的所有表进行select, insert, update, delete
+grant select, insert, update, delete on ww.* to ww@'10.0.0.%' identified by '123';
+
+-- 查询权限
+show grants for ww@'10.0.0.%';
+-- GRANT USAGE ON *.* TO 'ww'@'10.0.0.%'    可登陆
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON `ww`.* TO 'ww'@'10.0.0.%'
+
+-- 回收权限
+revoke delete on ww.* from 'ww'@'10.0.0.%';
+```
+
+## 数据类型
+
+```shell
+# 整数
+tinyint
+int
+
+# 字符串
+char(100)       未占满使用空格填充
+varchar(100)    单独申请一个字符长度的孔家储存字符长度
+enum            枚举
+
+# 时间
+datetime
+timestamp
+```
+
+## 结构化查询语句
+
+常用SQL分类
+
+```shell
+DDL 数据定义语言 create alter
+DCL 数据控制语言 grant revoke
+DML 数据操作语言 insert update delete
+DQL 数据查询语言 select
+```
+
+### DDL 数据库定义
 
 ```sql
 -- 创建数据库
-create database if not exists test default character set 'utf8mb4';
+create database if not exists test charset 'utf8mb4';
+
+--查看
+show databases;
+show databases test;
 
 -- 删除数据库
 drop database test;
 
+-- 修改数据库字符集
+alter database test charset utf8mb4
+```
+
+数据库定义规范
+
+```shell
+库名小写
+库名不能数字开头
+库名不能是数据库内部关键字
+必须设置字符集
+```
+
+### DDL 表定义
+
+```sql
 -- 创建表
 --CREATE TABLE [IF NOT EXISTS] tbl_name(
 --字段名称 字段类型 [UNSIGNED|ZEROFILL] [NOT NULL] [DEFAULT 默认值] [[PRIMARY] KEY| UNIQUE [KEY]] [AUTO_INCREMENT]
 --)ENGINE=INNODB CHARSET=UTF8 AUTO_INCREMENT=1;
+
+-- 表名小写,不能数值开头,不能是保留关键字
+-- 选择合适的数据类型和长度
+-- 不能为空, not null default, 要有注释
+-- 必须设置存储引擎和字符集
+-- 主键自增
+-- emun只保存字符串类型
 
 create table if not exists user(
     id smallint unsigned primary key auto_increment,
@@ -41,9 +185,11 @@ drop table user;
 alter table user rename to user1;
 rename table user1 to user;
 
+-- 复制表结果
+create table testt like test;
 ```
 
-## 表结构
+#### 表结构修改
 
 ```sql
 -- 添加字段
@@ -84,6 +230,10 @@ alter table user add unique key(username);
 
 -- 修改表的储存引擎为myisam
 alter table user engine=myisam;
+
+
+-- 在线改表结构
+-- pt-osc
 ```
 
 ## 插入

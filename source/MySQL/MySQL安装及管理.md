@@ -64,13 +64,11 @@ net start mysql
 
 ```shell
 # 下载
+mkdir -p /application && cd /application
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.26-linux-glibc2.12-x86_64.tar.gz
 
 # 解压
-tar -zxvf mysql-5.7.26-linux-glibc2.12-x86_64.tar.gz
-
-# 移动
-mv mysql-5.7.26-linux-glibc2.12-x86_64 /application/mysql5726
+tar -zxvf mysql-5.7.26-linux-glibc2.12-x86_64.tar.gz && mv mysql-5.7.26-linux-glibc2.12-x86_64 mysql5726
 
 # 软件部分 /application/mysql5726
 # 数据部分 /data/mysql5726/data
@@ -88,9 +86,8 @@ source /etc/profile
 
 # 授权
 chown -R mysql5726.mysql5726 /application/*
-chown -R mysql5726.mysql5726 /data
+mkdir -p /data/mysql5726/data && chown -R mysql5726.mysql5726 /data
 
-mkdir -p /data/mysql5726/data/
 # 初始化(创建系统数据), 方式1
 mysqld --initialize --user=mysql5726 --basedir=/application/mysql5726 --datadir=/data/mysql5726/data
 # 生成临时密码, 180天过期
@@ -110,7 +107,8 @@ datadir=/data/mysql5726/data
 socket=/tmp/mysql.sock
 server_id=5726
 port=5726
-
+log_error=/data/mysql5726/data/crabQ_err.log
+log_timestamps=system
 [mysql]
 socket=/tmp/mysql.sock
 EOF
@@ -158,6 +156,37 @@ mysqld_safe --skip-grant-tables
 mysqladmin -uroot -p 123 shutdown
 ```
 
+### mysql连接管理
+
+```shell
+# 查看是远程还是本地连接
+# show porcesslist
+
+# 1. TCP/IP
+mysql -uroot -p -h 10.0.0.51 -P 3306
+
+# 2. socket, -S /tmp/msyql.sock 可省略
+mysql -u root -p
+```
+
+### mysql连接参数
+
+```shell
+# -e 免交互执行sql命令
+mysql -u root -p -e 'select @@version;'
+# < 导入数据
+```
+
+### 内置命令
+
+```shell
+help    打印命令
+\c      结束上个命令运行
+\q      退出mysql
+\G      格式化输出
+source  恢复备份文件
+```
+
 ### 密码重置(忘记密码)
 
 ```shell
@@ -169,7 +198,7 @@ mysqld_safe --skip-grant-tables --skip-networking &
 
 # 3. 登录数据库修改密码
 mysql> flush privileges;
-mysql> alter user root@'localhost' identified by 'roott';
+mysql> alter user root@'localhost' identified by 'root';
 
 # 4. 关闭数据库, 正常启动
 pkill mysqld
@@ -275,97 +304,24 @@ socket=/tmp/mysql.sock
 # 服务器ID, 1-65535
 server_id=5726
 port=5726
-
+# 错误日志
+log_error=/data/mysql5726/data/crabQ_err.log
+log_timestamps=system
 [mysql]
 # 与服务器一致
 socket=/tmp/mysql.sock
 ```
 
-## mysql基础定义
-
-### 结构化查询语句
-
-常用SQL分类
+#### 配置读取顺序
 
 ```shell
-DDL:数据定义语言 create alter
-DCL:数据控制语言 grant revoke
-DML:数据操作语言 insert update delete
-DQL:数据查询语言 show select
+# 从左到右顺序读取, 相同会覆盖
+etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf
 ```
 
-### mysqld处理sql过程
-
-![mysqld处理sql过程.png](.assets/mysqld处理sql过程.png)
-
-### mysql逻辑存储结构
+#### 指定读取自定义配置文件
 
 ```shell
-库 表 列(字段) 数据行(记录)
-
-表属性 列属性
-```
-
-### mysql物理存储结构
-
-```shell
-myisam
-    user.frm 存储表结构(列, 列属性)
-    user.MYD 存储数据记录
-    user.MYI 存储索引
-
-innodb
-    time_zone.frm 存储表结构(列, 列属性)
-    time_zone.ibd 存储数据记录
-    ibdata1       数据字典信息
-```
-
-### innodb段,区, 页
-
-```shell
-一般情况下(非分区表)
-一个表就是一个段
-一个段由多个区构成
-一个区由64个连续的页(16k)组成, 1M大小
-```
-
-## 用户和权限管理
-
-### 用户
-
-```sql
--- 用户 用户名@'白名单'
-
--- 新建用户
-create user crab@'10.0.0.%' identified by '123';
-
--- 8.0之前, 同时新建和授权
-grant all on *.* to crab@'10.0.0.%' identified by '123';
-
--- 查询用户
-select user,host from mysql.user;
-
--- 修改密码
-alter user crab@'10.0.0.%' identified by '12345';
-
--- 删除用户
-drop user crab@'10.0.0.%';
-```
-
-### 权限
-
-```sql
--- with grant option 是否可以给别人授权
--- grant 权限 on 作用目标 to 用户 identified by 密码 with grant option;
-
--- 创建一个用户ww, 通过10网段对ww库下的所有表进行select, insert, update, delete
-grant select, insert, update, delete on ww.* to ww@'10.0.0.%' identified by '123';
-
--- 查询权限
-show grants for ww@'10.0.0.%';
--- GRANT USAGE ON *.* TO 'ww'@'10.0.0.%'    可登陆
--- GRANT SELECT, INSERT, UPDATE, DELETE ON `ww`.* TO 'ww'@'10.0.0.%'
-
--- 回收权限
-revoke delete on ww.* from 'ww'@'10.0.0.%';
+# 启动时添加参数
+--defaults-file=/etc/mysql5726.cnf
 ```
