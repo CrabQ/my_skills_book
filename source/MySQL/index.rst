@@ -6,7 +6,7 @@ MySQL
    :glob:
 
    MySQL安装及管理
-   MySQL基础语法
+   MySQL基础
    MySQL高级
    MySQL进阶
    MySQL规范

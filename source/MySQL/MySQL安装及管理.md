@@ -145,8 +145,8 @@ mysqladmin -uroot -p password root
 
 ```shell
 # 1. 日常启动
-mysql.server start ---> mysqld_safe ---> mysqld
-mysql.service                       ---> mysqld
+mysql.server  start ---> mysqld_safe ---> mysqld
+mysql.service start                  ---> mysqld
 # 都依赖/etc/my.cnf启动
 
 # 2. 维护性任务
@@ -209,12 +209,13 @@ systemctl start  mysqld
 # 1. 配置文件添加
 [mysqld]
 skip-grant-tables
+skip-networking
 
 # 2. 重启mysql, 输入mysql进入数据库
 
 # 3. 登录数据库修改密码
 mysql> flush privileges;
-mysql> alter user root@'localhost' identified by 'roott';
+mysql> alter user root@'localhost' identified by 'root';
 
 # 删除添加的配置, 正常启动mysql
 ```
