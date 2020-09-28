@@ -41,17 +41,20 @@ with open("./test.json",'a', encoding = "utf-8") as f:
 ## json序列化时间日期类型的数据
 
 ```python
-import json
-from datetime import datetime
-from datetime import date
-
 # 对含有日期格式数据的json数据进行转换
-class JsonCustomEncoder(json.JSONEncoder):
-    def default(self, field):
-        if isinstance(field,datetime):
-            return field.strftime('%Y-%m-%d %H:%M:%S')
-        elif isinstance(field,date):
-            return field.strftime('%Y-%m-%d')
-        else:
-            return json.JSONEncoder.default(self,field)
+import json
+from datetime import datetime, date
+
+class JsonCustomEncode(json.JSONEncoder):
+        def default(self, o):
+            if isinstance(o, datetime):
+                return o.strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(o, date):
+                return o.strftime('%Y-%m-%d')
+            else:
+                return super().default(o)
+
+if __name__ == '__main__':
+    b = json.dumps(datetime.now(), ensure_ascii=False, cls=JsonCustomEncode)
+    print(b)
 ```
