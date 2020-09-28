@@ -98,7 +98,7 @@ int
 
 # 字符串
 char(100)       未占满使用空格填充
-varchar(100)    255字符内单独申请一个字符长度的空间储存字符长度,超过则申请2个
+varchar(100)    255字符内单独申请一个字符长度的空间储存字符长度,超过则申请2个, 100个字符(中文,数字,英文)
 enum            枚举
 
 # 时间
@@ -131,7 +131,7 @@ show databases test;
 drop database test;
 
 -- 修改数据库字符集
-alter database test charset utf8mb4
+alter database test charset utf8mb4;
 ```
 
 数据库定义规范
@@ -221,12 +221,6 @@ ALTER TABLE gd_uniprot ADD CONSTRAINT pk_re PRIMARY KEY(disease_id, gene_id);
 ALTER TABLE gd_uniprot ADD CONSTRAINT fk_dis FOREIGN KEY(disease_id) REFERENCES disease_uniprot(id);
 ALTER TABLE gd_uniprot ADD CONSTRAINT fk_ge FOREIGN KEY(gene_id) REFERENCES gene_primary_uniprot(id);
 
--- 删除唯一索引
-alter table user drop key username;
-
--- 添加唯一索引
-alter table user add unique key(username);
-
 -- 修改表的储存引擎为myisam
 alter table user engine=myisam;
 
@@ -256,11 +250,9 @@ insert user(username, password, email) VALUES('3','3', '3@qq.com'),
 -- 将查询结果插入到表中
 create table test(
     id tinyint  primary key auto_increment,
-    username varchar(20)
-);
+    username varchar(20));
 
 insert test select id, username from user;
-
 
 -- 插入数据，唯一键已存在则更新
 insert into _cs_disease_map(dis_id, gene_symbol) VALUES('2857', "A1BG")  on DUPLICATE key update source = CONCAT(source, ',abc');
@@ -309,19 +301,14 @@ select count(age) from cms_user;
 
 -- 查询编号,性别,用户名详情,组中总人数,组中最大年龄,最小年龄,
 -- 平均年龄,以及年龄总和按照性别分组
-select id,sex,group_concat(username), count(*),
-max(age), min(age), avg(age), sum(age) from cms_user group by sex;
-
--- 查询编号大于等于4的用户
+-- 编号大于等于4的用户
 select id,sex,group_concat(username), count(*),
 max(age), min(age), avg(age), sum(age)
 from cms_user
 where id>=4
 group by sex
-having count(*)>2 and max(age)>60;
-
--- 按照年龄升序,id降序排列
-select * from cms_user order by age asc, id desc;
+having count(*)>2 and max(age)>60
+order by sex asc, id desc;
 
 -- 实现记录随机
 select * from cms_user order by rand();
@@ -332,9 +319,6 @@ select * from cms_user limit 5;
 -- 查询从第二条开始一共五条记录
 select * from cms_user limit 2,5;
 
--- 更新前3条记录，让已有年龄+10
-update cms_user set age=age+10 limit 3;
-
 -- 按照id降序排列，更新前3条
 update cms_user set age=age+10 order by id desc limit 3;
 
@@ -344,16 +328,12 @@ select username from employee union select username from cms_user;
 -- union all不会过滤重复数据, union会
 select id, username from employee union all select username,sex from cms_user;
 
--- 语句中查询条件or in 一般用uniion改写
+-- 语句中查询条件 or in 一般用uniion改写
 -- select * from city where code='chn' or code = 'usa';
 select * from city where code='chn' union all select * from city where code='usa';
 
--- 正则
 -- 查询用户名以t开始的用户
 select * from cms_user where username regexp '^t';
-
--- 查询用户名以g结束的用户
-select * from cms_user where username regexp 'g$';
 
 -- concat
 update cms_user set email=concat('email_', email);
@@ -421,7 +401,34 @@ select username,score from student where score <all(select level from scholarshi
 select SUBSTRING_INDEX(image_true_path, 'dx') from img_overlap_result limit 10;
 ```
 
-### 元数据
+### DQL show
+
+```sql
+-- 查看mysql编码
+show variables like '%char%';
+
+-- 只对当前连接有效
+set names 'utf8';
+
+-- 查看warning信息
+show warnings;
+
+-- 查看会话变量
+show session variables;
+
+-- 更改会话变量,仅针对当前会话
+set autocommit='off';
+set @@session.autocommit='on';
+
+-- 查看全局变量
+show global variables;
+select @@global.autocommit;
+
+-- 更改全局变量
+set global autocommit='on';
+```
+
+## 元数据
 
 ```sql
 use information_schema;
@@ -518,6 +525,52 @@ SPATIAL INDEX spa_test(test)
 create spatial index spa_test on test10(test);
 ```
 
+### 联合索引
+
+```shell
+add index idx(a,b,cd)
+# 唯一值多的列放在最左侧
+
+# 1. 所有索引列都是等值查询的条件下, 无关排列顺序
+# 优化器会自动做查询条件的排列
+select * from test where a=1 and b=1 and c=1 and d=1
+
+# 2. 不走全部索引的情况
+cda ---> a
+dba ---> ab
+
+```
+
+### 索引应用规范
+
+```shell
+建立索引原则
+1. 必须有主键
+2. 经常作为where条件列, order by group by join on, distinct的条件
+3. 使用唯一值多的列作为联合索引前导列
+4. 列值长度较长, 使用前缀索引
+5. 降低索引条目, 不创建无用索引, 清理不常使用索引, percona toolkit(xxxx)
+6. 索引维护避开业务繁忙期
+7. 小表不建索引
+
+不走索引的情况
+1. 无查询条件, 或查询条件没有建立索引
+2. 查询结果集是原表中的大部分数据, 应该是25%以上(针对辅助索引)
+3. 索引本身失效, 统计数据不真实
+4. 查询条件使用函数在索引列上, 或者对索引列进行运算(+-*/)
+5. 隐式转换导致索引失效
+6. <>, not in 不走索引(针对辅助索引)
+7. like '%sd%' 不走索引
+8. 联合索引应用不对的情况
+
+
+对于辅助索引来说, != 和 not in, 等语句是不走索引的
+对于主键索引来说, != 和 not in, 等语句走的是range
+
+like '%sd%' 不走索引
+like 'sd%' 走索引
+```
+
 ## 执行计划
 
 ```shell
@@ -539,10 +592,17 @@ mysql> mysql> desc select user, host from mysql.user;
 |  1 | SIMPLE      | user  | NULL       | index | NULL          | PRIMARY | 276     | NULL |    3 |   100.00 | Using index |
 +----+-------------+-------+------------+-------+---------------+---------+---------+------+------+----------+-------------+
 1 row in set, 1 warning (0.00 sec)
+
+
+table           表名
+type            类型
+possible_keys   可能走得索引
+key             最终走得索引
+key_len         索引覆盖长度, 判断是否走全了索引
+Extra           Using Filesort, 说明在查询中有关排序的条件列没有应用索引
 ```
 
-table 表名
-type 类型
+#### type
 
 ```shell
 1. 全表扫描    all
@@ -551,7 +611,7 @@ type 类型
 2. 索引扫描    index, range, ref, eq_ref, const(system), NULL
 
 index 全索引扫描
-# select code from city;
+# select id from city;
 
 range 索引范围扫描 <>=, between, and, or, in, like
 # select * from city where id>20;
@@ -566,42 +626,63 @@ eq_ref 多表连接时, 子表使用主键列或唯一列作为连接
 const(system) 主键或者唯一键的等值查询
 
 null 找不到数据
-
-对于辅助索引来书, != 和 not in, 等语句是不走索引的
-对于主键索引来书, != 和 not in, 等语句是走的是range
-
-like '%sd%' 不走索引
-like 'sd%' 走索引
 ```
 
-## 字符编码
+## 储存引擎
+
+### InnoDB存储引擎
+
+优点
+
+```shell
+事务(Transaction)
+MVCC(Multi-Version Concurrency Control多版本并发控制)
+行级锁(Row-level Lock)
+ACSR(Auto Crash Safey Recovery)自动的故障安全恢复
+支持热备份(Hot Backup)
+Replication: Group Commit, GTID (Global Transaction ID), 多线程(Multi-Threads-SQL )
+```
+
+### 存储引擎查看
 
 ```sql
--- 查看mysql编码
-show variables like '%char%';
+show engine;
 
--- 只对当前连接有效
-set names 'utf8';
+SELECT @@default_storage_engine;
 
--- 查看warning信息
-show warnings;
+-- 会话级别
+set default_storage_engine=myisam;
 
--- 修改编码
-alter table cms_user character set 'utf8mb4';
+-- 全局级别(仅影响新会话):
+set global default_storage_engine=myisam;
 
--- 查看会话变量
-show session variables;
+-- 重启之后,所有参数均失效.如果要永久生效,写入配置文件
+-- vim /etc/my.cnf
+-- [mysqld]
+-- default_storage_engine=myisam
 
--- 更改会话变量,仅针对当前会话
-set autocommit='off';
-set @@session.autocommit='on';
+-- 存储引擎是表级别的,每个表创建时可以指定不同的存储引擎,建议统一为innodb
 
--- 查看全局变量
-show global variables;
-select @@global.autocommit;
+-- INFORMATION_SCHEMA确认每个表的存储引擎
+select table_schema,table_name ,engine from information_schema.tables where table_schema not in ('sys','mysql','information_schema','performance_schema');
 
--- 更改全局变量
-set global autocommit='on';
+-- 修改一个表的存储引擎
+alter table t1 engine innodb;
+-- 此命令经常用于进行innodb表的碎片整理
+
+-- 批量修改一个库的存储引擎
+select concat("alter table zabbix.",table_name," engine tokudb;") from
+information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.sql';
+```
+
+### InnoDB存储引擎物理存储结构
+
+```shell
+ibdata1:系统数据字典信息(统计信息),UNDO表空间等数据
+ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件
+ibtmp1: 临时表空间磁盘位置,存储临时表
+frm:存储表的列信息
+ibd:表的数据行和索引
 ```
 
 ## 存储过程
