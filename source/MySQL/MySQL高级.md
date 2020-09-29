@@ -1,98 +1,5 @@
 # MySQL高级
 
-## MySQL连接管理
-
-```shell
-# 通过socket启动
-mysql -uroot -p -S /tmp/mysql.sock
-```
-
-### 初始化配置
-
-配置文件储存位置
-
-```shell
-/etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf
-# MySQL启动时,会依次读取以上配置文件
-# 以最后一个文件设置的为准
-# 如果以--defaults-file=xxxx启动,以上的所有文件都不会读取
-```
-
-## InnoDB存储引擎
-
-优点
-
-```shell
-事务(Transaction)
-MVCC(Multi-Version Concurrency Control多版本并发控制)
-行级锁(Row-level Lock)
-ACSR(Auto Crash Safey Recovery)自动的故障安全恢复
-支持热备份(Hot Backup)
-Replication: Group Commit, GTID (Global Transaction ID), 多线程(Multi-Threads-SQL )
-```
-
-### 存储引擎查看
-
-```sql
-SELECT @@default_storage_engine;
-
--- 会话级别
-set default_storage_engine=myisam;
-
--- 全局级别(仅影响新会话):
-set global default_storage_engine=myisam;
-
--- 重启之后,所有参数均失效.如果要永久生效,写入配置文件
--- vim /etc/my.cnf
--- [mysqld]
--- default_storage_engine=myisam
-
--- 存储引擎是表级别的,每个表创建时可以指定不同的存储引擎,建议统一为innodb
-
--- INFORMATION_SCHEMA确认每个表的存储引擎
-select table_schema,table_name ,engine from information_schema.tables where table_schema not in ('sys','mysql','information_schema','performance_schema');
-
--- 修改一个表的存储引擎
-alter table t1 engine innodb;
--- 此命令经常用于进行innodb表的碎片整理
-
--- 批量修改一个库的存储引擎
-select concat("alter table zabbix.",table_name," engine tokudb;") from
-information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.sql';
-```
-
-### InnoDB存储引擎物理存储结构
-
-```shell
-ibdata1:系统数据字典信息(统计信息),UNDO表空间等数据
-ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件
-ibtmp1: 临时表空间磁盘位置,存储临时表
-frm:存储表的列信息
-ibd:表的数据行和索引
-```
-
-### 表空间(Tablespace)
-
-#### 共享表空间
-
-```shell
-# show variables like '%extend%';
-
-所有数据存储到同一个表空间中,管理混乱
-5.5版本出现的管理模式,也是默认的管理模式
-5.6版本,共享表空间只用来存储数据字典信息,undo,临时表
-5.7版本,临时表独立出去
-8.0版本,undo独立出去
-```
-
-#### 独立表空间
-
-```shell
-从5.6,默认表空间替换为独立表空间
-主要存储用户数据
-存储特点为:一个表一个ibd文件,存储数据行和索引信息
-基本表结构元数据存储:xxx.frm
-```
 
 ### MySQL的存储引擎日志
 
@@ -140,13 +47,6 @@ Innodb_flush_method=O_DIRECT
 最高性能:
 innodb_flush_log_at_trx_commit=0
 Innodb_flush_method=fsync
-```
-
-### 事务的生命周期
-
-```shell
-# 自动提交策略
-select @@autocommit;
 ```
 
 ### 一些定义

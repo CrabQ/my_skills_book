@@ -141,7 +141,7 @@ systemctl start mysqld5726.service
 mysqladmin -uroot -p password root
 ```
 
-### mysql启动关闭
+## mysql启动关闭
 
 ```shell
 # 1. 日常启动
@@ -156,7 +156,7 @@ mysqld_safe --skip-grant-tables
 mysqladmin -uroot -p 123 shutdown
 ```
 
-### mysql连接管理
+## mysql连接管理
 
 ```shell
 # 查看是远程还是本地连接
@@ -169,15 +169,16 @@ mysql -uroot -p -h 10.0.0.51 -P 3306
 mysql -u root -p
 ```
 
-### mysql连接参数
+## mysql连接参数
 
 ```shell
 # -e 免交互执行sql命令
 mysql -u root -p -e 'select @@version;'
+
 # < 导入数据
 ```
 
-### 内置命令
+## 内置命令
 
 ```shell
 help    打印命令
@@ -187,7 +188,7 @@ help    打印命令
 source  恢复备份文件
 ```
 
-### 密码重置(忘记密码)
+## 密码重置(忘记密码)
 
 ```shell
 # 1. 关闭数据库库
@@ -220,7 +221,7 @@ mysql> alter user root@'localhost' identified by 'root';
 # 删除添加的配置, 正常启动mysql
 ```
 
-### 一些错误
+## 一些错误
 
 caching-sha2-password
 
@@ -271,9 +272,9 @@ vim /etc/my.cnf
 sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
 ```
 
-### 初始化配置
+## 初始化配置
 
-#### 标签归类
+### 标签归类
 
 ```shell
 # 服务器端
@@ -290,7 +291,7 @@ sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY
 [client]
 ```
 
-#### 基础配置
+### 基础配置
 
 ```shell
 [mysqld]
@@ -313,14 +314,14 @@ log_timestamps=system
 socket=/tmp/mysql.sock
 ```
 
-#### 配置读取顺序
+### 配置读取顺序
 
 ```shell
 # 从左到右顺序读取, 相同会覆盖
 etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf
 ```
 
-#### 指定读取自定义配置文件
+### 指定读取自定义配置文件
 
 ```shell
 # 启动时添加参数

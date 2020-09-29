@@ -657,6 +657,7 @@ set default_storage_engine=myisam;
 set global default_storage_engine=myisam;
 
 -- 重启之后,所有参数均失效.如果要永久生效,写入配置文件
+-- 一般先全局修改, 然后写入文件, 下次重启读入配置文件生效
 -- vim /etc/my.cnf
 -- [mysqld]
 -- default_storage_engine=myisam
@@ -678,11 +679,236 @@ information_schema.tables where table_schema='zabbix' into outfile '/tmp/tokudb.
 ### InnoDB存储引擎物理存储结构
 
 ```shell
-ibdata1:系统数据字典信息(统计信息),UNDO表空间等数据
+ibdata1:共享表空间, 存储系统数据字典信息(统计信息),UNDO表空间等数据
 ib_logfile0 ~ ib_logfile1: REDO日志文件,事务日志文件
 ibtmp1: 临时表空间磁盘位置,存储临时表
 frm:存储表的列信息
 ibd:表的数据行和索引
+```
+
+## 表空间(Tablespace)
+
+### 共享表空间
+
+```shell
+# ibdata1~n, 系统数据字典信息(统计信息),UNDO表空间等数据
+
+# 5.5版本出现的管理模式,也是默认的管理模式, 所有数据存储到同一个表空间中,管理混乱
+# 5.6版本,共享表空间只用来存储数据字典信息,undo,临时表
+# 5.7版本,临时表独立出去
+# 8.0版本,undo独立出去
+
+# select @@innodb_data_file_path;
+
+# 可以在初始化时设置
+# 两个文件,不够自动增长
+mysqld --initialize --user=mysql ... innodb_data_file_path=ibdata1:512M:ibdata2:512M:autoextend
+
+# 查看自动增长值大小
+# show variables like '%extend%';
+
+```
+
+### 独立表空间
+
+```shell
+从5.6,默认表空间替换为独立表空间
+主要存储用户数据
+存储特点为:一个表一个ibd文件,存储数据行和索引信息
+基本表结构元数据存储:xxx.frm
+表统计数据还是在ibdata1
+
+一张innodb表=frm+ibd+ibdata1
+
+select @@innodb_file_per_table;
+1 为独立表空间, 0为共享表空间
+```
+
+#### 独立表空间迁移
+
+```shell
+1. 创建和原表结构一样的空表
+2. 将空表的ibd文件删除
+    # alter table city dicard tablespace;
+3. 拷贝ibd文件,修改权限
+4. 导入ibd文件
+    # alter table city import tablespace;
+```
+
+## 事务
+
+```shell
+Transaction
+事务是数据库并发控制的基本单位
+事务可以看做是一系列SQL语句的集合
+事务必须要么全部执行成功,要么全部执行失败(回滚)
+```
+
+### ACID是事务的四个基本特性
+
+```shell
+原子性(Atomic)      所有语句作为一个单元全部成功或者取消, 不能出现中间状态
+一致性(Consistent)  如果数据库在事务开始时处于一致状态,则在执行事务期间将保留一致状态
+隔离性(Isolated)    事务之间互不影响
+持久性(Durable)     事务结束之后,修改是永久的不会丢失
+```
+
+### 事务的生命周期
+
+```shell
+begin;
+
+DML: insert, update, delete
+
+commit;
+
+# 回滚
+rollback;
+
+# 自动提交机制
+select @@autocommit;
+```
+
+#### 触发隐式提交
+
+```shell
+# 触发隐式提交
+begin; select begin;
+
+以下语句会触发隐式提交, 在事务中自动提交
+
+DDL(later, create, drop)
+DCL(grant, revoke, set password)
+锁定语句(lock tables, unlock table)
+```
+
+### 四种事务隔离级别
+
+如果不对事务进行并发控制,可能会产生四种异常情况
+
+```shell
+脏读(dirty read)                一个事务读取到另一个事务没有提交的修改
+非重复读(nonrepeatable read)    一个事务重复读两次得到不同结果(会话1更新某条数据, 导致会话2查询此条数据两次结果不一样)
+幻读(phantom read)              一个事务第二次查出现第一次没有的结果(会话1更新id>2数据, 会话2插入数据, 导致会话1查询并非所有id>2数据都修改)
+丢失修改(lost update)           并发写入造成其中一些修改丢失
+```
+
+```shell
+select @@tx_isolation;
+
+RU: 读未提交(read uncommitted), 别的事物可以读取到未提交改变, 脏读
+RC: 读已提交(read committed), 只能读取已经提交的数据, 可防止脏读, 可能会出现幻读
+RR: 可重复读(repeatable read), 同一个事务先后查询结果一样(Mysql innodb默认), 有可能出现幻读, 可利用undo的快照技术和GAP(间隙锁)+NextLock(下键锁)避免(必须是索引)
+SR: 串行化(Serializable), 事务完全串行化的执行,隔离级别最高, 防止死锁, 并发性能最差
+
+# 修改隔离级别, 配置文件写入
+[mysqld]
+transaction_isolation=read uncommitted
+```
+
+### 事务ACID特性
+
+一些定义
+
+```shell
+ibd
+# 存储数据行和索引
+
+buffer pool
+# 缓冲区池,数据和索引的缓冲
+
+LSN
+# 日志序列号
+# 存在于这四个文件, 磁盘数据页(ibd), redo文件(iblogfile0), buffer pool, redo buffer
+
+WAL write ahead log
+# 日志优先写的方式实现持久化, 日志优先于数据写入磁盘
+
+脏页
+# 内存脏页,内存中发生了修改,没写入到磁盘之前,我们把内存页称之为脏页
+
+CKPT Checkpoint
+# 检查点,就是将脏页刷写到磁盘的动作
+
+TXID
+# 事务号,InnoDB会为每一个事务生成一个事务号,伴随着整个事务
+```
+
+#### redo log
+
+```shell
+保证事务的 d(ac)
+
+# 重做日志, 默认50M, 轮训使用, 记录了内存数据页的变化
+iblogfile0 iblogfile1
+
+# redo内存区域:数据页的变化信息+数据页当时的LSN号
+redo log buffer
+
+作用:
+1. 记录内存数据页变化
+2. 提供快速达额持久化功能(WAL)
+3. CSR过程中实现前滚操作(使磁盘数据页和redo日志LSN一致)
+
+redo刷写策略
+commit;
+刷新当前事务的redo buffer到磁盘
+同时将redo buffer中没有提交的事务日志也刷新到磁盘
+```
+
+##### redo的刷新策略
+
+```shell
+commit;
+刷新当前事务的redo buffer到磁盘
+还会顺便将一部分redo buffer中没有提交的事务日志也刷新到磁盘
+```
+
+#### undo 回滚日志
+
+```shell
+保证事务的 a(ic)
+
+1. 记录了数据修改之前的状态
+2. 在rollback时,将内存的数据恢复到修改之前的状态
+3. 在CSR中实现将未提交的数据回滚操作
+4. 实现一致性快照, 配合锁机制保证MVCC, 读写操作不会互相阻塞
+```
+
+#### CSR: 前滚
+
+```shell
+MySQL 在启动时,必须保证redo日志文件和数据文件LSN必须一致,如果不一致就会触发CSR,最终保证一致
+
+一个事务,begin;update;commit
+
+1. begin时,会立即分配一个TXID=tx_01
+
+2. update时,会将需要修改的数据页(dp_01,LSN=101),加载到data buffer中
+
+3. DBWR线程,会进行dp_01数据页修改更新,并更新LSN=102
+
+4. LOGBWR日志写线程,会将dp_01数据页的变化+LSN+TXID存储到redobuffer
+
+5. 执行commit时,LGWR日志写线程会将redobuffer信息写入redolog日志文件中
+基于WAL原则,在日志完全写入磁盘后,commit命令才执行成功,(会将此日志打上commit标记)
+
+6. 假如此时宕机,内存脏页没有来得及写入磁盘,内存数据全部丢失
+
+7. MySQL再次重启时,必须要redolog和磁盘数据页的LSN是一致的
+但是,此时dp_01,TXID=tx_01磁盘是LSN=101,dp_01,TXID=tx_01,redolog中LSN=102
+
+MySQL此时无法正常启动,MySQL触发CSR.在内存追平LSN号,触发ckpt,将内存数据页更新到磁盘,从而保证磁盘数据页和redolog LSN一至.这时MySQL正常启动
+
+以上的工作过程,我们把它称之为基于REDO的"前滚操作"
+```
+
+#### 锁
+
+```shell
+实现了事务间的隔离功能
+
+innodb实现了行级锁
 ```
 
 ## 存储过程
@@ -919,19 +1145,6 @@ select * from information_schema.triggers where trigger_name='tr_test';
 
 -- 删除触发器
 drop trigger tr_test;
-```
-
-## 事务
-
-```sql
--- 查看数据库是否支持事务
-show engines;
-
--- 查看Mysql当前默认的存储引擎
-show variables like '%engines%';
-
--- 修改数据库引擎
-alter table cms_user engine=myisam;
 ```
 
 ## My ISAM表锁
