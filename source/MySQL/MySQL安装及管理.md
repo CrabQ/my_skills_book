@@ -107,7 +107,7 @@ datadir=/data/mysql5726/data
 socket=/tmp/mysql.sock
 server_id=5726
 port=5726
-log_error=/data/mysql5726/data/crabQ_err.log
+log_error=/tmp/mysql5726.log
 log_timestamps=system
 [mysql]
 socket=/tmp/mysql.sock
@@ -280,15 +280,13 @@ sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY
 # 服务器端
 [mysqld]
 [mysqld_safe]
-# 包括上面两个
-[server]
+[server] # 包括上面两个
 
 # 客户端
 [mysql]
 [mysqladmin]
 [mysqldump]
-# 包括上面3个
-[client]
+[client] # 包括上面3个
 ```
 
 ### 基础配置
@@ -307,7 +305,7 @@ socket=/tmp/mysql.sock
 server_id=5726
 port=5726
 # 错误日志
-log_error=/data/mysql5726/data/crabQ_err.log
+log_error=/tmp/mysql5726.log
 log_timestamps=system
 [mysql]
 # 与服务器一致

@@ -528,7 +528,7 @@ create spatial index spa_test on test10(test);
 ### 联合索引
 
 ```shell
-add index idx(a,b,cd)
+add index idx(a, b, c, d)
 # 唯一值多的列放在最左侧
 
 # 1. 所有索引列都是等值查询的条件下, 无关排列顺序
@@ -692,13 +692,12 @@ ibd:表的数据行和索引
 
 ```shell
 # ibdata1~n, 系统数据字典信息(统计信息),UNDO表空间等数据
+# select @@innodb_data_file_path;
 
 # 5.5版本出现的管理模式,也是默认的管理模式, 所有数据存储到同一个表空间中,管理混乱
 # 5.6版本,共享表空间只用来存储数据字典信息,undo,临时表
 # 5.7版本,临时表独立出去
 # 8.0版本,undo独立出去
-
-# select @@innodb_data_file_path;
 
 # 可以在初始化时设置
 # 两个文件,不够自动增长
@@ -777,7 +776,7 @@ begin; select begin;
 
 以下语句会触发隐式提交, 在事务中自动提交
 
-DDL(later, create, drop)
+DDL(alter, create, drop)
 DCL(grant, revoke, set password)
 锁定语句(lock tables, unlock table)
 ```
@@ -796,9 +795,9 @@ DCL(grant, revoke, set password)
 ```shell
 select @@tx_isolation;
 
-RU: 读未提交(read uncommitted), 别的事物可以读取到未提交改变, 脏读
-RC: 读已提交(read committed), 只能读取已经提交的数据, 可防止脏读, 可能会出现幻读
-RR: 可重复读(repeatable read), 同一个事务先后查询结果一样(Mysql innodb默认), 有可能出现幻读, 可利用undo的快照技术和GAP(间隙锁)+NextLock(下键锁)避免(必须是索引)
+RU: 读未提交(read uncommitted), 别的事物可以读取到未提交改变, 可能会出现脏读, 非重复读, 幻读
+RC: 读已提交(read committed), 只能读取已经提交的数据, 可防止脏读, 可能会出现非重复读, 幻读
+RR: 可重复读(repeatable read), 同一个事务先后查询结果一样(Mysql innodb默认), 可能出现幻读, 可利用undo的快照技术和GAP(间隙锁)+NextLock(下键锁)避免(必须是索引)
 SR: 串行化(Serializable), 事务完全串行化的执行,隔离级别最高, 防止死锁, 并发性能最差
 
 # 修改隔离级别, 配置文件写入
@@ -847,13 +846,8 @@ redo log buffer
 
 作用:
 1. 记录内存数据页变化
-2. 提供快速达额持久化功能(WAL)
+2. 提供快速达到持久化功能(WAL)
 3. CSR过程中实现前滚操作(使磁盘数据页和redo日志LSN一致)
-
-redo刷写策略
-commit;
-刷新当前事务的redo buffer到磁盘
-同时将redo buffer中没有提交的事务日志也刷新到磁盘
 ```
 
 ##### redo的刷新策略
@@ -909,6 +903,257 @@ MySQL此时无法正常启动,MySQL触发CSR.在内存追平LSN号,触发ckpt,�
 实现了事务间的隔离功能
 
 innodb实现了行级锁
+```
+
+#### innodb核心参数介绍
+
+```shell
+# 默认存储引擎
+default_storage_engine=innodb
+
+# 表空间模式
+innodb_file_per_table=1
+# 共享表空间文件大小和个数
+innodb_data_file_path=ibdata1:512M:ibdata2:512M:autoextend
+
+# 事务提交马上刷写到磁盘
+innodb_flush_log_at_trx_commit=1
+
+Innodb_flush_method=O_DIRECT
+
+# redo日志相关
+innodb_log_buffer_size=16777216
+innodb_log_file_size=50331648
+innodb_log_files_in_group=3
+
+# 脏页刷写策略, 内存占用比列
+innodb_max_dirty_pages_pct=75
+```
+
+## 日志管理
+
+### 错误日志(log_error)
+
+```shell
+# 记录启动,关闭,日常运行过程中的状态信息,警告,错误.默认开启
+show variables like 'log_error';
+
+# 设置
+vim /etc/my.cnf
+log_error=/var/log/mysql.log
+log_timestamps=system
+```
+
+### 二进制日志binlog
+
+```sql
+-- 备份恢复, 主从环境必须依赖二进制日志.默认关闭
+
+-- 开关
+select @@log_bin;
+
+-- 日志路径及名字
+select @@log_bin_basename;
+
+-- 服务ID号
+select @@server_id;
+
+-- 二进制日志格式
+select @@binlog_format;
+
+双一标准之二
+select @@sync_binlog;
+```
+
+内容配置
+
+```shell
+# /etc/my.cnf
+server_id=6
+# 配置了此项自动开启二进制日志
+log_bin=/data/binlog/mysql-bin
+# 5.7版本后默认设置
+binlog_format=row
+```
+
+#### binlog内容
+
+```shell
+binlog是SQL层的功能.记录的是变更SQL语句,不记录查询语句
+
+记录SQL语句种类
+DDL: 原封不动的记录当前DDL(statement语句方式)
+DCL: 原封不动的记录当前DCL(statement语句方式)
+DML: 只记录已经提交的事务DML
+```
+
+##### DML三种记录方式
+
+```shell
+# binlog_format参数
+statement       SBR(statement based replication), 语句模式原封不动的记录当前DML
+ROW             RBR(ROW based replication), 记录数据行的变化(用户看不懂,需要工具分析)
+mixed           MBR(mixed based replication), 以上两种模式的混合
+
+STATEMENT   可读性较高,日志量少,不够严谨
+ROW         可读性很低,日志量大,足够严谨
+
+建议使用row记录模式
+```
+
+#### 二进制日志的记录单元event
+
+```shell
+对于DDL,DCL,一个语句就是一个event
+对于DML语句, 只记录已提交的事务
+begin;      事件1
+a           事件2
+b           事件3
+commit;     事件4
+
+event由三部分构成
+1. 事件的开始标识
+2. 事件内容
+3. 事件的结束标识
+
+开始标识: at 194
+结束标识: end_log_pos 254
+194,254: 某个事件在binlog中的相对位置号
+```
+
+查看日志的开启情况
+
+```sql
+show variables like '%log_bin%';
+
+-- 查看一共多少个binlog
+show binary logs;
+
+-- 滚动日志
+flush logs;
+
+-- 查看mysql正在使用的日志文件
+show master status;
+```
+
+日志内容查看
+
+```sql
+show binlog events in 'mysql-bin.000003';
+```
+
+基于Position号进行日志截取并恢复内容
+
+```shell
+# /d test 只针对某个库
+mysqlbinlog --start-position=219 --stop-position=1347 /data/binlog/mysql-bin.000003 >/tmp/bin.sql
+
+# mysql恢复内容
+set sql_Log_bin=0;
+source /tmp/bin.sql
+set sql_log_bin=1;
+```
+
+#### binlog日志的GTID新特性
+
+```shell
+对一个已提交事务的编号,并且是一个全局唯一的编号
+Global Transaction ID
+
+DDL, DCL 一个event就是一个事务,生成一个GTID号
+DML, 从begin到commit,是一个事务,生成一个GTID号
+
+GTID组成    server_uuid:TID
+server_uuid cat /数据路径下/auto.cnf
+TID 自增持的数据, 从1开始
+
+GTID的幂等性
+开启GTID后,MySQL恢复Binlog时,检查当前系统中是否有相同的GTID号, 有则跳过
+```
+
+配置
+
+```shell
+vim /etc/my.cnf
+# 启用gtid类型
+gtid-mode=on
+
+# 强制GTID的一致性
+enforce-gtid-consistency=true
+
+# slave更新是否记入日志
+log-slave-updates=1
+```
+
+基于GTID进行查看binlog
+
+```shell
+# --skip-gtids 跳过已有的gtid,恢复时会生成新的事务
+--exclude-gtids
+mysqlbinlog --skip-gtids --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:6-7' /data/binlog/mysql-bin.000036 >/backup/bin.sql
+
+# 恢复
+set sql_log_bin=0;
+source /tmp/binlog.sql
+set sql_log_bin=1;
+```
+
+#### 二进制日志其他操作
+
+自动清理日志
+
+```shell
+show variables like '%expire%';
+
+# 永久生效
+# my.cnf
+expire_logs_days=15;
+# 至少保留两个全备周期+1的binlog
+```
+
+手工清理
+
+```shell
+PURGE BINARY LOGS BEFORE now() - INTERVAL 3 day;
+PURGE BINARY LOGS TO 'mysql-bin.000010';
+注意:不要手工 rm binlog文件
+1. my.cnf binlog关闭掉,启动数据库
+2.把数据库关闭,开启binlog,启动数据库
+删除所有binlog,并从000001开始重新记录日志
+```
+
+日志滚动
+
+```shell
+flush logs;
+重启mysql也会自动滚动一个新的
+日志文件达到1G大小(max_binlog_size)
+备份时,加入参数也可以自动滚动
+```
+
+### slow_log 慢日志
+
+```shell
+# 记录慢SQL语句的日志,定位低效SQL语句的工具日志
+
+# vim /etc/my.cnf
+# 开关
+slow_query_log=1
+
+# 文件位置及名字
+slow_query_log_file=/data/mysql/slow.log
+
+# 设定慢查询时间
+long_query_time=0.1
+
+# 没走索引的语句也记录
+log_queries_not_using_indexes
+```
+
+mysqldumpslow 分析慢日志
+
+```shell
+mysqldumpslow -s c -t 10 /data/mysql/slow.log
 ```
 
 ## 存储过程
