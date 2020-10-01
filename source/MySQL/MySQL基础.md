@@ -963,6 +963,9 @@ select @@binlog_format;
 
 双一标准之二
 select @@sync_binlog;
+
+-- 每次事务提交都立即刷写binlog到磁盘
+-- sync_binlog=1
 ```
 
 内容配置
@@ -1029,9 +1032,6 @@ show variables like '%log_bin%';
 -- 查看一共多少个binlog
 show binary logs;
 
--- 滚动日志
-flush logs;
-
 -- 查看mysql正在使用的日志文件
 show master status;
 ```
@@ -1064,8 +1064,8 @@ DDL, DCL 一个event就是一个事务,生成一个GTID号
 DML, 从begin到commit,是一个事务,生成一个GTID号
 
 GTID组成    server_uuid:TID
-server_uuid cat /数据路径下/auto.cnf
-TID 自增持的数据, 从1开始
+# server_uuid cat/数据路径下/auto.cnf
+# TID 自增持的数据, 从1开始
 
 GTID的幂等性
 开启GTID后,MySQL恢复Binlog时,检查当前系统中是否有相同的GTID号, 有则跳过
@@ -1114,8 +1114,9 @@ expire_logs_days=15;
 手工清理
 
 ```shell
-PURGE BINARY LOGS BEFORE now() - INTERVAL 3 day;
-PURGE BINARY LOGS TO 'mysql-bin.000010';
+mysql> PURGE BINARY LOGS BEFORE now() - INTERVAL 3 day;
+mysql> PURGE BINARY LOGS TO 'mysql-bin.000010';
+
 注意:不要手工 rm binlog文件
 1. my.cnf binlog关闭掉,启动数据库
 2.把数据库关闭,开启binlog,启动数据库
@@ -1154,6 +1155,148 @@ mysqldumpslow 分析慢日志
 
 ```shell
 mysqldumpslow -s c -t 10 /data/mysql/slow.log
+```
+
+## 备份恢复
+
+备份类型
+
+```shell
+热备
+在数据库正常业务时,备份数据,并且能够一致性恢复(只能是innodb)
+对业务影响非常小
+
+温备
+锁表备份,只能查询不能修改(myisam)
+影响到写入操作
+
+冷备
+关闭数据库业务,数据库没有任何变更的情况下,进行备份数据
+业务停止
+```
+
+备份方式及工具
+
+```shell
+逻辑备份工具
+mysqldump
+mysqlbinlog
+
+物理备份工具
+基于磁盘数据文件备份
+xtrabackup(XBK) :percona 第三方
+MySQL Enterprise Backup(MEB)
+```
+
+mysqldump (MDP)
+
+```shell
+优点:
+不需要下载安装
+备份出来的是SQL,文本格式,可读性高,便于备份处理
+压缩比较高,节省备份的磁盘空间
+
+缺点:
+依赖于数据库引擎,需要从磁盘把数据读出
+然后转换成SQL进行转储,比较耗费资源,数据量大的话效率较低
+
+建议:
+100G以内的数据量级,可以使用mysqldump
+超过TB以上,我们也可能选择的是mysqldump,配合分布式的系统
+```
+
+xtrabackup(XBK)
+
+```shell
+优点:
+类似于直接cp数据文件,不需要管逻辑结构,相对来说性能较高
+缺点:
+
+可读性差
+压缩比低,需要更多磁盘空间
+
+建议:
+>100G<TB
+```
+
+备份策略
+
+```shell
+备份方式:
+全备:全库备份,备份所有数据
+增量:备份变化的数据
+
+逻辑备份=mysqldump+mysqlbinlog
+物理备份=xtrabackup_full+xtrabackup_incr+binlog或者xtrabackup_full+binlog
+
+备份周期:
+根据数据量设计备份周期
+比如:周日全备,周1-周6增量
+```
+
+### mysqldump(逻辑备份的客户端工具)
+
+```shell
+# -A 全备参数
+
+# -B db1 db2 db3 备份多个单库
+
+# 特殊参数使用(必须要加)
+
+# -R             备份存储过程及函数
+# --triggers     备份触发器
+# -E             备份事件
+# -F             在备份开始时,刷新一个新binlog日志
+
+# --master-data=2
+# 以注释的形式,保存备份开始时间点的binlog的状态信息
+# 在备份时,会自动记录,二进制日志文件名和位置号
+      # 0 默认值
+      # 1  以change master to命令形式,可以用作主从复制
+      # 2  以注释的形式记录,备份时刻的文件名+postion号
+# 自动锁表
+# 如果配合--single-transaction,只对非InnoDB表进行锁表备份,InnoDB表进行热备,实际上是实现快照备份.
+
+# --single-transaction
+# innodb 存储引擎开启热备(快照备份)功能
+# --master-data可以自动加锁
+# 不加--single-transaction ,启动所有表的温备份,所有表都锁定
+# 加上--single-transaction ,对innodb进行快照备份,对非innodb表可以实现自动锁表功能
+
+# 日常备份
+mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=OFF >/data/backup/full.sql
+
+# --set-gtid-purged=auto/on:在构建主从复制环境时需要的参数配置
+mysqldump -uroot -p -A -R -E --triggers --master-data=2  --single-transaction --set-gtid-purged=ON >/data/backup/full.sql
+
+# 调整数据包大小
+# max_allowed_packet=128M
+```
+
+压缩备份并添加时间戳
+
+```shell
+mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F).sql.gz
+mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F-%T).sql.gz
+
+# mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复的表)
+set sql_log_bin=0;
+source /backup/full_2018-06-28.sql
+set sql_log_bin=1;
+
+```
+
+### XBK物理备份
+
+```shell
+# 依赖安装
+wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+yum -y install perl perl-devel libaio libaio-devel perl-Time-HiRes perl-DBD-MySQL libev
+
+# 软件安装
+wget https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.4.12/binary/redhat/7/x86_64/percona-xtrabackup-24-2.4.12-1.el7.x86_64.rpm
+
+yum -y install percona-xtrabackup-24-2.4.12-1.el7.x86_64.rpm
 ```
 
 ## 存储过程
