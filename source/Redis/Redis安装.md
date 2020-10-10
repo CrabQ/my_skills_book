@@ -18,24 +18,36 @@ pip install redis
 
 ## Centos7安装Redis
 
+目录规划
+
+```shell
+# 安装目录
+/app/redis_cluster/redis_{port}/{conf, logs, pid}
+
+# 数据目录
+/data/redis_cluster/redis_{port}/redis_{port}.rdb
+
+# 运维脚本
+/root/scripts/redis_shell.sh
+```
+
 ```shell
 # 下载解压
 wget http://download.redis.io/releases/redis-5.0.7.tar.gz
-
-# 解压
-tar -zxvf redis-5.0.7.tar.gz
+tar -zxvf redis-5.0.7.tar.gz -C /app/
+ln -s /app/redis-5.0.7 /app/redis /app/redis
 
 # 安装gcc环境
 yum install -y gcc
 
 # 进入解压目录
-cd redis-5.0.7
+cd redis
 
-# 编译
-make
+# 编译安装
+make && make install
 
 # 安装
-make install PREFIX=/usr/local/redis
+# make install PREFIX=/usr/local/redis
 
 # 直接启动
 cd /usr/local/redis/bin
@@ -57,14 +69,21 @@ ps -ef|grep redis
 # 守护进程方式启动
 daemonize yes
 
+# 绑定地址
+bind 内网地址
+
 # 端口
 port 6379
 
-# redis系统日志
-logfile "6379.log"
+# pid文件和log文件保存地址
+pidfile /app/redis_cluster/redis_6379/pid/redis_6379.pid
+logfile /app/redis_cluster/redis_6379/logs/redis_6379.log
+
+# 指定本地持久化文件
+dbfilename redis_6379.rdb
 
 # redis工作目录
-dir /usr/local/redis/data
+dir /app/redis_cluster/redis_6379/
 ```
 
 ### RDB设置(可选)

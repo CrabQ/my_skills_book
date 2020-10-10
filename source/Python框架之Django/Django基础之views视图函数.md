@@ -85,12 +85,12 @@ def my_view(request):
 ## FBV和CBV
 
 ```python
-# CBV  -- class based view
+# views.py
+# FBV -- function based view
 def articles(request, id=1):
     return HttpResponse(str(id))
 
-# FBV -- function based view
-# views
+# CBV  -- class based view
 from django.http import HttpResponse
 from django.views import View
 
@@ -103,7 +103,7 @@ class HomeView(View):
         return HttpResponse('ok')
 
 
-# urls
+# urls.py
 from django.urls import path
 from . import views
 

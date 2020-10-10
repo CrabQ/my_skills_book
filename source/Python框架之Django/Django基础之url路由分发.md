@@ -60,7 +60,6 @@ urlpatterns = [
 ```python
 # urls.py
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
@@ -70,7 +69,6 @@ urlpatterns = [
 
 # views.py
 from django.http.response import HttpResponse
-
 
 def articles(request, id=1):
     return HttpResponse(str(id))

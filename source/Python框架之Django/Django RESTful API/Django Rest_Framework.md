@@ -214,7 +214,7 @@ class BookDetailView(APIView):
         b_obj = models.Book.objects.filter(pk=pk).first()
         b_ser = BookSerializer(instance=b_obj)
         res = {"status": 200, "msg": "ok", "data": b_ser.data}
-
+ 
         return JsonResponse(res)
 
     def delete(self, request, pk):
