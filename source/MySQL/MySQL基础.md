@@ -231,15 +231,6 @@ alter table user engine=myisam;
 ### DML 插入,更新,删除
 
 ```sql
--- 插入数据
-create table if not exists user(
-    id smallint unsigned primary key auto_increment,
-    username varchar(20) not null unique,
-    password char(32) not null,
-    email varchar(50) not null,
-    age tinyint unsigned default 18
-) engine=innodb charset='utf8mb4';
-
 insert into user values(1, '1', '1', '1@qq.com', 20);
 
 insert into user set id=102, username='2', password='2', email='2@qq.com';
@@ -908,6 +899,9 @@ innodb实现了行级锁
 #### innodb核心参数介绍
 
 ```shell
+select @@innodb_buffer_pool_size;
+# 一般建议最多是物理内存的 75-80%
+
 # 默认存储引擎
 default_storage_engine=innodb
 
@@ -919,7 +913,23 @@ innodb_data_file_path=ibdata1:512M:ibdata2:512M:autoextend
 # 事务提交马上刷写到磁盘
 innodb_flush_log_at_trx_commit=1
 
+# 主要控制了innodb将log buffer中的数据写入日志文件并flush磁盘的时间点,分别为0,1,2
+# 1 每次事物的提交都会引起日志文件写入,flush磁盘的操作,确保了事务的ACID;flush到操作系统的文件系统缓存,fsync到物理磁盘
+# 0 表示当事务提交时,不做日志写入操作,而是每秒钟将log buffer中的数据写入文件系统缓存并且秒fsync磁盘一次
+# 2 每次事务提交引起写入文件系统缓存,但每秒钟完成一次fsync磁盘操作
+
 Innodb_flush_method=O_DIRECT
+# 控制的是log buffer和data buffer,刷写磁盘的时候是否经过文件系统缓存
+# O_DIRECT 数据缓冲区写磁盘,不走OS buffer
+# O_DSYNC 日志缓冲区写磁盘,不走OS buffer
+# fsync 日志和数据缓冲区写磁盘,都走OS buffer
+
+# 最高安全模式
+# innodb_flush_log_at_trx_commit=1
+# Innodb_flush_method=O_DIRECT
+# 最高性能:
+# innodb_flush_log_at_trx_commit=0
+# Innodb_flush_method=fsync
 
 # redo日志相关
 innodb_log_buffer_size=16777216
@@ -1049,9 +1059,9 @@ show binlog events in 'mysql-bin.000003';
 mysqlbinlog --start-position=219 --stop-position=1347 /data/binlog/mysql-bin.000003 >/tmp/bin.sql
 
 # mysql恢复内容
-set sql_Log_bin=0;
-source /tmp/bin.sql
-set sql_log_bin=1;
+mysql> set sql_Log_bin=0;
+mysql> source /tmp/bin.sql
+mysql> set sql_log_bin=1;
 ```
 
 #### binlog日志的GTID新特性
@@ -1093,9 +1103,9 @@ log-slave-updates=1
 mysqlbinlog --skip-gtids --include-gtids='3ca79ab5-3e4d-11e9-a709-000c293b577e:6-7' /data/binlog/mysql-bin.000036 >/backup/bin.sql
 
 # 恢复
-set sql_log_bin=0;
-source /tmp/binlog.sql
-set sql_log_bin=1;
+mysql> set sql_log_bin=0;
+mysql> source /tmp/binlog.sql
+mysql> set sql_log_bin=1;
 ```
 
 #### 二进制日志其他操作
@@ -1114,6 +1124,7 @@ expire_logs_days=15;
 手工清理
 
 ```shell
+# 两种方式
 mysql> PURGE BINARY LOGS BEFORE now() - INTERVAL 3 day;
 mysql> PURGE BINARY LOGS TO 'mysql-bin.000010';
 
@@ -1280,9 +1291,9 @@ mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|
 mysqldump -uroot -p123 -A  -R  --triggers --master-data=2  --single-transaction|gzip > /backup/full_$(date +%F-%T).sql.gz
 
 # mysqldump备份的恢复方式(在生产中恢复要谨慎,恢复会删除重复的表)
-set sql_log_bin=0;
-source /backup/full_2018-06-28.sql
-set sql_log_bin=1;
+mysql> set sql_log_bin=0;
+mysql> source /backup/full_2018-06-28.sql
+mysql> set sql_log_bin=1;
 
 ```
 
@@ -1294,9 +1305,230 @@ wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 yum -y install perl perl-devel libaio libaio-devel perl-Time-HiRes perl-DBD-MySQL libev
 
 # 软件安装
-wget https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.4.12/binary/redhat/7/x86_64/percona-xtrabackup-24-2.4.12-1.el7.x86_64.rpm
+yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+yum list | grep percona
+yum -y install percona-xtrabackup-24.x86_64
+# 选择对应版本 5.7对应2.4
 
-yum -y install percona-xtrabackup-24-2.4.12-1.el7.x86_64.rpm
+# 对于非Innodb表锁表cp数据文件, 属于温备
+# 对于Innodb的表(支持事务的), 不锁表, 拷贝数据页, 最终以数据文件的方式保存下来, 把一部分redo和undo一并备走, 属于热备方式
+```
+
+#### xbk 在innodb表备份恢复的流程
+
+```shell
+1. xbk备份执行的瞬间,立即触发ckpt,已提交的数据脏页,从内存刷写到磁盘,并记录此时的LSN号
+2. 备份时拷贝磁盘数据页, 并记录备份过程中产生的redo和undo一起拷贝, 也就是checkpoint LSN之后的日志
+3. 在恢复之前, 模拟Innodb csr,应用redo与undo
+4. 恢复过程是cp备份到原来数据目录下
+```
+
+#### innobackupex使用
+
+```shell
+innobackupex --user=root --password=root --socket=/tmp/mysql.sock --no-timestamp /tmp/backup/full
+```
+
+全备恢复
+
+```shell
+# 1. 准备备份
+# 将redo进行重做, 已提交的写到数据文件, 未提交的使用undo回滚掉, 模拟了CSR的过程
+innobackupex --apply-log  /tmp/backup/full
+
+# 2. 恢复备份
+# 前提: 被恢复的目录是空,被恢复的数据库的实例是关闭
+cp -a /tmp/backup/full/* /data/mysql1/
+```
+
+##### innobackupex 增量备份
+
+```shell
+# 增量备份的方式, 是基于上一次备份进行增量
+# 增量备份无法单独恢复, 必须基于全备进行恢复
+# 所有增量必须要按顺序合并到全备中
+
+# 1. 全备
+# 2. 第一次增量备份
+innobackupex --user=root --password=123 --no-timestamp --incremental --incremental-basedir=/backup/full  /backup/inc1 &>/tmp/inc1.log
+
+# 3. 第二次增量备份
+innobackupex --user=root --password=123 --no-timestamp --incremental --incremental-basedir=/backup/inc1  /backup/inc2  &>/tmp/inc2.log
+
+
+# 备份恢复
+# 周日full+周一inc1+周二inc2, 周三的完整二进制日志
+
+
+# 1. 全备的整理
+innobackupex --apply-log --redo-only /data/backup/full
+
+# 2. 合并inc1到full中
+innobackupex --apply-log --redo-only --incremental-dir=/data/backup/inc1 /data/backup/full
+
+# 3. 合并inc2到full中
+innobackupex --apply-log  --incremental-dir=/data/backup/inc2 /data/backup/full
+
+# 4. 最后一次整理全备
+innobackupex --apply-log  /data/backup/full
+
+# 5. 截取周二 23:00 到drop 之前的 binlog
+mysqlbinlog --skip-gtids --include-gtids='1afe8136-601d-11e9-9022-000c2928f5dd:7-9' /data/binlog/mysql-bin.000009 >/data/backup/binlog.sql
+
+# 6. 恢复
+# mkdir /data/mysql/data2 -p
+# cp -a * /data/mysql/data2
+# chown -R mysql.  /data/*
+
+# 停实例, 配置数据路径
+systemctl stop mysqld
+vim /etc/my.cnf
+datadir=/data/mysql/data2
+
+# 启动, 导入数据
+systemctl start mysqld
+mysql> set sql_log_bin=0;
+mysql> source /data/backup/binlog.sql
+mysql> set sql_log_bin=1;
+```
+
+## 主从复制
+
+```shell
+基于二进制日志复制的
+主库的修改操作会记录二进制日志
+从库会请求新的二进制日志并回放,最终达到主从数据同步
+```
+
+主从复制核心功能
+
+```shell
+辅助备份,处理物理损坏
+扩展新型的架构:高可用,高性能,分布式架构等
+```
+
+主从复制前提
+
+```shell
+两台以上mysql实例 ,server_id,server_uuid不同
+主库开启二进制日志
+专用的复制用户
+保证主从开启之前的某个时间点,从库数据是和主库一致(补课)
+告知从库,复制user,passwd,IP port,以及复制起点(change master to)
+线程(三个):Dump thread  IO thread  SQL thread 开启(start slave)
+```
+
+### 主从复制原理
+
+```shell
+1. change master to 时,ip port user password binlog position写入到master.info进行记录
+2. start slave 时,从库会启动IO线程和SQL线程
+3. IO_T,读取master.info信息,获取主库信息连接主库
+4. 主库会生成一个准备binlog DUMP线程,来响应从库
+5. IO_T根据master.info记录的binlog文件名和position号,请求主库DUMP最新日志
+6. DUMP线程检查主库的binlog日志,如果有新的,TP(传送)给从从库的IO_T
+7. IO_T将收到的日志存储到了TCP/IP 缓存,立即返回ACK给主库 ,主库工作完成
+8. IO_T将缓存中的数据,存储到relay-log日志文件,更新master.info文件binlog文件名和postion,IO_T工作完成
+9. SQL_T读取relay-log.info文件,获取到上次执行到的relay-log的位置,作为起点,回放relay-log
+10. SQL_T回放完成之后,会更新relay-log.info文件.
+11. relay-log会有自动清理的功能.
+
+其中:
+主库一旦有新的日志生成,会发送"信号"给binlog dump ,IO线程再请求
+```
+
+### 主从复制docker搭建实操
+
+[Centos7下MySQL主从复制部署](https://my-skills-book.readthedocs.io/en/latest/Docker/Docker%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2.html#centos8mysql)
+
+### 主从复制故障处理
+
+```sql
+-- IO线程相关
+
+-- 主库查看线程
+show full processlist;
+
+-- 从库查看主从复制状态
+show slave status \G;
+
+-- 故障处理: 主库连接不上
+stop  slave
+reset slave all
+change master to
+start slave
+
+-- 故障处理: 二进制日志位置点不对
+-- 重新搭建主从
+
+-- SQL线程相关
+-- 主要原因:从库数据修改,与主库不对应(比如自行创建数据库与主库中的冲突)
+-- 设置从库只读?
+show variables like '%read_only%';
+```
+
+### 主从延时
+
+```shell
+外在因素: 网络,主从硬件差异较大,版本差异,参数因素
+
+主库
+二进制日志写入不及时
+主库发生了大事务,由于是串行传送,会产生阻塞后续的事务
+大事务拆成多个小事务,可以有效的减少主从延时
+
+从库
+从库默认情况下只有一个SQL,只能串行回放事务SQL
+```
+
+### 延时从库
+
+```sql
+-- 人为配置从库和主库延时N小时
+
+-- SQL线程延时:数据已写入relaylog,SQL线程"慢点"运行
+
+CHANGE MASTER TO MASTER_DELAY = 300;
+
+-- 延时从库状态下主库故障恢复思路
+-- 主库误删除
+-- 停从库SQL线程
+-- 截取relaylog,起点:停止SQL线程时,relay最后应用位置. 终点:误删除之前的position(GTID)
+-- 恢复截取的日志到从库
+-- 从库身份解除,替代主库工作
+```
+
+### 过滤复制
+
+```sql
+-- 主库白黑名单
+show master status\G;
+-- Binlog_Do_DB
+-- Binlog_Ignore_DB
+
+-- 从库白黑名单
+show slave status\G;
+-- Replicate_Do_DB:
+-- Replicate_Ignore_DB:
+```
+
+### GTID复制
+
+```sql
+-- 使用GTID构建主从
+change master to
+master_host='10.0.0.51',
+master_user='repl',
+master_password='123' ,
+MASTER_AUTO_POSITION=1;
+
+start slave;
+
+-- 在主从复制环境中,主库事务在全局由唯一GTID记录,更方便Failover
+-- change master to不再需要binlog文件名和position号,MASTER_AUTO_POSITION=1;
+-- 在复制过程中,从库不再依赖master.info文件,直接读取最后一个relaylog的GTID号
+-- mysqldump备份时,--set-gtid-purged=auto参数默认会将备份中包含的事务操作告知从库,让从库从下一个GTID开始请求binlog
+-- SET @@GLOBAL.GTID_PURGED='8c49d7ec-7e78-11e8-9638-000c29ca725d:1'
 ```
 
 ## 存储过程
