@@ -22,7 +22,7 @@ INSTALLED_APPS = [
 模型类
 
 ```python
-# app01/models.py
+# models.py
 
 from django.db import models
 
@@ -57,7 +57,7 @@ class Author(models.Model):
 路由
 
 ```python
-# app01/urls.py
+# urls.py
 
 from django.urls import path
 from app01 import views
@@ -74,7 +74,7 @@ urlpatterns = [
 为模型类添加一个序列化器
 
 ```python
-# app01/ser.py
+# ser.py
 
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -102,17 +102,17 @@ class BookSerializer(serializers.Serializer):
     # 高级用法 source, 返回给前端的数据字段名可以和数据库不一致
     # source 后可跟方法(如模型中定义了一个方法, 可以直接指定在source执行
     pub = serializers.DateField(source='pub_date')
-    publish = serializers.CharField(default="", source="publish.id")
+    xxx_pub = serializers.CharField(source='publish.email')
 
     # SerializerMethodField,执行方法, 方法为 get_字段名
-    authors = serializers.SerializerMethodField()
+    xxx_aut = serializers.SerializerMethodField()
 
     # 返回书籍所有作者
-    def get_authors(self, obj):
-        temp = []
-        for author in obj.authors.all():
-            temp.append(author.name)
-        return temp
+    def get_xxx_aut(self, instance):
+        tmp = []
+        for i in instance.authors.all():
+            tmp.append(i.name)
+        return tmp
 
     # 反序列化时进行数据验证, 局部钩子
     def validate_title(self, value):
@@ -122,6 +122,8 @@ class BookSerializer(serializers.Serializer):
 
     # 反序列化时进行数据验证, 全局钩子
     def validate(self, attrs):
+        if attrs.get('title') == attrs.get('authors'):
+            raise ValidationError('不能同名')
         return attrs
 
     # 验证数据成功后,我们可以使用序列化器来完成数据反序列化的过程.
@@ -176,7 +178,7 @@ class BookSerializer(serializers.Serializer):
 构造序列化器对象, 获取序列化数据
 
 ```python
-# app01/views.py
+# views.py
 
 from django.http.response import JsonResponse
 from rest_framework.views import APIView
@@ -214,7 +216,7 @@ class BookDetailView(APIView):
         b_obj = models.Book.objects.filter(pk=pk).first()
         b_ser = BookSerializer(instance=b_obj)
         res = {"status": 200, "msg": "ok", "data": b_ser.data}
- 
+
         return JsonResponse(res)
 
     def delete(self, request, pk):
@@ -249,7 +251,7 @@ class BookDetailView(APIView):
 
 ```Python
 # 只需要修改序列化器, 其他不用修改
-# app01/ser.py
+# ser.py
 
 from rest_framework import serializers
 
@@ -279,7 +281,7 @@ class BookSerializer(serializers.ModelSerializer):
 #### Request
 
 ```shell
-request.data            返回解析之后的请求体数据
+request.data            返回解析之后的请求体数据, 无论什么根式的post都可以
 request.query_params    与Django标准的request.GET相同
 ```
 
@@ -296,6 +298,21 @@ response.status_code
 
 response.content
 # 经过render处理后的响应数据
+```
+
+##### 自定义response
+
+```python
+from rest_framework.response import Response
+
+
+class CustomerResponse(Response):
+    def __init__(self, code=200, msg='ok', data=None, status=None, headers=None, **kwargs):
+        dic = {'code': code, 'msg': msg}
+        if data:
+            dic['data'] = data
+        dic.update(kwargs)
+        super().__init__(data=dic, status=status, headers=headers)
 ```
 
 状态码
@@ -386,52 +403,37 @@ def get_serializer_class(self):
 
 ```python
 # 序列化器为上边 模型类序列化器ModelSerializer 中的代码
-# app01/views.py
+# 使用自定义Response返回数据
 
-from rest_framework.response import Response
+# views.py
 from rest_framework.generics import GenericAPIView
 
-from . import models
 from .ser import BookSerializer
+from . import models
 
-
-class BookView(GenericAPIView):
-    queryset = models.Book.objects.all()
-    serializer_class = BookSerializer
-
-    def get(self, request):
-        b_ser = self.get_serializer(instance=self.get_queryset(), many=True)
-        res = {"status": 200, "msg": "ok", "data": b_ser.data}
-
-        return Response(res)
-
-    def post(self, request):
-        b_ser = self.get_serializer(data=request.data)
-        b_ser.is_valid(raise_exception=True)
-        b_ser.save()
-        res = {"status": 200, "msg": "ok", "data": b_ser.data}
-
-        return Response(res)
-
-
-class BookDetailView(GenericAPIView):
+class BooksDetailView_2(GenericAPIView):
     queryset = models.Book.objects.all()
     serializer_class = BookSerializer
 
     def get(self, request, pk):
-        b_ser = self.get_serializer(instance=self.get_object())
-        res = {"status": 200, "msg": "ok", "data": b_ser.data}
+        bs = self.get_serializer(instance=self.get_object())
+        return CustomerResponse(data=bs.data)
 
-        return Response(res)
 
-    def put(self, request, pk):
-        b_ser = self.get_serializer(instance=self.get_object(), data=request.data, partial=True)
+class BooksView_2(GenericAPIView):
+    queryset = models.Book.objects.all()
+    serializer_class = BookSerializer
 
-        b_ser.is_valid(raise_exception=True)
-        b_ser.save()
-        res = {"status": 200, "msg": "ok", "data": b_ser.data}
+    def get(self, request):
+        bs = self.get_serializer(instance=self.get_queryset(), many=True)
+        return CustomerResponse(data=bs.data)
 
-        return Response(res)
+
+# urls.py
+urlpatterns = [
+    path(r'books_2/<int:pk>/', views.BooksDetailView_2.as_view()),
+    path(r'books_2/', views.BooksView_2.as_view()),
+]
 ```
 
 ### 5个视图扩展类
@@ -563,10 +565,10 @@ RetrieveUpdateDestoryAPIView
 提供 get、put、patch、delete方法
 ```
 
-### 视图集ViewSet
+### 视图集
 
 ```shell
-使用视图集ViewSet, 可以将一系列逻辑相关的动作放到一个类中
+使用视图集, 可以将一系列逻辑相关的动作放到一个类中
 
 list() 提供一组数据
 retrieve() 提供单个数据
@@ -574,7 +576,7 @@ create() 创建数据
 update() 保存数据
 destory() 删除数据
 
-ViewSet视图集类不再实现get(), post()等方法,而是实现动作 action 如 list() 、create() 等
+视图集类不再实现get(), post()等方法,而是实现动作 action 如 list() 、create() 等
 
 视图集只在使用as_view({"get":"list"})方法的时候,才会将action动作与具体请求方式对应上
 ```
@@ -588,27 +590,28 @@ ViewSet视图集类不再实现get(), post()等方法,而是实现动作 action 
 
 # 在ViewSet中,没有提供任何动作action方法,需要我们自己实现action方法
 
-# app01/urls.py
-from django.urls import path
-from app01 import views
-
-urlpatterns = [
-    path('books/', views.BookViewSet.as_view({"get": "list"}), ),
-]
-
-# app01/views.py
-from rest_framework.response import Response
+# views.py
 from rest_framework.viewsets import ViewSet
 
 from . import models
 from .ser import BookSerializer
 
-class BookViewSet(ViewSet):
-    def list(self, request):
-        book = models.Book.objects.all()
-        ser = BookSerializer(instance=book, many=True)
-        return Response(ser.data)
+class BooksViewSet(ViewSet):
 
+    def get_all(self, request):
+        obj = models.Book.objects.all()
+        bs = BookSerializer(instance=obj, many=True)
+        return CustomerResponse(data=bs.data)
+
+
+# 视图集中定义附加action动作
+# urls.py
+from django.urls import path
+from app01 import views
+
+urlpatterns = [
+    path(r'books_4/', views.BooksViewSet.as_view(actions={'get': 'get_all'})),
+]
 ```
 
 #### GenericViewSet
@@ -617,10 +620,16 @@ class BookViewSet(ViewSet):
 # 继承自GenericAPIView与ViewSetMixin
 # 提供GenericAPIView提供的基础方法,可以直接搭配Mixin扩展类使用
 
-# url 如上ViewSet
-class BookViewSet(GenericViewSet, ListModelMixin):
+# views.py
+class BooksViewSet_2(GenericViewSet, mixins.ListModelMixin):
     queryset = models.Book.objects.all()
     serializer_class = BookSerializer
+
+
+# urls.py
+urlpatterns = [
+    path(r'books_5/', views.BooksViewSet_2.as_view(actions={'get': 'list'})),
+]
 ```
 
 #### ModelViewSet
@@ -629,6 +638,22 @@ class BookViewSet(GenericViewSet, ListModelMixin):
 继承自GenericViewSet
 同时包括了五个视图扩展类
 ListModelMixin、RetrieveModelMixin、CreateModelMixin、UpdateModelMixin、DestoryModelMixin
+
+只需要路由对应相应方法, 可直接使用一个视图(如获取多个和获取一个)
+```
+
+```python
+# views.py
+class BooksViewSet_3(ModelViewSet):
+    queryset = models.Book.objects.all()
+    serializer_class = BookSerializer
+
+
+# urls.py
+urlpatterns = [
+    path(r'books_6/', views.BooksViewSet_3.as_view(actions={'get': 'list'})),
+    path(r'books_6/<int:pk>/', views.BooksViewSet_3.as_view(actions={'get': 'retrieve'})),
+]
 ```
 
 #### ReadOnlyModelViewSet
@@ -636,24 +661,6 @@ ListModelMixin、RetrieveModelMixin、CreateModelMixin、UpdateModelMixin、Dest
 ```shell
 继承自GenericViewSet
 同时包括了ListModelMixin、RetrieveModelMixin
-```
-
-#### 视图集中定义附加action动作
-
-```python
-# {"get": "list", "post": "create"}
-# {"get": "retrieve","put":"update","delete":"destroy"}
-
-# urls.py
-    path('books/', views.BookViewSet.as_view({"get": "login"}), ),
-
-class BookViewSet(GenericViewSet, ListModelMixin):
-    queryset = models.Book.objects.all()
-    serializer_class = BookSerializer
-
-    def login(self, request):
-        # 获取本次请求的视图方法名
-        print(self.action)
 ```
 
 ## 路由组件
@@ -679,45 +686,45 @@ from app01 import views
 # router对象, 注册视图集
 router = routers.SimpleRouter()
 # prefix 该视图集的路由前缀  viewset 视图集  basename 路由别名的前缀
-router.register('books', views.BookViewSet, basename='book')
+routers.register('books_7', views.BooksViewSet_4, )
 
 urlpatterns = [
-    # path('books/', views.BookViewSet.as_view({"get": "list", "post": "create"}), ),
-    # path('books/', views.BookView.as_view(), ),
-    # path('books/<int:pk>/', views.BookDetailView.as_view(), )
+    ...
 ]
 
-
 # 添加路由数据
-urlpatterns += router.urls
-
+urlpatterns += routers.urls
+# routers.urls
+# [<URLPattern '^books_7/$' [name='book-list']>, <URLPattern '^books_7/get_1/$' [name='book-get-1']>, <URLPattern '^books_7/(?P<pk>[^/.]+)/$' [name='book-detail']>, <URLPattern '^books_7/(?P<pk>[^/.]+)/get_2/$' [name='book-get-2']>]
 
 # 自动生成路由地址[增/删/改/查一条/查多条的功能]
 # 不会自动生成在视图集自定义方法的路由, 需要进行action动作的声明
+
+
+# views.py
+# 下方 --> 视图集中附加action的声明
 ```
 
-### 视图集中附加action的声明
+## 视图集中附加action的声明
 
 ```python
-from rest_framework.decorators import action
-
-from . import models
-from .ser import BookSerializer
-
-
-class BookView(ListModelMixin, CreateModelMixin, GenericAPIView):
+# views.py
+class BooksViewSet_4(ModelViewSet):
     queryset = models.Book.objects.all()
     serializer_class = BookSerializer
 
     # action装饰器, 生成对应路由
-    # detail=True 表示路径格式是xxx/<pk>/action方法名/
     # False 表示路径格式是xxx/action方法名/
-    @action(["get", "post"], detail=False)
+    # 127.0.0.1:8000/api/app01/books_7/get_1/
+    @action(['get'], detail=False)
     def get_1(self, request):
         return self.list(request)
 
-    def post(self, request):
-        return self.create(request)
+    # detail=True 表示路径格式是xxx/<pk>/action方法名/
+    # 127.0.0.1:8000/api/app01/books_7/3/get_2/
+    @action(['get'], detail=True)
+    def get_2(self, request, pk):
+        return self.retrieve(request)
 ```
 
 ## 认证权限频率
@@ -754,7 +761,7 @@ authentication_classes = [TokenAuth, ]
 
 ```python
 # 修改模型, 添加用户
-# app01/models.py
+# models.py
 class User(models.Model):
     username=models.CharField(max_length=32)
     password=models.CharField(max_length=32)
@@ -765,7 +772,7 @@ class UserToken(models.Model):
     token=models.CharField(max_length=64)
 
 
-# 1. 编写自定义认证类 app01/app_auth.py
+# 1. 编写自定义认证类 app_auth.py
 from rest_framework.authentication import BaseAuthentication
 
 class TokenAuth(BaseAuthentication):
