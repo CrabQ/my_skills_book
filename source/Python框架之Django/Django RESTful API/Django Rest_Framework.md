@@ -351,7 +351,6 @@ from .models import Book
 # 重写BookSerializer的ListSerializer的update方法,实现批量修改
 class BookListSerializer(ListSerializer):
     def update(self, instance, validated_data):
-        print(instance, validated_data)
         return [
             self.child.update(instance=instance[i], validated_data=attrs) for i, attrs in enumerate(validated_data)
         ]
@@ -455,7 +454,7 @@ class BookView(APIView):
 #### Request
 
 ```shell
-request.data            返回解析之后的请求体数据, 无论什么根式的post都可以
+request.data            返回解析之后的请求体数据, 无论什么格式的post都可以
 request.query_params    与Django标准的request.GET相同
 ```
 
@@ -1194,7 +1193,7 @@ class UserListView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     # 如果同时需要过滤和排序, 先过滤再排序
-    filter_backends = [OrderingFilter, DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filter_fields = ('user',)
     ordering_filter = ('id',)
 

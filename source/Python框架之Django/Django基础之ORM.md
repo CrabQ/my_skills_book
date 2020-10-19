@@ -474,7 +474,7 @@ if __name__ == '__main__':
 
 ```python
 AutoField(Field)
-        - int自增列,必须填入参数 primary_key=True
+    - int自增列,必须填入参数 primary_key=True
 
 BigAutoField(AutoField)
     - bigint自增列,必须填入参数 primary_key=True

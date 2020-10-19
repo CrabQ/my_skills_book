@@ -45,7 +45,7 @@ path    匹配任何非空字符串, 包含了路径分隔符
 
 ```python
 # 2.0之后写法
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     # url分发,每个应用创建自己的urls

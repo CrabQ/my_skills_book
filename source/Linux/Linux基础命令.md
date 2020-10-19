@@ -1327,8 +1327,6 @@ chkconfig --list
 
 ### rpm: RPM包管理器
 
-
-
 ![image-20200922131022465](C:\Users\CRAB\Desktop\MY\my_skills_book\source\Linux\Linux基础命令.assets\image-20200922131022465.png)
 
 ```shell
