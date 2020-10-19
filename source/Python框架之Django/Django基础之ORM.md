@@ -16,6 +16,7 @@ class Customer(models.Model):
     """
     qq = models.CharField(verbose_name='QQ', max_length=64, unique=True, help_text='QQ号必须唯一')
     name = models.CharField('姓名', max_length=32, blank=True, null=True, help_text='学院报名后,请改为真实姓名!')
+    # choice,查看中文, obj.get_字段名称_display()
     sex = models.CharField('性别', choices=sex_type, max_length=1, default='1', blank=True, null=True)
     introduce_from = models.ForeignKey('self', verbose_name='转介绍自学员', blank=True, null=True, on_delete=models.CASCADE)
     birthday = models.DateField('出生日期', default=None, help_text="格式yyyy-mm-dd", blank=True, null=True)
@@ -204,7 +205,8 @@ class Book(models.Model):
     price = models.FloatField()
     pub_date = models.DateTimeField()
     # 级联删除, 一般出版社没了,书籍的出版社应该不变, 即do nothing, 要考虑两者之间的关系
-    pub = models.ForeignKey(to='Publish', on_delete=models.CASCADE)
+    # db_constaint=False 无实际关联, 逻辑关联
+    pub = models.ForeignKey(to='Publish', on_delete=models.CASCADE, db_constaint=False)
     aut = models.ManyToManyField(to='Author')
 
 class Author(models.Model):

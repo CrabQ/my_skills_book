@@ -76,3 +76,53 @@ class MD1(MiddlewareMixin):
     def process_response(self,request,response)
         return response
 ```
+
+## 解决跨域问题
+
+安装模块
+
+```shell
+pip install django-cors-headers
+```
+
+使用
+
+```python
+# settings.py
+# 1. 添加app
+INSTALLED_APPS = [
+    'corsheaders',
+]
+
+# 2. 添加中间件
+# 在SessionMiddleware后面以及CommonMiddleware前面
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
+    'django.middleware.common.CommonMiddleware',
+]
+
+# 3. 添加配置参数
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    'http://ops.xxx.com',
+    'http://ops.xxx.com:8001',
+)
+CORS_ALLOW_METHODS = ('DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'VIEW',)
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+    'x-token',
+)
+```

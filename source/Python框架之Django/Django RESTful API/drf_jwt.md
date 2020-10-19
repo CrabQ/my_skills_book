@@ -73,46 +73,22 @@ def jwt_rph(token, user=None, request=None):
 
 ```python
 # urls.py
-
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    # 2. 自定义login,手动签发token: 1). 配置自定义login, 完成多方式登录路由
-    path('login2/', views.LoginViewSet.as_view({'post':'login'})),
+    # 用户登录,返回token
+    path('login/', views.UserLoginViewSet.as_view(actions={'post': 'login', })),
+    # 需要token认证的视图
+    path('hi/', views.HiView.as_view()),
 ]
 ```
 
-视图函数
+序列化类, 多方式登录, 手动签发token
 
 ```python
-# views.py
-
-# 2. 自定义login,手动签发token: 2).自定义login, 返回token
-from rest_framework.viewsets import ViewSet
-from rest_framework.response import Response
-
-from .ser import LoginModelSerializer
-
-
-class LoginViewSet(ViewSet):
-
-    def login(self, request):
-        # 序列化类写多方式登录逻辑, 传入数据生成序列化对象
-        ser = LoginModelSerializer(data=request.data, context={"request": request})
-        ser.is_valid(raise_exception=True)
-        token = ser.context.get("token")
-        username = ser.context.get("username")
-
-        return Response({'token': token, 'username': username, "msg": "登录成功", "status": 100, })
-```
-
-序列化类, 完成多方式登录, 手动签发token
-
-```python
-# utils.py
-
+# ser.py
 import re
 
 from rest_framework import serializers
@@ -122,8 +98,8 @@ from rest_framework_jwt.utils import jwt_encode_handler, jwt_payload_handler
 from jwt_abstract_user import models
 
 
-# 2. 自定义login,手动签发token: 3).认证用户, 完成多方式登录, 手动签发token
-class LoginModelSerializer(serializers.ModelSerializer):
+# 认证用户, 完成多方式登录, 手动签发token
+class UserLoginSerializer(serializers.ModelSerializer):
     # 覆盖数据库中的字段,变成新的字段
     username = serializers.CharField()
 
@@ -155,78 +131,60 @@ class LoginModelSerializer(serializers.ModelSerializer):
 
         # 返回token
         self.context['token'] = token
-        self.context['username'] = user.username
 
         return attrs
 ```
 
-## 自定制基于jwt的认证类
+自定制基于jwt的认证类
 
 用户携带token访问某个url, token认证通过, 返回内容, 否则拒绝
 
-路由配置
-
-```python
-# urls.py
-
-from django.urls import path
-from rest_framework_jwt.views import obtain_jwt_token
-
-from . import views
-
-urlpatterns = [
-    path('books/', views.BooksView.as_view()),
-]
-```
-
-自定制基于jwt的认证类
-
 ```python
 # utils.py
-
-# 自定制基于jwt的认证类
 # 继承以下两个都行
 from rest_framework_jwt.authentication import BaseJSONWebTokenAuthentication
-# from rest_framework.authentication import BaseAuthentication
-
+from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_jwt.utils import jwt_decode_handler
 import jwt
 
 from .models import User
 
-class jwt_authentication(BaseJSONWebTokenAuthentication):
+
+class CustomerAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        jwt_value = request.META.get('HTTP_AUTHORIZATION')
-        if not jwt_value:
-            raise AuthenticationFailed("没有携带认证信息!")
+        token = request.META.get('HTTP_TOKEN')
+        if not token:
+            raise AuthenticationFailed('无认证信息!')
         try:
-            # 验证token并取出payload
-            payload = jwt_decode_handler(jwt_value)
+            payload = jwt_decode_handler(token)
         except jwt.ExpiredSignature:
-            raise AuthenticationFailed("签名过期!")
+            raise AuthenticationFailed('签名过期!')
         except jwt.InvalidTokenError:
-            raise AuthenticationFailed("用户非法!")
-        user = User.objects.filter(id=payload.get('user_id')).first()
-        return user, jwt_value
+            raise AuthenticationFailed('用户非法!')
+        user = User.objects.filter(pk=payload.get('user_id')).first()
+        return user, token
 ```
 
-视图函数中引用定制的认证类
+视图
 
 ```python
 # views.py
+from .utils import CustomerAuthentication
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
+# 登录视图,获取token
+class UserLoginViewSet(ViewSet):
+    def login(self, request, *args, **kwargs):
+        login_ser = ser.UserLoginSerializer(data=request.data)
+        login_ser.is_valid(raise_exception=True)
+        token = login_ser.context.get('token')
+        return Response(data={"token": token})
 
-from .utils import jwt_authentication
 
+# token认证, 通过则返回信息
+class HiView(GenericAPIView):
+    authentication_classes = [CustomerAuthentication, ]
 
-class BooksView(APIView):
-    # 使用自定义认证类
-    authentication_classes = [jwt_authentication]
-
-    def get(self, request):
-        print(request.user)
-        return Response('ok')
+    def get(self, request, *args, **kwargs):
+        return Response(data={'hi': request.user.username})
 ```
