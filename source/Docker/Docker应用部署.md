@@ -350,3 +350,15 @@ docker exec -it mongo_27017 mongo
 ```shell
 docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.8.11
 ```
+
+## windows 10下contos67部署
+
+```shell
+docker pull centos:centos7
+
+# 创建容器,目录映射
+docker run -it --name=centos7.1  centos:centos7
+
+# 测试是否成功
+docker exec -it centos7 /bin/bash
+```

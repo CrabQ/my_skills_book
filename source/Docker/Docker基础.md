@@ -11,15 +11,6 @@ Docker是一种容器技术,解决软件跨环境迁移的问题
 ### Docker服务相关命令
 
 ```shell
-# 启动
-systemctl start docker
-
-# 停止
-systemctl stop docker
-
-# 重启
-systemctl restart docker
-
 # 状态查看
 systemctl status docker
 
@@ -30,15 +21,9 @@ systemctl enable docker
 docker system df
 ```
 
-### Docker镜像相关命令
+### Docker的镜像基础管理
 
 ```shell
-# 查看镜像
-docker images
-
-# 查看所有镜像id
-docker images -q
-
 # 搜索镜像
 docker search redis
 
@@ -46,70 +31,68 @@ docker search redis
 # docker pull 镜像名称:版本号(不指定为最新)
 docker pull redis
 
-# 删除镜像
-docker rmi mysql:latest
-# 通过ID删除
-# docker rmi 9b51d9275906
+# 查看镜像
+docker image ls
 
-# 删除所有本地镜像
-docker rmi `docker images -q`
+# 查看镜像详细信息
+docker image inspect centos
+
+# 查看所有镜像id
+docker image ls -q
+
+# 导出, 删除,导入镜像
+docker image save redis > redis.tar
+docker image rm redis
+docker image load -i redis.tar
+
+# 添加标签, 生成新的镜像
+docker image tag 62f1d3402b78 crab/redis:v1
+
+# 通过ID删除
+# docker image rm  9b51d9275906
+
+# 删除所有本地镜像, -f强制删除
+docker image rm -f `docker images -q`
 
 # 删除虚悬镜像
 docker image prune
 ```
 
-#### 创建新镜像
-
-提交容器副本使之成为一个新的镜像
-
-```shell
-docker commit -m="message" -a="author" <container_id> target_name:[tag_name]
-```
-
 ### Docker容器相关命令
 
 ```shell
-# run创建容器
-# -i:保持容器运行
-# -t:为容器重新分配一个伪输入终端,-it,容器创建后自动进入,退出则关闭容器
-# -d:以守护模式运行容器,通过docker exec进入,退出后容器不关闭
-# --net host: 覆盖主机端口
-# --rm 当退出该容器时自动删除该容器资源
+# 交互式容器
+docker container run -it  --name=r1  redis
 
-docker run -it --name=c1 centos:7 /bin/bash
+# 守护式容器
+docker container run -id --name=c1 centos:centos7 /bin/bash
 
-docker run -id --name=c2 centos:7 /bin/bash
-
-# 查看正在运行的容器
-docker ps
-
-# 查看所有容器
-docker ps -a
-
-# 查看容器信息
-docker inspect 容器名称
+# 查看容器
+docker container ls
+docker container ls -a
+docker container inspect c1
 
 # 查看容器输出信息
-docker logs 容器名称
-
-# 退出容器不关闭,在容器中打开新的终端, 并且可以启动新的进程
-docker exec -it c1 /bin/bash
+docker container logs c1
 
 # 启动,停止容器
 docker start c2
 docker stop c2
 
-# 删除容器,先停止运行再删除
+# 删除容器,先停止运行再删除, -f强制
 docker rm c1
 
 # 清理掉所有处于终止状态的容器
 docker container prune
 ```
 
-从容器内拷贝文件到主机上
+连接容器
 
 ```shell
-docker cp <container_id>:<path> <target_path>
+docker container attach c1
+
+# 子进程的方式登录(在已有工作容器中生成子进程,可以用于进行容器的调试,退出时也不会影响到当前容器)
+docker container exec -it c1 /bin/bash
 ```
 
 导入导出容器快照
@@ -119,6 +102,14 @@ docker import 容器名称
 docker export 容器名称
 # 容器快照文件将丢弃所有的历史记录和元数据信息，即仅保存容器当时的快照状态
 # docker load 镜像存储文件将保存完整记录,体积大
+```
+
+docker容器的网络访问
+
+```shell
+# 指定映射, docker会自动添加一条iptables规则来实现端口映射
+# -p hostPort:containerPort
+docker container run -id --name=c1 -p 80:80 centos:centos7 /bin/bash
 ```
 
 ## Docker容器的数据卷
@@ -141,12 +132,18 @@ Docker 容器产生的数据,如果不`docker commit`那么容器删除后,数�
 # 容器之间数据交换
 ```
 
+无数据卷, 从容器内拷贝文件到主机上
+
+```shell
+docker container cp <container_id>:<path> <target_path>
+```
+
 ### 配置数据卷
 
 ```shell
 # 可挂载多个数据卷
 # docker run -it -v /宿主机绝对路径:/容器内目录:权限 <image_name>
-docker run -it --name=c3 -v /root/data:/root/data_container centos:7 /bin/bash
+docker container run -it --name=c3 -v /root/data:/root/data_container centos:7 /bin/bash
 ```
 
 ### 数据卷容器
@@ -238,6 +235,12 @@ docker pull 私有仓库服务器ip:5000/镜像名称
 ## Docker网络
 
 ```shell
+# docker run network=xxx
+# none : 无网络模式
+# bridge ： 默认模式，相当于NAT
+# host : 公用宿主机Network NameSapce
+# container：与其他容器公用Network Namespace
+
 # 创建网络
 docker network create -d bridge my-net
 
