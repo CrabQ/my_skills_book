@@ -70,6 +70,7 @@ cd
 ls -art
 # -l 长格式
 # -h 人性化显示
+# -d 显示目录
 ```
 
 ### tree: 树结构显示目录下内容
@@ -105,7 +106,13 @@ touch test.py
 
 ```shell
 # 复制目录
-cp -r 目录
+# cp -r 目录 /d1/d2/d3
+cp -r /d1/ /c1
+# /c1不存在--> /c1/d2/d3
+# /c1存在--> /c1/d1/d2/d3
+
+# 强行覆盖
+\cp -r /d1/ /c1
 ```
 
 ### mv: 移动或重命名文件
@@ -639,32 +646,6 @@ chkconfig --list|grep 3:on|grep -vE "crond|sshd|network|rsyslog|stsstat|" | awk 
 
 ## Linux信息显示与搜索文件命令
 
-### uname: 显示系统信息
-
-```shell
-# -r 显示内核发行版本号
-uname -r
-
-# 显示操作系统
-uname -m
-
-# -a 显示系统所有相关信息
-uname -a
-lsb_release -a
-
-```
-
-### hostname: 显示或设置系统的主机名
-
-```shell
-# -I 显示主机所有IP地址,不依赖DNS解析
-# 临时修改为test
-hostname test
-
-# 永久修改
-vim /etc/hostname
-```
-
 ### dmesg: 系统启动异常诊断
 
 ### stat: 显示文件或文件系统状态
@@ -856,16 +837,6 @@ f
 
 ## 用户管理及用户信息查询命令
 
-### useradd: 创建用户
-
-```shell
-# -g 指定用户对应的用户组,组需已存在
-
-# -s shell 用户登入后使用的shell名称
-# -M 不建立用户家目录
-useradd nginx -s /sbin/nologin -M
-```
-
 ### usermod: 修改用户信息
 
 ### userdel: 删除用户
@@ -896,17 +867,9 @@ gpasswd -a jack mike
 gpasswd -d jack mike
 ```
 
-### passwd: 修改用户密码
-
 ### chage: 修改用户密码有效期
 
 ### chpasswd: 批量更新用户密码
-
-### su: 切换用户
-
-```shell
-# su - 用户名 切换的同时将登录后的环境变量一并切换
-```
 
 ### visudo: 编辑sudoers文件
 
@@ -930,8 +893,6 @@ sudo -l
 ### who: 显示已登录用户信息
 
 ### users: 显示已登录用户
-
-### whoami: 显示当前登录的用户名
 
 ### last: 显示用户登录列表
 
@@ -992,7 +953,11 @@ sudo -l
 
 # 查看当前挂载信息
 mount
-# 光盘挂载到/mnt
+
+# 找到需要挂载的设备
+ls -l /dev
+
+# mount 挂载设备文件信息 挂载点(目录信息)
 mount /dev/cdrom /mnt
 ```
 
@@ -1079,23 +1044,6 @@ nohup ping www.baidu.com &
 ### strace: 跟踪进程的系统调用
 
 ### ltrace: 跟踪进程调用库函数
-
-### runlevel: 输出当前运行级别
-
-```shell
-# 3: 多用户模式
-runlevel
-N 3
-```
-
-### init: 初始化Linux进程
-
-```shell
-# 关机
-init 0
-# 重启
-init 6
-```
 
 ### service: 管理系统服务
 
@@ -1257,8 +1205,6 @@ lsof -i:80
 
 ### uptime: 显示系统的运行时间及负载
 
-### free: 显示系统内存信息
-
 ### iftop: 动态显示网络接口流量信息
 
 ### vmstat: 虚拟内存统计
@@ -1325,73 +1271,6 @@ chkconfig --list
 
 ### ipcrm: 清楚ipc相关信息
 
-### rpm: RPM包管理器
-
-![image-20200922131022465](C:\Users\CRAB\Desktop\MY\my_skills_book\source\Linux\Linux基础命令.assets\image-20200922131022465.png)
-
-```shell
-# -q 查询
-# -i info|install
-# -l 显示软件包中的所有文件列表
-# -R 显示软件包的依赖环境
-# -v 详细信息
-# -h #显示安装进度
-# -a 查询所有软件包
-# -e 卸载
-# -f 查询文件或者命令属于哪个软件包
-
-# 查询mysql相关
-rpm -qa|grep mysql
-
-# 安装
-rpm -ivh a.rpm
-```
-
-### yum: 自动化RPM包管理工具
-
-```shell
-# -y 确认
-
-# 列出所有安装包
-yum list installed
-
-# 检查更新
-yum check-update
-
-# 安装
-yum install httpd
-
-# 卸载
-yum remove httpd
-
-# 更新
-yum update httpd
-
-# 列出软件包
-yum list httpd
-
-# 搜索
-yum search httpd
-
-# 列出所有可用软件
-yum list
-
-# 更新系统
-yum update
-
-# 列出启用yum源
-yum repolist
-
-# 列出所有yum源
-yum repolist all
-
-# 清理所有缓存
-yum clean all
-
-# 历史
-yum history
-```
-
 ## 系统常用内置命令
 
 ```shell
@@ -1454,4 +1333,380 @@ crontal -e
 
 # 使用Python虚拟环境,所以执行路径为虚拟环境的Python路径/home/bmnars/spider_porject/spider_venv/bin/python
 # 字符%是一个可被crontab识别的换行符所以通过调用.sh文件执行Python脚本
+```
+
+## 系统目录结构部分
+
+显示或设置系统的主机名
+
+```shell
+# -I 显示主机所有IP地址,不依赖DNS解析
+# 临时修改为test
+hostname test
+
+# 永久修改
+vim /etc/hostname
+
+# 既临时修改,又永久修改, centos7
+# hostnamectl 修改主机名称
+hostnamectl set-hostname crab
+```
+
+查看系统版本
+
+```shell
+cat /etc/redhat-release
+```
+
+解析映射文件
+
+```shell
+cat /etc/hosts
+```
+
+磁盘挂载文件
+
+```shell
+# cat /etc/fstab
+# 实现储存设备开启自动挂载的配置文件
+# 定义存储设备文件信息 挂载点 xfs defaults 0 0
+```
+
+开机服务自启配置文件
+
+```shell
+# vim /etc/rc.local
+# 文件中的内容会在系统启动后加载, 必须是命令
+systemctl start sshd
+
+chmod +x /etc/rc.d/rc.local
+```
+
+系统的运行级别
+
+```shell
+centos 6
+00 系统的关机级别, 进入到关机状态
+
+centos 7(启动级别:target)
+00 系统的关机级别进入到救援模式
+01 系统的单用户模式, 用于修复系统或重置密码信息, 没有网络
+02 系统的多用户模式, 没有网络
+03 系统的多用户模式, 正常系统运行级别, 有网络
+04 预留级别
+05 图形化界面级别
+06 系统的重启级别
+
+# 输出当前运行级别
+# 3: 多用户模式
+runlevel
+# N 3
+
+# 临时调整, 设置系统运行级别
+init 3
+
+# 永久调整
+# centos 6
+# cat /etc/inittab
+
+# centos 7
+# 获取当前系统运行级别
+systemctl get-default
+# 查看所有级别
+ls -l /usr/lib/systemd/system/runlevel*target
+# 设置
+systemctl set-default multi-user.target
+```
+
+操作系统环境变量
+
+```shell
+# 永久生效, 写入/etc/profile
+# cat /etc/profile
+# source 立即加载文件配置信息
+source /etc/profile
+
+# 临时修改系统环境变量
+PATH=...:/crab
+# 永久设置
+# vi /etc/profile
+# export 定义系统环境变量
+export PATH=...:/crab
+```
+
+设置别名
+
+```shell
+# 查看当前所有别名
+alias
+
+# 临时设置别名
+alias ll='ls -l'
+
+# 取消别名
+unalias ll
+
+# 使别名失效, rm为设置的别名
+\rm -rf /crab
+
+
+# 别名永久生效
+# /etc/profile == /etc/bashrc
+# ~/.bashrc == ~/.base_profile
+```
+
+查看命令是否是内置命令
+
+```shell
+type cd
+```
+
+登录之后提示文件
+
+```shell
+# 输入 hi,crab, 登录之后显示该信息
+cat /etc/motd
+
+# 登录之前提示信息
+# /etc/issue /etc/issue.net
+```
+
+和软件程序安装的相关目录
+
+```shell
+/usr/local
+```
+
+自动化RPM包管理工具
+
+```shell
+# 本地配置yum源
+cd /etc/yum.repos.d
+# 更新
+curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+
+# -y 确认
+
+# 列出所有安装包
+yum list installed
+
+# 检查更新
+yum check-update
+
+# 安装
+yum install httpd
+
+# 卸载
+yum remove httpd
+
+# 更新
+yum update httpd
+
+# 列出软件包
+yum list httpd
+
+# 搜索
+yum search httpd
+
+# 列出所有可用软件
+yum list
+
+# 更新系统
+yum update
+
+# 列出启用yum源
+yum repolist
+
+# 列出所有yum源
+yum repolist all
+
+# 清理所有缓存
+yum clean all
+
+# 历史
+yum history
+```
+
+日志文件保存目录
+
+```shell
+ll /var/log/
+# messages 记录系统或服务程序运行的状态信息和错误信息
+# secure 用户登录信息
+```
+
+系统硬件信息查看方法
+
+```shell
+# 查看cup1
+cat /proc/cpuinfo
+# 2
+lscpu
+
+# 查看内存1
+cat /proc/meminfo
+# 2
+free
+
+# 查看磁盘/挂载信息1
+cat /proc/mounts
+# 2
+df
+
+# 查看负载(cpu处理任务过多)1
+cat /proc/loadavg
+1分钟平均负载 5分钟 15分钟
+# 2
+w
+```
+
+uname: 显示系统信息
+
+```shell
+# -r 显示内核发行版本号
+uname -r
+
+# 显示操作系统
+uname -m
+
+# -a 显示系统所有相关信息
+uname -a
+lsb_release -a
+```
+
+useradd: 创建用户
+
+```shell
+# -g 指定用户对应的用户组,组需已存在
+
+# -s shell 用户登入后使用的shell名称
+# -M 不建立用户家目录
+useradd nginx -s /sbin/nologin -M
+
+# 修改当前用户密码
+passwd
+
+# 修改指定用户密码
+# passwd 用户名
+
+# su - 用户名 切换的同时将登录后的环境变量一并切换
+
+# 查看用户是否存在, su也可
+id crab
+
+# whoami: 显示当前登录的用户名
+
+# 查看命令提示符
+echo $PS1
+# [\u@\h \W]\$
+# 修改命令提示符
+vi /etc/profile
+# \H 显示完整名称
+export PS1='[\u@\H \W]\$ '
+
+# linux系统中给信息加颜色
+export PS1='\[\e[32;1m\][\u@\H \W]\$ \[\e[0m\]'
+```
+
+rpm: RPM包管理器
+
+![image-20200922131022465](C:\Users\CRAB\Desktop\MY\my_skills_book\source\Linux\Linux基础命令.assets\image-20200922131022465.png)
+
+```shell
+# -q 查询
+# -i info|install
+# -l 显示软件包中的所有文件列表
+# -R 显示软件包的依赖环境
+# -v 详细信息
+# -h #显示安装进度
+# -a 查询所有软件包
+# -e 卸载
+# -f 查询文件或者命令属于哪个软件包
+
+# 查询mysql相关
+rpm -qa|grep mysql
+
+# 安装
+rpm -ivh a.rpm
+
+# 查看文件属于哪个软件包
+rpm -qf /usr/bin/ssh
+rpm -fq `which ssh`
+```
+
+防火墙
+
+```shell
+# centos7查看防火墙状态
+systemctl status firewalld
+# centos6
+/etc/init.d/iptables status
+
+# centos7 临时关闭防火墙
+systemctl stop firewalld
+# centos6
+/etc/init.d/iptables stop
+
+# centos7永久关闭防火墙, 禁止开机启动
+systemctl disable firewalld
+# contos6
+chkconfig iptables off
+```
+
+系统的selinux服务程序
+
+```shell
+# selinux服务对root用户权限进行控制, 一般关闭
+# 6==7
+# 状态查看
+getenforce
+
+# setenforce Enforcing/1 临时开启selinux
+# setenforce Permissive/0 临时关闭selinux
+
+# 永久修改
+vi /etc/selinux/config
+SELINUX=Disabled
+```
+
+字符编码优化
+
+```shell
+# 查看
+echo $LANG
+
+# 临时修改
+LANG=en_US.UTF-8
+
+# 永久修改1
+vi /etc/profile
+export LANG=en_US.UTF-8
+source /etc/profile
+
+# centos6永久修改2
+# vi /etc/sysconfig/il8n
+LANG='en_US.UTF-8'
+# centos7永久修改2
+vi /etc/locale.conf
+
+# 一条命令既永久又临时
+localectl set-locale LANG=zh_CN.GBK
+```
+
+修改网卡配置文件中网卡名称信息
+
+```shell
+# 1. 编辑
+vim /etc/sysconfig/network-scripts/ifcfg-ens33
+NAME=eth0
+DEVICE=eth0
+
+# 2.重命名
+mv ifcfg-ens33 ifcfg-eth0
+
+# 3. 修改网卡名称规则内核文件
+/etc/default/grub -> net.ifnames=0 biosdevname=0 到GRUB_CMDLINE_LINUX
+
+# 4.使系统重新加载grub配置文件
+grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
