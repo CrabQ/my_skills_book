@@ -59,7 +59,71 @@ if __name__ == '__main__':
 
 ```
 
+## Flask配置
+
+```python
+# 修改配置有两种方式
+
+# 1. 直接修改
+app.config["DEBUG"] = True
+
+# 2. 使用类的方式导入
+# settings.py
+DEBUG = True
+SECRET_KEY = "DragonFire"
+
+# flask文件中导入
+app.config.from_object(settings)
+```
+
+### 实例化配置
+
+```python
+app = Flask(__name__, static_folder='static', static_url_path=None, template_folder='templates')
+# static_folder 静态文件目录的路径 默认当前项目中的static目录
+# static_url_path  静态文件目录的url路径 默认不写是与static_folder同名,远程静态文件时复用
+# template_folder  template模板目录, 默认当前项目中的 templates 目录
+```
+
+## 路由系统
+
+```python
+from flask import Flask
+from flask import request
+from flask import redirect
+from flask import render_template
+from flask import url_for
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return 'hello world'
+
+app.config['SERVER_NAME'] = 'a.com'
+# defaults 视图函数的参数默认值
+# endpoint 反向路由解析
+# strict_slashes=True url结尾不能是/
+# redirect_to 直接跳转不经过视图函数
+# subdomain : 子域名前缀, hi.a.com
+@app.route('/hi/<int:id>', endpoint='hello', defaults={'nid':1}, strict_slashes=True, redirect_to='/', subdomain='hi')
+def hi(nid, id):
+    print(url_for('hello', id=100))
+    print(nid)
+    print(id)
+    return render_template('hi.html')
+
+
+if __name__ == '__main__':
+    app.run('0.0.0.0', 5000, debug=True)
+
+```
+
 ## 模板语言Jinjia2以及render_template
+
+### 变量
+
+与django一致
 
 ### Markup封装HTML标签
 
@@ -104,9 +168,11 @@ def hi():
     return render_template('hi.html', )
 ```
 
-### block与include
+### block与include与import
 
-与Django用法一致
+block与include与Django用法一致
+
+import 导入宏
 
 ## session
 
@@ -140,65 +206,10 @@ if __name__ == '__main__':
     app.run('0.0.0.0', 5000, debug=True)
 ```
 
-## 路由系统
+### 静态文件引用
 
-```python
-from flask import Flask
-from flask import  request
-from flask import redirect
-from flask import render_template
-from flask import url_for
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return 'hello world'
-
-app.config['SERVER_NAME'] = 'a.com'
-# defaults 视图函数的参数默认值
-# endpoint 反向路由解析
-# strict_slashes=True url结尾不能是/
-# redirect_to 直接跳转不经过视图函数
-# subdomain : 子域名前缀, hi.a.com
-@app.route('/hi/<int:id>', endpoint='hello', defaults={'nid':1}, strict_slashes=True, redirect_to='/', subdomain='hi')
-def hi(nid, id):
-    print(url_for('hello', id=100))
-    print(nid)
-    print(id)
-    return render_template('hi.html')
-
-
-if __name__ == '__main__':
-    app.run('0.0.0.0', 5000, debug=True)
-
-```
-
-## Flask配置
-
-```python
-# 修改配置有两种方式
-
-# 1. 直接修改
-app.config["DEBUG"] = True
-
-# 2. 使用类的方式导入
-# settings.py
-class FlaskSetting:
-    DEBUG = True
-    SECRET_KEY = "DragonFire"
-
-# flask文件中导入
-app.config.from_object("settings.FlaskSetting")
-```
-
-### 实例化配置
-
-```python
-app = Flask(__name__, static_folder='static', static_url_path=None, template_folder='templates')
-# static_folder 静态文件目录的路径 默认当前项目中的static目录
-# static_url_path  静态文件目录的url路径 默认不写是与static_folder同名,远程静态文件时复用
-# template_folder  template模板目录, 默认当前项目中的 templates 目录
+```Python
+{{ url_for('static', filename='') }}
 ```
 
 ### 蓝图, BluePrint

@@ -120,10 +120,10 @@ bgrewriteaof
 # 配置
 
 # AOF文件重写需要的尺寸
-auto-aof-rewirte-min-size
+auto-aof-rewrite-min-size
 
 # AOF文件增长率
-auto-aof-rewirte-percentage
+auto-aof-rewrite-percentage
 
 # 统计
 
@@ -137,8 +137,8 @@ aof_base_size
 AOF重写需要同时满足以下两个条件才会自动触发
 
 ```shell
-aof_current_size > auto-aof-rewirte-min-size
-aof_current_size - aof_base_size / aof_base_size > auto-aof-rewirte-percentage
+aof_current_size > auto-aof-rewrite-min-size
+aof_current_size - aof_base_size / aof_base_size > auto-aof-rewrite-percentage
 ```
 
 ### AOF相关配置
@@ -160,10 +160,10 @@ dir /bigdiskpath
 no-appendfsync-on-rewrite yes
 
 # AOF文件重写需要的尺寸
-auto-aof-rewirte-min-size 64mb
+auto-aof-rewrite-min-size 64mb
 
 # AOF文件增长率
-auto-aof-rewirte-percentage 100
+auto-aof-rewrite-percentage 100
 ```
 
 ## AOF和RDB的选择

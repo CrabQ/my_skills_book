@@ -20,7 +20,7 @@ class LoginForm(forms.Form):
      name = forms.CharField(
         required=True,  #默认等于True，内容不能为空
         min_length=6,
-        label='用户名',=
+        label='用户名',
         initial='地铁', #初始值，默认值
         help_text='请输入用户名',
         error_messages={'required':'不能为空！','min_length':'太短！'},

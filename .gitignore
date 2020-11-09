@@ -9,3 +9,5 @@ test.py
 *.csv
 
 **/.ipynb_checkpoints/
+
+source/code/*

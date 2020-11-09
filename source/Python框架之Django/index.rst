@@ -18,5 +18,6 @@ Python框架之Django
    Django基础之WSGI
    Django基础之Cookie和Session
    Django基础之Auth认证模块
+   Django第三方模块
    Django RESTful API/index
    个人博客搭建记录/index

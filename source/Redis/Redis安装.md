@@ -117,10 +117,10 @@ appendfsync everysec
 no-appendfsync-on-rewrite yes
 
 # AOF文件重写需要的尺寸
-auto-aof-rewirte-min-size 64mb
+auto-aof-rewrite-min-size 64mb
 
 # AOF文件增长率
-auto-aof-rewirte-percentage 100
+auto-aof-rewrite-percentage 100
 
 aof-load-truncated yes
 ```
@@ -167,10 +167,10 @@ appendfsync everysec
 no-appendfsync-on-rewrite yes
 
 # AOF文件重写需要的尺寸
-auto-aof-rewirte-min-size 64mb
+auto-aof-rewrite-min-size 64mb
 
 # AOF文件增长率
-auto-aof-rewirte-percentage 100
+auto-aof-rewrite-percentage 100
 
 aof-load-truncated yes
 ```

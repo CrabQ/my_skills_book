@@ -859,7 +859,7 @@ from app01 import views
 # router对象, 注册视图集
 router = routers.SimpleRouter()
 # prefix 该视图集的路由前缀  viewset 视图集  basename 路由别名的前缀
-routers.register('books_7', views.BooksViewSet_4, )
+router.register('books_7', views.BooksViewSet_4, )
 
 urlpatterns = [
     ...
