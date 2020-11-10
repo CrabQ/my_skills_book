@@ -22,10 +22,12 @@ pip install redis
 
 ```shell
 # 安装目录
-/app/redis_cluster/redis_{port}/{conf, logs, pid}
+# /app/redis_cluster/redis_{port}/{conf,logs,pid}
+mkdir -p /app/redis-5.0.7/{conf,logs,pid}
 
 # 数据目录
-/data/redis_cluster/redis_{port}/redis_{port}.rdb
+# /data/redis_cluster/redis_{port}/redis_{port}.rdb
+mkdir -p /data/redis_6379/
 
 # 运维脚本
 /root/scripts/redis_shell.sh
@@ -34,30 +36,27 @@ pip install redis
 ```shell
 # 下载解压
 wget http://download.redis.io/releases/redis-5.0.7.tar.gz
-tar -zxvf redis-5.0.7.tar.gz -C /app/
-ln -s /app/redis-5.0.7 /app/redis /app/redis
+tar -zxvf redis-5.0.7.tar.gz
 
 # 安装gcc环境
 yum install -y gcc
 
 # 进入解压目录
-cd redis
+cd redis-5.0.7
 
 # 编译安装
-make && make install
-
-# 安装
-# make install PREFIX=/usr/local/redis
+make && make install PREFIX=/app/redis-5.0.7
+ln -s /app/redis-5.0.7 /app/redis
 
 # 直接启动
-cd /usr/local/redis/bin
+cd /app/redis-5.0.7/bin
 ./redis-server
 
 # 使用配置文件启动(推荐)
 # 复制重命名(端口区分不同redis),并修改配置文件
-cp /tmp/redis-5.0.7/redis.conf /usr/local/redis/config/
+# cp /tmp/redis-5.0.7/redis.conf /usr/local/redis/config/
 # 启动
-./redis-server /config/redis-6379.conf
+./redis-server ../conf/redis-6379.conf
 
 # 测试是否成功启动
 ps -ef|grep redis

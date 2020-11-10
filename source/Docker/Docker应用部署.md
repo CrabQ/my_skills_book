@@ -151,14 +151,41 @@ show slave  status \G;
 # 拉取
 docker pull redis
 
-# 在/root目录下创建redis目录用于储存redis数据信息
-mkdir ~/my_docker/redis/7000
+# 目录
+mkdir -p /data/redis_6379/{conf,log,pid}
 
 # 新建配置文件,以配置文件方式启动
-cat > ~/my_docker/redis/7000/7000.conf <<EOF
-port 7000
-pidfile /data/redis-7000.pid
-logfile "7000.log"
+cat > /data/redis_6379/conf/redis_6379.conf <<EOF
+requirepass redis_6379
+port 6379
+logfile /log/redis_6379.log
+dir /data
+
+dbfilename redis_6379.rdb
+# bgsave发生错误时是否停止写入
+stop-writes-on-bgsave-error yes
+# 是否压缩
+rdbcompression yes
+# 是否校验文件
+rdbchecksum yes
+
+# 慢查询
+slowlog-max-len 1000
+slowlog-log-slower-than 1000
+
+# 必须开启此项才能开启AOF
+appendonly yes
+# AOF文件名称
+appendfilename "appendonly_6379.aof"
+# AOF策略
+appendfsync everysec
+# 一般yes,开销没那么大
+no-appendfsync-on-rewrite yes
+# AOF文件重写需要的尺寸
+auto-aof-rewrite-min-size 64mb
+# AOF文件增长率
+auto-aof-rewrite-percentage 100
+aof-load-truncated yes
 EOF
 
 # 创建容器,设置端口映射,目录映射
@@ -166,10 +193,11 @@ EOF
 # 开机启动
 # 以配置文件方式启动
 docker run -id \
--p 7000:6379 \
---name=redis_7000 \
--v ~/my_docker/redis/7000/7000.conf:/etc/redis/redis.conf \
--v ~/my_docker/redis/6379/data:/data \
+-p 6379:6379 \
+--name=redis_6379 \
+-v /data/redis_6379/conf/redis_6379.conf:/etc/redis/redis.conf \
+-v /data/redis_6379/data:/data \
+-v /data/redis_6379/log:/log \
 -v /etc/localtime:/etc/localtime:ro \
 --restart=always \
 redis redis-server /etc/redis/redis.conf
@@ -351,7 +379,7 @@ docker exec -it mongo_27017 mongo
 docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:6.8.11
 ```
 
-## windows 10下contos67部署
+## windows 10下contos7部署
 
 ```shell
 docker pull centos:centos7
@@ -361,4 +389,29 @@ docker run -it --name=centos7.1  centos:centos7
 
 # 测试是否成功
 docker exec -it centos7 /bin/bash
+```
+
+## windows 10下Redis部署
+
+```shell
+# 拉取
+docker pull redis
+
+# 创建目录用于储存redis数据信息
+D:\program\docker_data\redis_6379{data,log, conf}
+
+# 新建配置文件,以配置文件方式启动
+D:\program\docker_data\redis_6379\conf\6379.conf
+'''
+port 6379
+logfile /log/redis_6379.log
+dbfilename redis_6379.rdb
+dir /data
+'''
+
+# 创建容器,设置端口映射,目录映射
+# 让容器的时钟与宿主机时钟同步
+# 开机启动
+# 以配置文件方式启动
+docker run -id -p 6379:6379 --name=redis_6379 -v D:\program\docker_data\redis_6379\conf\6379.conf:/etc/redis/redis.conf -v D:\program\docker_data\redis_6379\data:/data -v D:\program\docker_data\redis_6379\log:/log redis redis-server /etc/redis/redis.conf
 ```

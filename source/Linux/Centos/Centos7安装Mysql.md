@@ -213,3 +213,19 @@ systemctl start mysqld_5.1.173.service
 # 测试登录
 /app/mysql5.1.73/bin/mysql -u root -p
 ```
+
+cat > /etc/systemd/system/mysqld8.service <<EOF
+[Unit]
+Description=MySQL Server
+Documentation=man:mysqld(8)
+Documentation=http://dev.mysql.com/doc/refman/en/using-systemd.html
+After=network.target
+After=syslog.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+User=mysql
+Group=mysql
+ExecStart=/app/mysql/bin/mysqld --defaults-file=/etc/mysql.cnf
+LimitNOFILE = 5000
+EOF

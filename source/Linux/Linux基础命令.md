@@ -134,60 +134,7 @@ rm *log
 
 ### rmdir: 删除空目录
 
-### ln: 硬连接和软连接
-
-```shell
-# 无参数,创建硬链接
-# -s 创建软链接(符号链接)
-ln 源文件 目标文件
-# 软链接相当于快捷方式,硬链接相当于复制一份
-```
-
 ### readlink: 查看符号链接文件的内容
-
-### find: 查找文件
-
-```shell
-# 查看当前目录下文件个数
-find ./ | wc -l
-16649
-
-# -o or
-# 查找txt和pdf文件
-find . \( -name "*.txt" -o -name "*.pdf" \) -print
-
-# 查找所有非txt文本
-find . ! -name "*.txt" -print
-
-# -type 文件类型 f代表文件 d代表文件夹 l代表链接
-# -maxdepth levels 查找级数
-find . -maxdepth 1 -type f
-
-# -atime 访问时间,单位是天.分钟单位则是-amin
-# -ctime 变化时间,元数据或权限变化
-# -mtime [-n|+n|n] 通过文件修改时间
-# 查询7天前被访问过的所有文件
-find . -atime +7 -type f -print
-
-# 寻找大于2k的文件
-find . -type f -size +2k
-
-# 查询具有可执行权限的所有文件
-find . -type f -perm 644 -print
-
-# 用户weber所拥有的文件
-find . -type f -user weber -print
-
-# 找到之后删除当前目录下所有的swp文件
-find . -type f -name "*.swp" -delete
-
-# {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
-# 将找到的文件全都copy到另一个目录
-find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
-
-# 递归当前目录及子目录删除所有.ooo文件
-find ./ -name "*.ooo" -exec rm {} \;
-```
 
 ### xargs: 将标准输入转换成命令行参数
 
@@ -700,18 +647,6 @@ alias ls='ls --color=auto'
 ```shell
 whereis ls
 ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz
-```
-
-### locate: 快速定位文件路径
-
-locate会为文件系统建立索引数据库,如果有文件更新,需要定期执行更新命令来更新索引库
-
-```shell
-# 寻找包含有string的路径
-locate string
-
-# 更新数据库
-updatedb
 ```
 
 ### updatedb: 更新mlocate数据库
@@ -1378,7 +1313,7 @@ cat /etc/hosts
 # vim /etc/rc.local
 # 文件中的内容会在系统启动后加载, 必须是命令
 systemctl start sshd
-
+# centos7需要权限
 chmod +x /etc/rc.d/rc.local
 ```
 
@@ -1525,6 +1460,19 @@ yum clean all
 
 # 历史
 yum history
+
+# 查找命令属于哪个大礼包
+yum provides locate
+```
+
+删除软件
+
+```shell
+# 不推荐
+# yum erase 软件
+
+# 推荐
+# rpm -e 软件 --nodeps
 ```
 
 日志文件保存目录
@@ -1588,6 +1536,7 @@ passwd
 
 # 修改指定用户密码
 # passwd 用户名
+# echo 123|passwd --stdin
 
 # su - 用户名 切换的同时将登录后的环境变量一并切换
 
@@ -1709,4 +1658,75 @@ mv ifcfg-ens33 ifcfg-eth0
 
 # 4.使系统重新加载grub配置文件
 grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+
+## 文件属性部分
+
+ln: 硬连接和软连接
+
+```shell
+# 无参数,创建硬链接
+# -s 创建软链接(符号链接)
+ln 源文件 目标文件
+# 软链接相当于快捷方式,硬链接相当于复制一份
+```
+
+locate: 快速定位文件路径
+
+locate会为文件系统建立索引数据库,如果有文件更新,需要定期执行更新命令来更新索引库
+
+```shell
+yum install -y mlocate-0.26-8.el7.x86_64
+
+# 更新数据库
+updatedb
+
+# 寻找包含有string的路径
+locate string
+```
+
+find: 查找文件
+
+```shell
+# find 找寻的路径范围 -type 类型信息 -name '文件名称'
+
+# 查看当前目录下文件个数
+find ./ | wc -l
+16649
+
+# -o or
+# 查找txt和pdf文件
+find . \( -name "*.txt" -o -name "*.pdf" \) -print
+
+# 查找所有非txt文本
+find . ! -name "*.txt" -print
+
+# -type 文件类型 f代表文件 d代表文件夹 l代表链接
+# -maxdepth levels 查找级数
+find . -maxdepth 1 -type f
+
+# -atime 访问时间,单位是天.分钟单位则是-amin
+# -ctime 变化时间,元数据或权限变化
+# -mtime [-n|+n|n] 通过文件修改时间
+# 查询7天前被访问过的所有文件
+find . -atime +7 -type f -print
+
+# 寻找大于2k的文件
+find . -type f -size +2k
+
+# 查询具有可执行权限的所有文件
+find . -type f -perm 644 -print
+
+# 用户weber所拥有的文件
+find . -type f -user weber -print
+
+# 找到之后删除当前目录下所有的swp文件
+find . -type f -name "*.swp" -delete
+
+# {}是一个特殊的字符串,对于每一个匹配的文件,{}会被替换成相应的文件名
+# 将找到的文件全都copy到另一个目录
+find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD \;
+
+# 递归当前目录及子目录删除所有.ooo文件
+find ./ -name "*.ooo" -exec rm {} \;
 ```
