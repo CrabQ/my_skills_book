@@ -1210,7 +1210,7 @@ centos6: route 和网络相关的命令使用net-tools
 静态默认路由:
   编写网卡配置文件
   利用命令临时配置
-route add default gw 10.0.0.2(网光地址)
+route add default gw 10.0.0.2(网关地址)
 route del default gw 10.0.0.2
 作用: 实现主机访问外网, 用于测试新的网关地址
 
@@ -1237,6 +1237,9 @@ ip route del -net 10.0.3.0 netmask 255.255.255.0 via 10.0.1.2
 静态主机路由:
 ip route add -host 10.0.3.301 via 10.0.1.2
 ip route del -host 10.0.3.301 via 10.0.1.2
+
+# 网卡添加ip地址
+ip addr add 10.0.0.100/24 dev eth0
 ```
 
 ### netstat: 查看网络状态
@@ -1407,4 +1410,50 @@ htpasswd -bc ./htpasswd crab02 123456
 ```shell
 # 添加认证信息
 curl 127.0.0.1 -u crab02:123456
+
+# 查询外网IP信息
+curl cip.cc
+```
+
+### ab
+
+```shell
+# 性能测试工具
+# -c 并发请求数
+# -n 总请求数
+yum install -y httpd-tools
+
+ab -c 2000 -n 4000 http://127.0.0.1/index.html
+```
+
+### uniq: 去除重复行
+
+```shell
+-c 去除重复行,并计算每行出现的次数
+```
+
+### tr:替换或删除字符
+
+```shell
+# 加解密转换,替换对应字符
+echo 12345 | tr '0-9' '9876543210'
+# 87654
+
+# -d 删除字符
+# 删除所有数字(对结果而言)
+cat result.txt |tr -d '0-9'
+```
+
+## bc
+
+```shell
+# 任意精度计算器
+echo '1+1'|bc
+```
+
+## 实践
+
+```shell
+# 统计nginxip访问量
+awk '{print $1}' /var/log/nginx/access.log|uniq -c
 ```
