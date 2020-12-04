@@ -37,9 +37,15 @@ git add
 git commit -m 'first commit'
 
 git log --graph
+# 查看具体改动
+git log -p
+# 查看最近一次
+git log -l
 
-# 查看difference
+# 默认对比工作目录和暂存区不同
 git diff README.md
+# 对比暂存区和本地仓库
+git diff --cached
 
 # 撤销还没有add进暂存区的文件改动
 git checkout a.md
@@ -61,10 +67,10 @@ git reset HEAD README.md
 
 # 删除文件
 git rm
-git commit
-
-# 恢复误删文件(只能恢复文件到最新版本,你会丢失最近一次提交后你修改的内容)
-git checkout -- README.md
+# 同时删除工作目录和暂存区文件
+git rm -f
+# 撤出暂存区
+git rm --cached
 
 # 暂存当前工作
 git stash
@@ -113,7 +119,7 @@ git branch -D dev
 # 推送分支dev
 git push origin dev
 
-# 本地已有分支设置关联并推送到远程分支(尚未创建的分支)
+# 本地已有分支设置关联并推送到远程分支
 git push --set-upstream origin dev
 
 # 基于远程分支创建本地分支,本地和远程分支的名称最好一致
