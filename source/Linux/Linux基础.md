@@ -649,6 +649,22 @@ sed '2d;5d' result.txt
 sed '/^$/d' a.txt
 sed -n '/^$/!p' a.txt
 sed -n '/./p' a.txt
+
+# 打印匹配行的下一行
+sed -n '/case/{n;p}' a.sh
+# 替换
+sed  '/case/{n;s/1/2/}' a.sh
+
+# -h 模式空间的内容重定向到暂存区
+# -H 追加
+# -g 取出暂存缓冲区的内容,复制到模式空间
+# -G 取出暂存缓冲区的内容,追加到模式空间
+
+# 最后一行替换为第一行
+sed '1h;$g' a.sh
+
+# 第一行删除,然后追加到最后一行
+sed -r '1{h;d};$G' a.sh
 ```
 
 ### awk: 数据流处理工具
@@ -772,9 +788,11 @@ Oct
 Oct
 Mar
 
-
 # 使用awk和chkconfig关闭不需要的开机自启服务
 chkconfig --list|grep 3:on|grep -vE "crond|sshd|network|rsyslog|stsstat|" | awk '{print "chkconfig " $1 " off"}'|bash
+
+# 修改读入和输出分隔符
+awk 'BEGIN(FS=":";OFS="--")
 ```
 
 ### 远程传输软件
@@ -1456,4 +1474,7 @@ echo '1+1'|bc
 ```shell
 # 统计nginxip访问量
 awk '{print $1}' /var/log/nginx/access.log|uniq -c
+
+# 统计各种类型的shell
+awk -F: '{array[$NF]++}END{for (i in array) print i,array[i]}' /etc/passwd
 ```
