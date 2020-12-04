@@ -179,59 +179,6 @@ Docker Compose是一个编排多容器分布式部署的工具,提供命令集�
 # 运行docker-compose up启动应用
 ```
 
-## Docker仓库
-
-### Docker Hub
-
-```shell
-# 登录登出
-docker login
-docker logout
-
-# 推送镜像
-docker push username/ubuntu:18.04
-```
-
-### 私有仓库搭建
-
-```shell
-# 拉取私有仓库
-docker pull registry
-
-#  创建私有仓库
-docker run -id --name=registry -p 5000:5000 registry
-# 仓库会被创建在容器的/var/lib/registry目录
-
-# 浏览器输入http://私有仓库地址ip:5000/v2/_catalog测试是否搭建成功
-# 信任私有仓库
-vim /etc/docker/daemon.json
-{"insecure-registries":["私有仓库服务器ip:5000"]}
-
-# 重启docker服务
-systemctl restart docker
-
-# 启动私有仓库
-docker start register
-```
-
-### 上传镜像至私有仓库
-
-```shell
-# 标记镜像为私有仓库的镜像
-# docker tag 镜像名称 私有仓库服务器ip:5000/镜像名称
-docker tag ubuntu:latest 127.0.0.1:5000/ubuntu:latest
-
-# 上传
-docker push 私有仓库服务器ip:5000/镜像名称
-```
-
-### 从私有仓库拉取镜像
-
-```shell
-# 拉取镜像
-docker pull 私有仓库服务器ip:5000/镜像名称
-```
-
 ## Docker网络
 
 ```shell
@@ -246,8 +193,51 @@ docker network create -d bridge my-net
 
 # 连接容器
 docker run -it --rm --name busybox1 --network my-net busybox sh
-docker run -it --rm --name busybox2 --network my-net busybox sh
+docker run -it --rm --name busybox2 --network my-net busybox2 sh
 
 # 测试连接
 ping busybox2
+```
+
+### docker跨主机访问
+
+macvlan
+
+```shell
+# 容器可跨主机, 不可上网
+docker network create --driver macvlan --subnet=10.0.0.0/24 --gateway=10.0.0.254 -o parent=eth0 macvlan_1
+
+docker run -it --network --ip=10.0.0.1 macvlan_1 centos:centos7 /bin/bash
+```
+
+overlay
+
+```shell
+# 容器可跨主机, 可上网
+# consul: kv类型数据库
+
+# 启动consul服务,实现网络统一配置管理
+docker run -d -p 8500:8500 -h consul --name consul progrium/consul -server -bootstrap
+
+# 修改配置
+# vim /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://thkvkd0a.mirror.aliyuncs.com"],
+  "insecure-registries":["127.0.0.1:5000"],
+  "live-restore":true,
+  "hosts":["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
+  "cluster-store":"consul://127.0.0.1:8500",
+  "cluster-advertise":"127.0.0.1:2376"
+}
+
+# 重启
+systemctl daemon-reload
+systemctl restart docker
+
+# 创建overlay网络
+docker network create -d overlay --subnet 172.16.0.0/24 --gateway 172.16.0.254 overlay_1
+
+# 启动容器测试
+docker run -it --network overlay_1 --name crab /bin/bash
+# 每个容器有两块网卡,eth0负责容器间通讯,eth1实现容器访问外网
 ```
