@@ -363,7 +363,7 @@ global_defs {
 vrrp_instance VI_1 {        # Vrrp协议家族
     state MASTER            # 表示所在家族中的身份(MASTER/BACKUP)
     interface eth0          # 指定虚拟IP地址出现在什么网卡上
-    virtual_router_id 51    # 表示家族身份信息, 多台高可用服务配置一直
+    virtual_router_id 51    # 表示家族身份信息, 多台高可用服务配置一致
     priority 100            # 优先级
     advert_int 1            # 组播包发送间隔
     authentication {        # 认证

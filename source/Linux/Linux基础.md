@@ -753,8 +753,7 @@ awk 'END {print NR}' result.txt
 8
 
 # 累加每一行的第一个字段
-echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;
-> print "begin";} {sum += $1;} END {print "=="; print sum }'
+echo -e "1\n 2\n 3\n 4\n" | awk 'BEGIN{num = 0 ;print "begin";} {sum += $1;} END {print "=="; print sum }'
 begin
 ==
 10

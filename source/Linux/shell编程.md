@@ -12,8 +12,6 @@ echo $(whoami) # root
 
 echo `whoami` # root
 
-a=1000
-
 # ${变量名}取值, {}可忽略
 echo '$a的值'${a} # $a的值1000
 
