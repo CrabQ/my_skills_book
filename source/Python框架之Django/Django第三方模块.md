@@ -55,7 +55,7 @@ CORS_ALLOW_HEADERS = (
 )
 ```
 
-## django-cors-headers
+## xadmin
 
 安装
 

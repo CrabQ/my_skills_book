@@ -55,9 +55,6 @@ auth pwd
 # 获取客户端连接信息列表
 client list
 
-# 获取上次保存在磁盘的时间
-last save
-
 # 获取配置参数
 config get dir
 

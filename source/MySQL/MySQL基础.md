@@ -637,7 +637,7 @@ Replication: Group Commit, GTID (Global Transaction ID), 多线程(Multi-Threads
 ### 存储引擎查看
 
 ```sql
-show engine;
+show engines;
 
 SELECT @@default_storage_engine;
 
@@ -784,7 +784,7 @@ DCL(grant, revoke, set password)
 ```
 
 ```shell
-select @@tx_isolation;
+select @@transaction_isolation;
 
 RU: 读未提交(read uncommitted), 别的事物可以读取到未提交改变, 可能会出现脏读, 非重复读, 幻读
 RC: 读已提交(read committed), 只能读取已经提交的数据, 可防止脏读, 可能会出现非重复读, 幻读

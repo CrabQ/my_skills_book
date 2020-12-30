@@ -49,7 +49,7 @@ from django.urls import path, include
 
 urlpatterns = [
     # url分发,每个应用创建自己的urls
-    path(r'app1/', include('app01.urls')),
+    path('app1/', include('app01.urls')),
 ]
 ```
 
@@ -63,8 +63,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path(r'articles/', views.articles),
-    path(r'articles/<int:id>/', views.articles),
+    path('articles/', views.articles),
+    path('articles/<int:id>/', views.articles),
 ]
 
 # views.py
@@ -104,7 +104,7 @@ reverse("articles", args=('2020', '9'))
 
 ```python
 # 路由分发时加上命名空间
-path(r'app1/', include('app01.urls', namespace='app01')),
+path('app1/', include('app01.urls', namespace='app01')),
 
 # 模板引用时加上命名空间避免冲突
 {% url 'app01:articles' 2020 9 %}
