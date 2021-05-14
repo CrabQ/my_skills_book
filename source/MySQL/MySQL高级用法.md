@@ -300,3 +300,10 @@ select *, dense_rank() over (partition by cid order by score desc) as 排名 fro
 -- dense_rank() 1 2 2 3
 -- rank() 1 2 2 4
 ```
+
+### 字符串操作
+
+```sql
+-- 字符截断
+substr(_as_belong_time, 1,6)
+```

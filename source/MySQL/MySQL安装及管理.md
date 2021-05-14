@@ -53,11 +53,20 @@ D:\program\program_database\mysql-8.0.13-winx64\bin
 mysqld --console
 
 # 删除自己手动创建的data文件夹
+net stop mysql
 mysqld -remove
 # 自动创建了data文件夹以及相关的文件
 mysqld --initialize-insecure
 mysqld install
 net start mysql
+mysql -u root -p -h 127.0.0.1
+alter user root@'localhost' identified by 'root';
+set password for root@localhost = password('root');
+create database lis2018 charset='utf8';
+use lis2018
+create table user(username varchar(18)) charset='utf8';
+insert user values('小明');
+insert user values('lsdjg');
 ```
 
 ### Centos7安装mysql-5.7.26

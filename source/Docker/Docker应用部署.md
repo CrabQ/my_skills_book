@@ -336,17 +336,18 @@ docker exec -it redis_cluster_7010 redis-cli -p 7010 cluster nodes
 docker exec -it redis_cluster_7010 redis-cli -p 7010 --cluster create  127.0.0.1:7010 127.0.0.1:7011 127.0.0.1:7012 127.0.0.1:7013 127.0.0.1:7014 127.0.0.1:7015 --cluster-replicas 1
 ```
 
-## Centos8下contos6部署
+## Centos7下contos7部署
 
 ```shell
-docker run -id \
---name=centos6 \
--v /data/docker/centos6:/data \
--v /etc/localtime:/etc/localtime:ro \
-centos:6
+# --privileged=true 要加入特权
+docker run -id --name=c2 --privileged=true centos:centos7
+
+docker run -id --name=c3 --privileged=true  centos:centos7
+docker run -id --name=jasper --privileged=true  centos:centos7
+docker run -id --name=c5 --privileged=true -p 10005:22 centos:centos7
 
 # 进入环境
-docker exec -it centos6 /bin/bash
+docker exec -it c2 /bin/bash
 ```
 
 ## windows 10下Python部署

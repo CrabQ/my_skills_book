@@ -216,7 +216,7 @@ ssh -T git@github.com
 # 3. 设置用户名与邮箱
 
 git config --global user.name "CrabQ"
-git config --global user.email "195701@163.com"
+git config --global user.email "18819427501@163.com"
 
 # 4. 关联远程仓库
 

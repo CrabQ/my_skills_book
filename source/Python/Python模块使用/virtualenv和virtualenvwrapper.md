@@ -16,7 +16,7 @@ mkdir myproject
 cd myproject/
 
 # 创建一个独立的Python运行环境，命名为spider_env
-myproject $ virtualenv spider_env --no-site-packages
+myproject $ virtualenv jasper --no-site-packages --python=3.6.8
 
 # 切换环境
 myproject $ source spider_env/bin/activate

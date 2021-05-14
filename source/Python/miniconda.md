@@ -4,7 +4,7 @@
 
 ```shell
 # 创建环境
-conda create -n py36 python=3.6.8
+conda create -n jasper python=3.6.8
 
 # 查看环境列表
 conda info -e
@@ -20,8 +20,8 @@ source activate py36
 conda deactivate
 
 # 删除环境
-conda remove -n py36 --all
-conda env remove -n py36
+conda remove -n jasper_1 --all
+conda env remove -n qyqt5
 
 # 安装包
 conda install requests

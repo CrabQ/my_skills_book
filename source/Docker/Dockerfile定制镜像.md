@@ -110,9 +110,42 @@ ENTRYPOINT [ "curl", "-s", "https://ip.cn" ]
 ```shell
 # 构建镜像, Dockerfile所在目录,
 docker build -t 名称:标签 .
+docker build -t jasper:v7 .
 # .表示上下文路径
 
 docker build http://server/context.tar.gz
 # Docker引擎会下载这个包并自动解压缩.以其作为上下文开始构建
 
+```
+
+## jasper
+
+tar -zcvf pyreportjasper.tar.gz ./pyreportjasper
+
+```yml
+FROM centos/python-36-centos7:latest
+
+USER root
+
+COPY . /app
+
+RUN cd /app/resource/ && tar -zxf ./jdk-15.0.2_linux-x64_bin.tar.gz  \
+&& echo '/app/resource/jdk-15.0.2/bin' >> /etc/environment   \
+&& echo 'JAVA_HOME="/app/resource/jdk-15.0.2"' >> /etc/environment
+
+ENV JAVA_HOME /app/resource/jdk-15.0.2
+RUN export JAVA_HOME
+
+RUN pip3 install JPype1 \
+&& tar -zxf /app/resource/pyreportjasper.tar.gz  \
+&& cd /app/resource/pyreportjasper \
+&& python setup.py build \
+&& python setup.py install
+
+WORKDIR /app/reports
+
+ENV PYTHONPATH=/app:/app/reports/
+ENV PYTHONUNBUFFERED=1
+
+CMD ["/bin/bash"]
 ```

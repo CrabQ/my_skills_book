@@ -56,7 +56,7 @@ innodb
 -- 用户 用户名@'白名单'
 
 -- 新建用户
-create user crab@'10.0.0.%' identified by '123';
+grant all on *.* test@'%' identified by 'test';
 
 -- 8.0之前, 同时新建和授权
 grant all on *.* to crab@'10.0.0.%' identified by '123';
