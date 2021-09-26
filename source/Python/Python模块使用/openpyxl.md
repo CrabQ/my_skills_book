@@ -11,7 +11,7 @@ book = openpyxl.Workbook()
 # 新建表
 sheet = self.book.create_sheet(sheet_name)
 # 删除默认表
-self.book.remove_sheet(self.book.get_sheet_by_name('Sheet'))
+self.workbook.remove(self.workbook['Sheet'])
 # 保存
 self.book.save('a.xlsx')
 ```
@@ -36,6 +36,12 @@ sheet.['a1'].fill = PatternFill("solid", fgColor="FFFF00")
 
 # 合并单元格
 sheet.merge_cells('a6:f6')
+
+# 设置列宽
+import string
+s = workbook.create_sheet('a')
+for i in string.ascii_lowercase:
+    s.column_dimensions[i].width = 20
 ```
 
 ## 追加写入Excel
@@ -69,4 +75,20 @@ def save_result_to_excel(data:dict, excel_name):
             sheet.cell(row=max_row+1, column=i+1).value = list(data.values())[i][0]
     # 最后保存
     wb.save(excel_name)
+```
+
+## 删除行
+
+```python
+import openpyxl
+wb = openpyxl.load_workbook(filename='xxxxxx.xlsx')
+ws = wb.active
+# 通过迭代删除
+for row in ws.iter_rows():
+    if not row[0].value:
+        continue
+    if row[0].value % 5 == 0:
+        ws.delete_rows(row[0].row)
+wb.save(filename='yyyyyyy.xlsx')
+wb.close()
 ```

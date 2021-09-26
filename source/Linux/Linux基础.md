@@ -1209,6 +1209,7 @@ scp -rp ./testc root@121.196.202.188:/tmp
 # scp -r ID@site:path localpath
 # 相同文件会覆盖
 scp -rp cnda@192.168.9.122:/home/cnda/new /home/cnda/12new
+scp -rp bmnars@192.168.8.4:/home/bmnars/full_backup.sql /home/gene128/8.4_bak/
 ```
 
 ### dig: 域名查询工具
@@ -1299,6 +1300,11 @@ UseDNS no # 是否开启反向DNS解析功能
 # 端口 22
 # root可以远程
 ssh -p 22 root@127.0.0.1
+ssh -p 22 seq228@218.107.10.238
+
+ssh -v -l pi seq228@218.107.10.238
+
+vK3yfsD6
 ```
 
 ssh实现基于秘钥链接的部署步骤

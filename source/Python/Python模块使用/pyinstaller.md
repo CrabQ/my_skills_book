@@ -6,7 +6,6 @@
 -c 使用控制台
 -w 使用窗口
 
-pyinstaller -F -c start.py
 pyinstaller -D -w start.py
 ```
 
